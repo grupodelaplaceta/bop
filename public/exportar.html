@@ -14,6 +14,18 @@
       <h1>Boletín Oficial de La Placeta</h1>
       <span>Exportación PDF</span>
     </div>
+    <div class="buscador-global" role="search">
+      <span class="sg-icono">🔍</span>
+      <input type="search" id="buscadorGlobalInput" placeholder="Buscar normativa…" autocomplete="off" aria-label="Buscar normativa">
+      <div class="buscador-global-dropdown" id="buscadorGlobalResultados" hidden></div>
+    </div>
+    <button type="button" class="menu-toggle" id="menuToggle" aria-label="Abrir menú" aria-expanded="false">☰</button>
+    <nav id="navPrincipal">
+      <a href="index.html">Inicio</a>
+      <a href="normativa.html">Normativa</a>
+      <a href="cnic.html">CNIC</a>
+      <a href="editar.html">Editar</a>
+    </nav>
   </header>
 
   <main class="container" id="cuerpo">
@@ -25,6 +37,7 @@
   <script src="js/datos-migrados.js"></script>
   <script src="js/markdown.js"></script>
   <script src="js/bop.js"></script>
+  <script src="js/bop-nav.js"></script>
   <!-- Impresión por navegador: sin dependencias externas -->
   <script>
     document.addEventListener('DOMContentLoaded', async () => {

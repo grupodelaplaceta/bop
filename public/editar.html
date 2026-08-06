@@ -14,7 +14,13 @@
       <h1>Boletín Oficial de La Placeta</h1>
       <span>Edición de normativa (RSP)</span>
     </div>
-    <nav>
+    <div class="buscador-global" role="search">
+      <span class="sg-icono">🔍</span>
+      <input type="search" id="buscadorGlobalInput" placeholder="Buscar normativa…" autocomplete="off" aria-label="Buscar normativa">
+      <div class="buscador-global-dropdown" id="buscadorGlobalResultados" hidden></div>
+    </div>
+    <button type="button" class="menu-toggle" id="menuToggle" aria-label="Abrir menú" aria-expanded="false">☰</button>
+    <nav id="navPrincipal">
       <a href="index.html">Inicio</a>
       <a href="normativa.html">Normativa</a>
       <a href="cnic.html">CNIC</a>
@@ -101,8 +107,30 @@
       </div>
 
       <div class="form-grupo">
-        <label>Contenido (Markdown)</label>
-        <textarea id="fContenido" class="textarea" placeholder="# Art. X — Título&#10;&#10;Contenido de la norma…"></textarea>
+        <label>Contenido (editor visual)</label>
+        <div class="editor-toolbar" role="toolbar" aria-label="Herramientas de edición">
+          <button type="button" class="et-btn" data-cmd="undo" title="Deshacer">↶</button>
+          <button type="button" class="et-btn" data-cmd="redo" title="Rehacer">↷</button>
+          <span class="et-sep"></span>
+          <button type="button" class="et-btn" data-cmd="h2" title="Título (H2)">H2</button>
+          <button type="button" class="et-btn" data-cmd="h3" title="Subapartado (H3)">H3</button>
+          <span class="et-sep"></span>
+          <button type="button" class="et-btn" data-cmd="bold" title="Negrita"><b>B</b></button>
+          <button type="button" class="et-btn" data-cmd="italic" title="Cursiva"><i>I</i></button>
+          <button type="button" class="et-btn" data-cmd="underline" title="Subrayado"><u>U</u></button>
+          <button type="button" class="et-btn" data-cmd="code" title="Código inline">&lt;/&gt;</button>
+          <button type="button" class="et-btn" data-cmd="link" title="Enlace">🔗</button>
+          <span class="et-sep"></span>
+          <button type="button" class="et-btn" data-cmd="ul" title="Lista con viñetas">• Lista</button>
+          <button type="button" class="et-btn" data-cmd="ol" title="Lista numerada">1. Lista</button>
+          <button type="button" class="et-btn" data-cmd="blockquote" title="Cita">❝</button>
+          <button type="button" class="et-btn" data-cmd="hr" title="Línea separadora">―</button>
+          <button type="button" class="et-btn" data-cmd="table" title="Insertar tabla">▦ Tabla</button>
+          <span class="et-sep"></span>
+          <button type="button" class="et-btn" id="btnModo" title="Alternar entre vista visual y fuente">👁 Fuente</button>
+        </div>
+        <div class="editor-visual" id="editorVisual" contenteditable="true" data-placeholder="# Art. X — Título&#10;&#10;Escribe o pega el contenido de la norma… (se guarda en Markdown)"></div>
+        <textarea id="fContenido" class="textarea editor-modo fuente oculto" placeholder="# Art. X — Título&#10;&#10;Contenido de la norma…"></textarea>
       </div>
 
       <div class="flex">
@@ -122,7 +150,110 @@
   <script src="js/datos-migrados.js"></script>
   <script src="js/markdown.js"></script>
   <script src="js/bop.js"></script>
+  <script src="js/bop-nav.js"></script>
   <script>
+    /* ── Editor visual (WYSIWYG) ─────────────────────────────────────── */
+    const ET = {
+      vis: null,
+      src: null,
+      modo: 'visual',
+
+      init() {
+        this.vis = document.getElementById('editorVisual');
+        this.src = document.getElementById('fContenido');
+        if (!this.vis || !this.src) return;
+
+        // Barra de herramientas
+        document.querySelectorAll('.et-btn[data-cmd]').forEach(b =>
+          b.addEventListener('click', () => this.ejecutar(b.dataset.cmd)));
+
+        // Sincronizar markdown al editar en visual
+        this.vis.addEventListener('input', () => {
+          this.src.value = bopHtmlAMarkdown(this.vis.innerHTML);
+        });
+
+        // Pegado: pegar solo texto (sin estilos externos)
+        this.vis.addEventListener('paste', (e) => {
+          e.preventDefault();
+          const texto = (e.clipboardData || window.clipboardData).getData('text/plain');
+          document.execCommand('insertText', false, texto);
+        });
+
+        document.getElementById('btnModo').addEventListener('click', () => this.toggleModo());
+      },
+
+      ejecutar(cmd) {
+        this.vis.focus();
+        switch (cmd) {
+          case 'h2': document.execCommand('formatBlock', false, 'H2'); break;
+          case 'h3': document.execCommand('formatBlock', false, 'H3'); break;
+          case 'bold': document.execCommand('bold'); break;
+          case 'italic': document.execCommand('italic'); break;
+          case 'underline': document.execCommand('underline'); break;
+          case 'ul': document.execCommand('insertUnorderedList'); break;
+          case 'ol': document.execCommand('insertOrderedList'); break;
+          case 'blockquote': document.execCommand('formatBlock', false, 'BLOCKQUOTE'); break;
+          case 'hr': document.execCommand('insertHorizontalRule'); break;
+          case 'code': this.insertarAcentos('`', '`'); break;
+          case 'link': {
+            const url = prompt('URL del enlace:', 'https://');
+            if (url) document.execCommand('createLink', false, url);
+            break;
+          }
+          case 'table': document.execCommand('insertHTML', false,
+            '<table><thead><tr><th>Encabezado</th><th>Encabezado</th></tr></thead><tbody><tr><td>Celda</td><td>Celda</td></tr></tbody></table><br>'); break;
+          case 'undo': document.execCommand('undo'); break;
+          case 'redo': document.execCommand('redo'); break;
+          default: return;
+        }
+        this.src.value = bopHtmlAMarkdown(this.vis.innerHTML);
+      },
+
+      insertarAcentos(antes, despues) {
+        const sel = window.getSelection();
+        if (!sel.rangeCount) return;
+        const r = sel.getRangeAt(0);
+        const texto = sel.toString();
+        const nodo = document.createTextNode(antes + texto + despues);
+        r.deleteContents();
+        r.insertNode(nodo);
+        const r2 = document.createRange();
+        r2.setStartAfter(nodo);
+        r2.collapse(true);
+        sel.removeAllRanges();
+        sel.addRange(r2);
+        this.vis.focus();
+      },
+
+      cargarMarkdown(md) {
+        this.src.value = md || '';
+        this.modo = 'visual';
+        this.aplicarModoVisual();
+        this.vis.innerHTML = (md && String(md).trim()) ? bopRenderMarkdown(md) : '';
+      },
+
+      toggleModo() {
+        this.modo = this.modo === 'visual' ? 'fuente' : 'visual';
+        this.aplicarModoVisual();
+      },
+
+      aplicarModoVisual() {
+        const btn = document.getElementById('btnModo');
+        if (this.modo === 'fuente') {
+          this.vis.classList.add('oculto');
+          this.src.classList.remove('oculto');
+          btn.textContent = '🖌 Visual';
+        } else {
+          // Al volver a visual, re-renderiza el markdown editado en fuente
+          this.vis.innerHTML = (this.src.value && String(this.src.value).trim())
+            ? bopRenderMarkdown(this.src.value) : '';
+          this.vis.classList.remove('oculto');
+          this.src.classList.add('oculto');
+          btn.textContent = '👁 Fuente';
+        }
+      }
+    };
+
     async function cargarDocs() {
       await BOP.init();
       const sel = document.getElementById('selDoc');
@@ -144,15 +275,16 @@
       document.getElementById('fFechaJunta').value = (d.fecha_aprobacion_junta || '').slice(0,10);
       document.getElementById('fAprobadaJunta').checked = !!d.aprobada_en_junta;
       document.getElementById('fNotas').value = '';
-      document.getElementById('fContenido').value = d.contenido_md || '';
+      ET.cargarMarkdown(d.contenido_md || '');
     }
     function nuevoDoc() {
-      ['fCodigo','fTitulo','fNotas','fContenido'].forEach(id => document.getElementById(id).value='');
+      ['fCodigo','fTitulo','fNotas'].forEach(id => document.getElementById(id).value='');
       document.getElementById('fVersion').value = 1;
       document.getElementById('fTipo').value = 'cni';
       document.getElementById('fCategoria').value = 'capitulo';
       document.getElementById('fEstado').value = 'proyecto';
       document.getElementById('fAprobadaJunta').checked = false;
+      ET.cargarMarkdown('');
     }
     function previsualizar() {
       const p = document.getElementById('preview');
@@ -160,6 +292,7 @@
       document.getElementById('previewCuerpo').innerHTML =
         `<h1>${escapar(document.getElementById('fCodigo').value)} — ${escapar(document.getElementById('fTitulo').value)}</h1>` +
         bopRenderMarkdown(document.getElementById('fContenido').value);
+      p.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
     function guardarDoc(e) {
       e.preventDefault();
@@ -168,7 +301,7 @@
       alert('✅ En esta vista estática la edición queda en el navegador.\nEn producción, el RSP guarda la nueva versión y el historial en Supabase.');
       previsualizar();
     }
-    document.addEventListener('DOMContentLoaded', cargarDocs);
+    document.addEventListener('DOMContentLoaded', () => { ET.init(); cargarDocs(); });
   </script>
 </body>
 </html>

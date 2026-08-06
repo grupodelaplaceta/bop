@@ -119,6 +119,60 @@ function bopRenderMarkdown(md) {
   return html;
 }
 
+/** Convierte HTML (producido por bopRenderMarkdown o el editor visual) a markdown. */
+function bopHtmlAMarkdown(html) {
+  if (!html) return '';
+  const doc = new DOMParser().parseFromString(String(html), 'text/html');
+  const cuerpo = doc.body;
+
+  function recorrer(nodo) {
+    if (nodo.nodeType === Node.TEXT_NODE) return nodo.textContent;
+    if (nodo.nodeType !== Node.ELEMENT_NODE) return '';
+    const nom = nodo.nodeName.toLowerCase();
+    const hijos = Array.from(nodo.childNodes).map(recorrer).join('');
+    switch (nom) {
+      case 'h1': case 'h2': case 'h3': case 'h4': case 'h5': case 'h6':
+        return `\n\n${'#'.repeat(Number(nom[1]))} ${hijos.trim()}\n`;
+      case 'p': return `\n\n${hijos.trim()}\n`;
+      case 'div': return `\n${hijos}\n`;
+      case 'strong': case 'b': return `**${hijos}**`;
+      case 'em': case 'i': return `*${hijos}*`;
+      case 'code': {
+        const txt = `\`${hijos}\``;
+        return txt;
+      }
+      case 'a': {
+        const href = nodo.getAttribute('href') || '';
+        return href ? `[${hijos}](${href})` : hijos;
+      }
+      case 'br': return '\n';
+      case 'hr': return `\n\n---\n`;
+      case 'ul':
+        return `\n${Array.from(nodo.children).map(li => `- ${recorrer(li).trim()}`).join('\n')}\n`;
+      case 'ol':
+        return `\n${Array.from(nodo.children).map((li, i) => `${i + 1}. ${recorrer(li).trim()}`).join('\n')}\n`;
+      case 'li': return hijos;
+      case 'blockquote':
+        return `\n\n> ${hijos.trim().split('\n').join('\n> ')}\n`;
+      case 'table': {
+        const trs = Array.from(nodo.querySelectorAll('tr'));
+        if (!trs.length) return '';
+        const filas = trs.map(tr => {
+          const celdas = Array.from(tr.children).map(c => recorrer(c).trim().replace(/\s*\n\s*/g, ' '));
+          return `| ${celdas.join(' | ')} |`;
+        });
+        const numCols = trs[0] ? trs[0].children.length : 2;
+        filas.splice(1, 0, `| ${Array(Math.max(numCols, 1)).fill('---').join(' | ')} |`);
+        return `\n\n${filas.join('\n')}\n`;
+      }
+      case 'th': case 'td': return hijos;
+      default: return hijos;
+    }
+  }
+
+  return recorrer(cuerpo).replace(/\n{3,}/g, '\n\n').trim();
+}
+
 /** Devuelve un texto plano legible (sin símbolos markdown) para previews. */
 function bopPlano(md, max) {
   if (!md) return '';
@@ -145,7 +199,8 @@ if (typeof window !== 'undefined') {
   window.bopPlano = bopPlano;
   window.bopInline = bopInline;
   window.bopEscapeHtml = bopEscapeHtml;
+  window.bopHtmlAMarkdown = bopHtmlAMarkdown;
 }
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { bopRenderMarkdown, bopPlano, bopInline, bopEscapeHtml };
+  module.exports = { bopRenderMarkdown, bopPlano, bopInline, bopEscapeHtml, bopHtmlAMarkdown };
 }
