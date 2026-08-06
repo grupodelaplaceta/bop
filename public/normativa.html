@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Normativa — BOP</title>
+  <link rel="icon" type="image/png" href="img/favibop.png">
+  <link rel="stylesheet" href="css/bop.css">
+</head>
+<body>
+  <header class="bop-header">
+    <img class="logo" src="img/boplogo.png" alt="BOP">
+    <div class="marca">
+      <h1>Boletín Oficial de La Placeta</h1>
+      <span>Normativa del Grupo de La Placeta</span>
+    </div>
+    <nav>
+      <a href="index.html">Inicio</a>
+      <a href="normativa.html" class="activo">Normativa</a>
+      <a href="cnic.html">CNIC</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <div class="flex mb-16">
+      <input type="text" id="buscador" class="input" placeholder="🔍 Buscar por código, título o contenido…" oninput="filtrar()" style="flex:1">
+      <select id="filtroTipo" class="select" style="max-width:180px" onchange="filtrar()">
+        <option value="">Todos los tipos</option>
+        <option value="estatuto">Estatutos</option>
+        <option value="cni">CNI</option>
+      </select>
+      <select id="filtroEstado" class="select" style="max-width:180px" onchange="filtrar()">
+        <option value="">Todos los estados</option>
+        <option value="vigente">Vigente</option>
+        <option value="derogado">Derogado</option>
+        <option value="proyecto">Proyecto</option>
+        <option value="enmienda">Enmienda</option>
+      </select>
+    </div>
+    <div id="lista" class="cargando">Cargando normativa…</div>
+    <p id="sinResultados" class="oculto aviso aviso-info">Sin resultados.</p>
+  </main>
+
+  <footer class="bop-footer">Boletín Oficial de La Placeta · Grupo de La Placeta</footer>
+
+  <script src="js/datos-migrados.js"></script>
+  <script src="js/markdown.js"></script>
+  <script src="js/bop.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      await BOP.init();
+      window.__docs = BOP._docs;
+      filtrar();
+    });
+
+    function filtrar() {
+      const q = document.getElementById('buscador').value;
+      const tipo = document.getElementById('filtroTipo').value;
+      const estado = document.getElementById('filtroEstado').value;
+      let docs = window.__docs || [];
+      if (tipo) docs = docs.filter(d => d.tipo === tipo);
+      if (estado) docs = docs.filter(d => d.estado === estado);
+      if (q) docs = BOP.buscar(q).docs.filter(d => docs.some(x => x.codigo === d.codigo));
+      const lista = document.getElementById('lista');
+      lista.className = '';
+      lista.innerHTML = docs.length ? docs.map(cardDocumento).join('') : '';
+      document.getElementById('sinResultados').classList.toggle('oculto', docs.length > 0);
+    }
+  </script>
+</body>
+</html>

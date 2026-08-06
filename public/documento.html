@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Documento — BOP</title>
+  <link rel="icon" type="image/png" href="img/favibop.png">
+  <link rel="stylesheet" href="css/bop.css">
+</head>
+<body>
+  <header class="bop-header">
+    <img class="logo" src="img/boplogo.png" alt="BOP">
+    <div class="marca">
+      <h1>Boletín Oficial de La Placeta</h1>
+      <span>Documento normativo</span>
+    </div>
+    <nav>
+      <a href="index.html">Inicio</a>
+      <a href="normativa.html">Normativa</a>
+      <a href="cnic.html">CNIC</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <div id="contenido" class="cargando">Cargando documento…</div>
+  </main>
+
+  <footer class="bop-footer">Boletín Oficial de La Placeta · Grupo de La Placeta</footer>
+
+  <script src="js/datos-migrados.js"></script>
+  <script src="js/markdown.js"></script>
+  <script src="js/bop.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      await BOP.init();
+      const params = new URLSearchParams(location.search);
+      const codigo = (params.get('codigo') || '').toUpperCase();
+      const d = BOP.getDocumento(codigo);
+      const cont = document.getElementById('contenido');
+      if (!d) {
+        cont.className = '';
+        cont.innerHTML = '<div class="aviso aviso-error">Documento no encontrado.</div>';
+        return;
+      }
+
+      // CNIC referenciados
+      const refs = (d.cnic_refs || []).map(r => {
+        const c = BOP.getCnicPorCodigo(r.codigo);
+        return c ? `<a href="cnic.html?codigo=${encodeURIComponent(c.codigo)}" class="badge badge-cnic" style="text-decoration:none">${escapar(c.codigo)} · ${escapar(c.etiqueta)}</a>` : '';
+      }).filter(Boolean).join(' ');
+
+      cont.className = '';
+      cont.innerHTML = `
+        <div class="flex flex-wrap mb-16">
+          <button class="btn btn-secundario" onclick="history.back()">← Volver</button>
+          <button class="btn btn-primario" onclick="exportarPdf('${encodeURIComponent(d.codigo)}')">⬇️ Exportar PDF</button>
+        </div>
+        <div class="aviso aviso-info">
+          ${badgeTipo(d.tipo)} ${badgeEstado(d.estado)}
+          <span style="margin-left:8px">Aplicación: <strong>${fechaLegible(d.fecha_aplicacion)}</strong></span>
+          ${d.fecha_propuesta ? `<span style="margin-left:8px">Propuesta: ${fechaLegible(d.fecha_propuesta)}</span>` : ''}
+          ${d.fecha_aprobacion_junta ? `<span style="margin-left:8px">Aprobada en Junta: ${fechaLegible(d.fecha_aprobacion_junta)}</span>` : ''}
+          ${d.version ? `<span style="margin-left:8px">Versión: ${d.version}</span>` : ''}
+        </div>
+        <div class="documento">
+          <h1>${escapar(d.codigo)} — ${escapar(d.titulo)}</h1>
+          ${refs ? `<div class="flex flex-wrap" style="margin:10px 0">${refs}</div>` : ''}
+          ${bopRenderMarkdown(d.contenido_md)}
+        </div>
+        <div class="seccion mt-16" id="seccion-historial">
+          <div class="seccion-titulo">🕘 Historial de versiones</div>
+          <div id="historial">Cargando historial…</div>
+        </div>
+      `;
+      renderHistorial(d);
+    });
+
+    function renderHistorial(d) {
+      const el = document.getElementById('historial');
+      const vers = (d.historial_versiones || []).slice().sort((a, b) => b.version - a.version);
+      if (vers.length === 0) {
+        el.innerHTML = `<div class="version-item"><span class="num">v${d.version || 1}</span><div class="detalle">Versión actual · ${escapar(d.notas_cambio || 'Sin notas.')}<div class="meta">${d.autor_nombre || d.autor_dip || '—'}</div></div></div>`;
+        return;
+      }
+      el.innerHTML = vers.map(v => `
+        <div class="version-item">
+          <span class="num">v${v.version}</span>
+          <div class="detalle">
+            ${escapar(v.notas_cambio || 'Actualización de la normativa.')}
+            <div class="meta">${v.autor_nombre || v.autor_dip || '—'} · ${fechaLegible(v.creado_en || v.fecha_aprobacion_junta || v.fecha_propuesta)}</div>
+          </div>
+        </div>`).join('');
+    }
+
+    function exportarPdf(codigoEnc) {
+      window.open('exportar.html?codigo=' + codigoEnc, '_blank');
+    }
+  </script>
+</body>
+</html>

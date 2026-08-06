@@ -104,13 +104,13 @@ create policy "bop_lectura_publica_cnic" on public.bop_cnic
 -- omite RLS. Para clientes anónimos NO se habilitan políticas de escritura.
 
 -- ── Seed: estructura inicial (CNI Capítulo IV y CNIC de ejemplo) ─────────
-insert into public.bop_documentos (codigo, titulo, tipo, categoria, estado, contenido_md, version, fecha_aplicacion, aprobada_en_junta, autor_dip, autor_nombre, notas_cambio) values
+insert into public.bop_documentos (codigo, titulo, tipo, categoria, estado, contenido_md, version, fecha_aplicacion, fecha_aprobacion_junta, aprobada_en_junta, autor_dip, autor_nombre, notas_cambio) values
   ('EST-1', 'Estatutos del Grupo de La Placeta', 'estatuto', 'general', 'vigente',
    E'# Estatutos del Grupo de La Placeta\n\nDonde se constituye legalmente el Grupo.\n\n## Título I\n…',
-   1, '2024-01-01', true, '23749931M', 'Mikel Alegre Marcos', 'Versión inicial de los Estatutos.'),
+   1, '2024-01-01', null, true, '23749931M', 'Mikel Alegre Marcos', 'Versión inicial de los Estatutos.'),
   ('CNI-IV', 'Capítulo IV: Banca, Capital e Impuestos', 'cni', 'capitulo', 'vigente',
    E'# Capítulo IV: Banca, Capital e Impuestos\n\nBase de la normativa interna del sistema bancario.\n\n## Art. 4.8 a 4.16\nIRM mensual e IGF progresivo. Los tipos y límites están en los CNIC correspondientes (ver cnic_refs).',
-   1, '2026-07-01', true, '23749931M', 'Mikel Alegre Marcos', 'Aprobado en Junta de julio 2026.')
+   1, '2026-07-01', '2026-07-01', true, '23749931M', 'Mikel Alegre Marcos', 'Aprobado en Junta de julio 2026.')
 on conflict do nothing;
 
 insert into public.bop_cnic (codigo, etiqueta, descripcion, tipo_valor, valor, unidad, articulo, vigente, historial) values

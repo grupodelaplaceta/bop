@@ -237,9 +237,13 @@ body {
 .documento li { margin-bottom: 4px; }
 .documento blockquote { border-left: 4px solid var(--bop-acento); padding: 6px 14px; background: var(--bop-acento-claro); border-radius: 0 8px 8px 0; margin: 10px 0; color: var(--bop-acento); }
 .documento code { background: var(--bop-acento-claro); padding: 2px 6px; border-radius: 5px; font-size: 13px; }
-.documento table { border-collapse: collapse; margin: 10px 0; width: 100%; }
-.documento th, .documento td { border: 1px solid var(--bop-borde); padding: 8px 12px; font-size: 13px; }
-.documento th { background: var(--bop-acento-claro); }
+.documento table { border-collapse: collapse; margin: 12px 0; width: 100%; font-size: 13px; }
+.documento th, .documento td { border: 1px solid var(--bop-borde); padding: 8px 12px; font-size: 13px; text-align: left; }
+.documento th { background: var(--bop-acento-claro); font-weight: 700; color: var(--bop-acento); }
+.documento tr:nth-child(even) td { background: var(--bop-fondo); }
+.documento strong { font-weight: 700; color: var(--bop-acento); }
+.documento em { font-style: italic; }
+.documento hr { border: none; border-top: 2px solid var(--bop-acento-claro); margin: 18px 0; }
 
 /* ── Historial / versiones ────────────────────────────────────────────── */
 .version-item {
@@ -292,4 +296,17 @@ body {
   .bop-header nav { width: 100%; order: 3; }
   .hero { padding: 22px; }
   .documento { padding: 20px; }
+  .documento table { display: block; overflow-x: auto; white-space: nowrap; }
+}
+
+/* ── Impresión (exportar PDF) ─────────────────────────────────────────── */
+@media print {
+  .bop-header, .bop-footer { display: none; }
+  body { background: #fff; }
+  .container { max-width: 100%; padding: 0; }
+  .btn { display: none; }
+  .documento { border: none; box-shadow: none; padding: 0; }
+  .documento table { font-size: 11px; }
+  .documento th, .documento td { padding: 5px 8px; }
+  a { color: var(--bop-acento); text-decoration: none; }
 }

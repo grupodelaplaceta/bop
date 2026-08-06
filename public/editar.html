@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Editar Normativa — BOP (RSP)</title>
+  <link rel="icon" type="image/png" href="img/favibop.png">
+  <link rel="stylesheet" href="css/bop.css">
+</head>
+<body>
+  <header class="bop-header">
+    <img class="logo" src="img/boplogo.png" alt="BOP">
+    <div class="marca">
+      <h1>Boletín Oficial de La Placeta</h1>
+      <span>Edición de normativa (RSP)</span>
+    </div>
+    <nav>
+      <a href="index.html">Inicio</a>
+      <a href="normativa.html">Normativa</a>
+      <a href="cnic.html">CNIC</a>
+      <a href="editar.html" class="activo">Editar</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <div class="aviso aviso-aviso">🔐 Solo administradores autorizados en RSP pueden editar. Si llegas aquí sin sesión RSP, esta página solo muestra el contenido en modo lectura.</div>
+
+    <div class="grid-2">
+      <div>
+        <label class="form-grupo"><span>Documento</span>
+          <select id="selDoc" class="select" onchange="cargarDoc()"></select>
+        </label>
+      </div>
+      <div>
+        <label class="form-grupo"><span>Nuevo documento</span>
+          <button class="btn btn-secundario" style="width:100%" onclick="nuevoDoc()">＋ Crear nuevo capítulo/artículo</button>
+        </label>
+      </div>
+    </div>
+
+    <form id="formDoc" onsubmit="guardarDoc(event)">
+      <div class="grid-2">
+        <div class="form-grupo">
+          <label>Código</label>
+          <input type="text" id="fCodigo" class="input" placeholder="CNI-X / CNIC-X">
+        </div>
+        <div class="form-grupo">
+          <label>Título</label>
+          <input type="text" id="fTitulo" class="input" required>
+        </div>
+        <div class="form-grupo">
+          <label>Tipo</label>
+          <select id="fTipo" class="select">
+            <option value="estatuto">Estatuto</option>
+            <option value="cni">CNI (capítulo/sistema/programa)</option>
+            <option value="cnic">CNIC (complementario)</option>
+          </select>
+        </div>
+        <div class="form-grupo">
+          <label>Categoría</label>
+          <select id="fCategoria" class="select">
+            <option value="capitulo">Capítulo</option>
+            <option value="sistema">Sistema</option>
+            <option value="programa">Programa</option>
+            <option value="general">General</option>
+            <option value="complementario">Complementario</option>
+          </select>
+        </div>
+        <div class="form-grupo">
+          <label>Estado</label>
+          <select id="fEstado" class="select">
+            <option value="vigente">Vigente</option>
+            <option value="derogado">Derogado</option>
+            <option value="proyecto">Proyecto</option>
+            <option value="enmienda">Enmienda</option>
+          </select>
+        </div>
+        <div class="form-grupo">
+          <label>Versión (nueva edición)</label>
+          <input type="number" id="fVersion" class="input" value="1" min="1">
+        </div>
+        <div class="form-grupo">
+          <label>Fecha de aplicación</label>
+          <input type="date" id="fFechaAplicacion" class="input">
+        </div>
+        <div class="form-grupo">
+          <label>Fecha de propuesta (posterior a Jun 2026)</label>
+          <input type="date" id="fFechaPropuesta" class="input">
+        </div>
+        <div class="form-grupo">
+          <label>Fecha aprobación en Junta</label>
+          <input type="date" id="fFechaJunta" class="input">
+        </div>
+        <div class="form-grupo">
+          <label><input type="checkbox" id="fAprobadaJunta" checked> Aprobada en Junta</label>
+        </div>
+        <div class="form-grupo" style="grid-column:1/-1">
+          <label>Notas del cambio (motivo de esta versión)</label>
+          <input type="text" id="fNotas" class="input" placeholder="Motivo/justificación de la edición…">
+        </div>
+      </div>
+
+      <div class="form-grupo">
+        <label>Contenido (Markdown)</label>
+        <textarea id="fContenido" class="textarea" placeholder="# Art. X — Título&#10;&#10;Contenido de la norma…"></textarea>
+      </div>
+
+      <div class="flex">
+        <button type="submit" class="btn btn-primario">💾 Guardar nueva versión (historial)</button>
+        <button type="button" class="btn btn-secundario" onclick="previsualizar()">👁️ Previsualizar</button>
+      </div>
+    </form>
+
+    <div id="preview" class="mt-16 oculto">
+      <div class="seccion-titulo">Previsualización</div>
+      <div class="documento" id="previewCuerpo"></div>
+    </div>
+  </main>
+
+  <footer class="bop-footer">Boletín Oficial de La Placeta · Grupo de La Placeta</footer>
+
+  <script src="js/datos-migrados.js"></script>
+  <script src="js/markdown.js"></script>
+  <script src="js/bop.js"></script>
+  <script>
+    async function cargarDocs() {
+      await BOP.init();
+      const sel = document.getElementById('selDoc');
+      sel.innerHTML = '<option value="">— Selecciona un documento para editar —</option>' +
+        (BOP._docs || []).map(d => `<option value="${escapar(d.codigo)}">${escapar(d.codigo)} — ${escapar(d.titulo)}</option>`).join('');
+    }
+    function cargarDoc() {
+      const c = document.getElementById('selDoc').value.toUpperCase();
+      const d = BOP.getDocumento(c);
+      if (!d) return;
+      document.getElementById('fCodigo').value = d.codigo;
+      document.getElementById('fTitulo').value = d.titulo;
+      document.getElementById('fTipo').value = d.tipo || 'cni';
+      document.getElementById('fCategoria').value = d.categoria || 'capitulo';
+      document.getElementById('fEstado').value = d.estado || 'vigente';
+      document.getElementById('fVersion').value = (d.version || 1) + 1;
+      document.getElementById('fFechaAplicacion').value = (d.fecha_aplicacion || '').slice(0,10);
+      document.getElementById('fFechaPropuesta').value = (d.fecha_propuesta || '').slice(0,10);
+      document.getElementById('fFechaJunta').value = (d.fecha_aprobacion_junta || '').slice(0,10);
+      document.getElementById('fAprobadaJunta').checked = !!d.aprobada_en_junta;
+      document.getElementById('fNotas').value = '';
+      document.getElementById('fContenido').value = d.contenido_md || '';
+    }
+    function nuevoDoc() {
+      ['fCodigo','fTitulo','fNotas','fContenido'].forEach(id => document.getElementById(id).value='');
+      document.getElementById('fVersion').value = 1;
+      document.getElementById('fTipo').value = 'cni';
+      document.getElementById('fCategoria').value = 'capitulo';
+      document.getElementById('fEstado').value = 'proyecto';
+      document.getElementById('fAprobadaJunta').checked = false;
+    }
+    function previsualizar() {
+      const p = document.getElementById('preview');
+      p.classList.remove('oculto');
+      document.getElementById('previewCuerpo').innerHTML =
+        `<h1>${escapar(document.getElementById('fCodigo').value)} — ${escapar(document.getElementById('fTitulo').value)}</h1>` +
+        bopRenderMarkdown(document.getElementById('fContenido').value);
+    }
+    function guardarDoc(e) {
+      e.preventDefault();
+      // En esta versión estática, la edición se guarda localmente (demo).
+      // En producción, el RSP persiste en Supabase (bop_documentos/bop_versiones).
+      alert('✅ En esta vista estática la edición queda en el navegador.\nEn producción, el RSP guarda la nueva versión y el historial en Supabase.');
+      previsualizar();
+    }
+    document.addEventListener('DOMContentLoaded', cargarDocs);
+  </script>
+</body>
+</html>

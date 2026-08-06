@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Boletín Oficial de La Placeta — BOP</title>
+  <meta name="description" content="Boletín Oficial de La Placeta: publica y consulta toda la normativa del Grupo de La Placeta (Estatutos, CNI, CNIC) con versiones, historial y exportación PDF.">
+  <link rel="icon" type="image/png" href="img/favibop.png">
+  <link rel="stylesheet" href="css/bop.css">
+</head>
+<body>
+  <header class="bop-header">
+    <img class="logo" src="img/boplogo.png" alt="BOP">
+    <div class="marca">
+      <h1>Boletín Oficial de La Placeta</h1>
+      <span>Normativa oficial del Grupo de La Placeta · bop.laplaceta.org</span>
+    </div>
+    <nav>
+      <a href="index.html" class="activo">Inicio</a>
+      <a href="normativa.html">Normativa</a>
+      <a href="cnic.html">CNIC</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <section class="hero">
+      <h2>📜 El BOP del Grupo de La Placeta</h2>
+      <p>Plataforma oficial donde se publica y consulta toda la normativa del Grupo: Estatutos, Código Normativo Interno (CNI) y Códigos Normativos Internos Complementarios (CNIC), con versiones, historial de cambios y exportación en PDF.</p>
+    </section>
+
+    <section class="seccion" id="seccion-estatutos">
+      <div class="seccion-titulo">⚖️ Estatutos <span class="chip" id="chip-estatutos">0</span></div>
+      <div id="lista-estatutos" class="cargando">Cargando estatutos…</div>
+    </section>
+
+    <section class="seccion" id="seccion-cni">
+      <div class="seccion-titulo">📘 Código Normativo Interno (CNI) <span class="chip" id="chip-cni">0</span></div>
+      <div id="lista-cni" class="cargando">Cargando CNI…</div>
+    </section>
+
+    <section class="seccion" id="seccion-cnic">
+      <div class="seccion-titulo">🧩 Códigos Normativos Complementarios (CNIC) <span class="chip" id="chip-cnic">0</span></div>
+      <div id="lista-cnic" class="cargando">Cargando CNIC…</div>
+    </section>
+  </main>
+
+  <footer class="bop-footer">
+    Boletín Oficial de La Placeta · Grupo de La Placeta · Los datos variables (% , precios, límites) viven en los CNIC complementarios.
+  </footer>
+
+  <script src="js/datos-migrados.js"></script>
+  <script src="js/markdown.js"></script>
+  <script src="js/bop.js"></script>
+</body>
+</html>

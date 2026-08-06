@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CNIC — BOP</title>
+  <link rel="icon" type="image/png" href="img/favibop.png">
+  <link rel="stylesheet" href="css/bop.css">
+</head>
+<body>
+  <header class="bop-header">
+    <img class="logo" src="img/boplogo.png" alt="BOP">
+    <div class="marca">
+      <h1>Boletín Oficial de La Placeta</h1>
+      <span>Códigos Normativos Internos Complementarios (CNIC)</span>
+    </div>
+    <nav>
+      <a href="index.html">Inicio</a>
+      <a href="normativa.html">Normativa</a>
+      <a href="cnic.html" class="activo">CNIC</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <section class="hero">
+      <h2>🧩 CNIC</h2>
+      <p>Los <strong>Códigos Normativos Internos Complementarios</strong> contienen los datos variables del CNI (%, precios en Placetas, límites, plazos). No se imprimen físicamente como fuente fiable de revisión: se actualizan sin modificar el CNI.</p>
+    </section>
+
+    <div class="flex mb-16">
+      <input type="text" id="buscador" class="input" placeholder="🔍 Buscar CNIC…" oninput="filtrar()" style="flex:1">
+    </div>
+
+    <!-- Vista lista -->
+    <div id="vista-lista">
+      <div id="lista" class="cargando">Cargando CNIC…</div>
+    </div>
+
+    <!-- Vista detalle -->
+    <div id="vista-detalle" class="oculto"></div>
+  </main>
+
+  <footer class="bop-footer">Boletín Oficial de La Placeta · Grupo de La Placeta</footer>
+
+  <script src="js/datos-migrados.js"></script>
+  <script src="js/bop.js"></script>
+  <script>
+    let __cnic = [];
+    document.addEventListener('DOMContentLoaded', async () => {
+      await BOP.init();
+      __cnic = BOP.getCnic();
+      const params = new URLSearchParams(location.search);
+      const codigo = (params.get('codigo') || '').toUpperCase();
+      if (codigo) { verDetalle(codigo); } else { filtrar(); }
+    });
+
+    function filtrar() {
+      const q = document.getElementById('buscador').value.toLowerCase();
+      const lista = document.getElementById('lista');
+      const filtrados = __cnic.filter(c =>
+        (c.codigo || '').toLowerCase().includes(q) ||
+        (c.etiqueta || '').toLowerCase().includes(q) ||
+        (c.descripcion || '').toLowerCase().includes(q));
+      lista.className = '';
+      lista.innerHTML = filtrados.length ? filtrados.map(cardCnic).join('') : '<div class="aviso aviso-info">Sin resultados.</div>';
+      document.getElementById('vista-lista').classList.remove('oculto');
+      document.getElementById('vista-detalle').classList.add('oculto');
+    }
+
+    function verDetalle(codigo) {
+      const c = __cnic.find(x => x.codigo === codigo);
+      document.getElementById('vista-lista').classList.add('oculto');
+      const det = document.getElementById('vista-detalle');
+      det.classList.remove('oculto');
+      if (!c) { det.innerHTML = '<div class="aviso aviso-error">CNIC no encontrado.</div>'; return; }
+      const hist = (c.historial || []).slice().reverse().map(h => `
+        <div class="version-item">
+          <span class="num">↺</span>
+          <div class="detalle">Valor: <strong>${escapar(h.valor)}</strong><div class="meta">desde ${escapar(h.desde || '—')} · ${escapar(h.autor_dip || '—')} · ${escapar(h.notas || '')}</div></div>
+        </div>`).join('') || '<div class="version-item"><span class="num">v0</span><div class="detalle">Valor inicial.</div></div>';
+      det.innerHTML = `
+        <div class="flex mb-16">
+          <button class="btn btn-secundario" onclick="filtrar()">← Volver</button>
+          <button class="btn btn-primario" onclick="exportarPdf('${encodeURIComponent(c.codigo)}')">⬇️ Exportar PDF</button>
+        </div>
+        <div class="aviso aviso-info">${badgeTipo('cnic')} ${badgeEstado(c.vigente === false ? 'derogado' : 'vigente')}</div>
+        <div class="card">
+          <span class="codigo">${escapar(c.codigo)}</span>
+          <h3>${escapar(c.etiqueta)}</h3>
+          <p class="desc">${escapar(c.descripcion || '')}</p>
+          <div style="margin-top:14px;padding:14px;background:var(--bop-acento-claro);border-radius:10px">
+            <div style="font-size:12px;font-weight:700;color:var(--bop-acento)">VALOR ACTUAL</div>
+            <div style="font-size:22px;font-weight:800;color:var(--bop-acento)">${escapar(c.valor)} <span style="font-size:14px">${escapar(c.unidad || '')}</span></div>
+            <div style="font-size:12px;color:var(--bop-texto-suave)">${escapar(c.articulo || '')} · ${escapar(c.tipo_valor || 'texto')}</div>
+          </div>
+        </div>
+        <div class="seccion mt-16">
+          <div class="seccion-titulo">🕘 Historial de cambios del valor</div>
+          ${hist}
+        </div>`;
+    }
+
+    function exportarPdf(codigoEnc) {
+      window.open('exportar.html?cnic=' + codigoEnc, '_blank');
+    }
+  </script>
+</body>
+</html>
