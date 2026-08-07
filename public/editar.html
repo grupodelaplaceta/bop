@@ -148,6 +148,7 @@
       <div class="flex">
         <button type="submit" class="btn btn-primario">💾 Guardar nueva versión (historial)</button>
         <button type="button" class="btn btn-secundario" onclick="previsualizar()">👁️ Previsualizar</button>
+        <button type="button" class="btn btn-peligro oculto" id="btnEliminarDoc" onclick="eliminarDoc()">🗑 Eliminar documento</button>
       </div>
     </form>
 
@@ -395,6 +396,8 @@
       document.getElementById('fFechaJunta').value = (d.fecha_aprobacion_junta || '').slice(0,10);
       document.getElementById('fAprobadaJunta').checked = !!d.aprobada_en_junta;
       document.getElementById('fNotas').value = '';
+      const btnDel = document.getElementById('btnEliminarDoc');
+      if (btnDel) btnDel.classList.remove('oculto');
       ET.cargarMarkdown(d.contenido_md || '');
     }
     function nuevoDoc() {
@@ -404,6 +407,8 @@
       document.getElementById('fCategoria').value = 'capitulo';
       document.getElementById('fEstado').value = 'proyecto';
       document.getElementById('fAprobadaJunta').checked = false;
+      const btnDel = document.getElementById('btnEliminarDoc');
+      if (btnDel) btnDel.classList.add('oculto');
       ET.cargarMarkdown('');
     }
     function previsualizar() {
@@ -501,7 +506,7 @@
             <td>${escapar(c.unidad || '')}</td>
             <td>${escapar(c.articulo || '—')}</td>
             <td>${c.vigente ? '✅' : '🚫'}</td>
-            <td><button type="button" class="btn btn-secundario" style="padding:4px 10px;font-size:12px" onclick="editarCnic('${escapar(c.codigo)}')">Editar</button></td>
+            <td style="white-space:nowrap"><button type="button" class="btn btn-secundario" style="padding:4px 10px;font-size:12px" onclick="editarCnic('${escapar(c.codigo)}')">Editar</button> <button type="button" class="btn btn-peligro" style="padding:4px 10px;font-size:12px" onclick="eliminarCnic('${escapar(c.codigo)}')" title="Eliminar CNIC">🗑</button></td>
           </tr>`).join('') + '</tbody></table></div>';
       } catch (e) {
         cont.className = '';
@@ -542,6 +547,38 @@
 
     function cancelarCnic() {
       document.getElementById('formCnic').classList.add('oculto');
+    }
+
+    async function eliminarDoc() {
+      if (!bopClave) return;
+      const codigo = document.getElementById('fCodigo').value.trim().toUpperCase();
+      if (!codigo) return;
+      if (!confirm('¿Eliminar definitivamente ' + codigo + '? No se puede deshacer (incluye su historial).')) return;
+      try {
+        const r = await fetch(BOP_API + '/api/bop/documentos/' + encodeURIComponent(codigo), { method: 'DELETE', headers: cabecerasAuth() });
+        const data = await r.json();
+        if (!r.ok) throw new Error(data.error || 'Error');
+        BOP._docs = (BOP._docs || []).filter(x => x.codigo !== codigo);
+        mostrarAviso('🗑 <b>' + escapar(codigo) + '</b> eliminado de la base de datos.', 'exito');
+        nuevoDoc();
+        await cargarDocs();
+      } catch (err) {
+        mostrarAviso('❌ ' + escapar(err.message || 'Error al eliminar.'), 'error');
+      }
+    }
+
+    async function eliminarCnic(codigo) {
+      if (!bopClave) return;
+      if (!confirm('¿Eliminar el CNIC ' + codigo + '?')) return;
+      try {
+        const r = await fetch(BOP_API + '/api/bop/cnic/' + encodeURIComponent(codigo), { method: 'DELETE', headers: cabecerasAuth() });
+        const data = await r.json();
+        if (!r.ok) throw new Error(data.error || 'Error');
+        mostrarAviso('🗑 CNIC <b>' + escapar(codigo) + '</b> eliminado.', 'exito');
+        await cargarCnic();
+      } catch (err) {
+        mostrarAviso('❌ ' + escapar(err.message || 'Error al eliminar CNIC.'), 'error');
+      }
     }
 
     async function guardarCnic(e) {

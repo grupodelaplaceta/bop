@@ -6,6 +6,7 @@
 
 // Configuración Supabase (RSP). En producción usar las variables de entorno
 // inyectadas en el build; el anon key permite solo lectura pública.
+const BOP_API = (window.BOP_API_URL || 'https://rsp.laplaceta.org').replace(/\/+$/, '');
 const BOP_CONFIG = {
   supabaseUrl: window.BOP_SUPABASE_URL || 'https://htikrqaywapshlkdonvs.supabase.co',
   supabaseKey: window.BOP_SUPABASE_KEY || ''
@@ -24,8 +25,32 @@ const BOP = {
   _cnic: null,
   _usandoSupabase: false,
 
-  /** Estado de la BD: true si lee de Supabase, false si usa datos migrados. */
+  /**
+   * Carga los datos SIEMPRE en vivo desde la API del RSP (lectura pública),
+   * para que los documentos y CNIC creados/editados aparezcan de inmediato.
+   * Si la API no responde, cae a Supabase directo (si hay clave) y por último
+   * a los datos migrados estáticos.
+   */
   async init() {
+    // 1) Fuente principal: API del RSP (siempre actualizada)
+    try {
+      const [rDocs, rCnic] = await Promise.all([
+        fetch(BOP_API + '/api/bop/documentos'),
+        fetch(BOP_API + '/api/bop/cnic')
+      ]);
+      if (rDocs.ok && rCnic.ok) {
+        const docs = await rDocs.json();
+        const cnic = await rCnic.json();
+        if (Array.isArray(docs) && Array.isArray(cnic)) {
+          this._docs = docs;
+          this._cnic = cnic;
+          this._usandoSupabase = true;
+          return;
+        }
+      }
+    } catch (e) { /* continua a las alternativas */ }
+
+    // 2) Supabase directo (si hay clave anónima inyectada)
     if (BOP_SUPABASE) {
       try {
         const { data, error } = await BOP_SUPABASE.from('bop_documentos').select('*').limit(500);
@@ -38,7 +63,7 @@ const BOP = {
         }
       } catch (e) { /* fallback a migrados */ }
     }
-    // Fallback: datos migrados del CNI antiguo
+    // 3) Fallback: datos migrados del CNI antiguo
     const m = window.BOP_MIGRADOS || { estatutos: [], cni: [], cnic: [] };
     // Normalizar tipo: los documentos de cada lista se etiquetan con su tipo
     // (por si los datos migrados no lo incluyen explícitamente).
