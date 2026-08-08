@@ -31,6 +31,7 @@ function bopEsFilaTabla(l) {
 
 /**
  * Renderiza tablas GFM (| a | b | / |---|---| / | 1 | 2 |).
+ * Tolerante a líneas EN BLANCO entre filas (formato habitual al editar).
  * Devuelve una array mixta: objetos {html:...} para tablas y strings para
  * las líneas que no son tabla (para que el bucle principal las procese).
  */
@@ -40,33 +41,43 @@ function bopParseTablas(lineas) {
   while (i < lineas.length) {
     const l = lineas[i];
     const esFila = bopEsFilaTabla(l);
-    if (esFila) {
-      // Reunir filas consecutivas (cabecera + separador + cuerpo)
-      const filas = [];
-      let j = i;
-      while (j < lineas.length && bopEsFilaTabla(lineas[j])) {
-        const fila = lineas[j].trim().replace(/^\|/, '').replace(/\|$/, '').split('|');
+    if (!esFila) {
+      resultado.push(l);
+      i++;
+      continue;
+    }
+    // Posible tabla: reunir filas permitiendo líneas en blanco entre ellas
+    const filas = [];
+    let j = i;
+    while (j < lineas.length) {
+      const t = lineas[j].trim();
+      if (t === '') { j++; continue; }                    // saltar vacíos dentro de la tabla
+      if (bopEsFilaTabla(lineas[j])) {
+        const fila = t.replace(/^\|/, '').replace(/\|$/, '').split('|');
         filas.push(fila.map(c => c.trim()));
         j++;
-      }
-      // Validar: al menos cabecera + separador
-      if (filas.length >= 2 && filas[1].every(c => /^:?-{2,}:?$/.test(c.trim()))) {
-        const [head, ...resto] = filas;
-        const cuerpo = resto.slice(1);
-        let html = '<table><thead><tr>';
-        head.forEach(h => { html += `<th>${bopInline(h)}</th>`; });
-        html += '</tr></thead><tbody>';
-        cuerpo.forEach(f => {
-          html += '<tr>';
-          f.forEach(c => { html += `<td>${bopInline(c)}</td>`; });
-          html += '</tr>';
-        });
-        html += '</tbody></table>';
-        resultado.push({ html });
-        i = j;
-        continue;
+      } else {
+        break;                                            // fin de la tabla
       }
     }
+    // Validar: al menos cabecera + separador (2ª fila toda de guiones)
+    if (filas.length >= 2 && filas[1].every(c => /^:?-{2,}:?$/.test(c.trim()))) {
+      const [head, ...resto] = filas;
+      const cuerpo = resto.slice(1);
+      let html = '<table><thead><tr>';
+      head.forEach(h => { html += `<th>${bopInline(h)}</th>`; });
+      html += '</tr></thead><tbody>';
+      cuerpo.forEach(f => {
+        html += '<tr>';
+        f.forEach(c => { html += `<td>${bopInline(c)}</td>`; });
+        html += '</tr>';
+      });
+      html += '</tbody></table>';
+      resultado.push({ html });
+      i = j;
+      continue;
+    }
+    // No era tabla: devolver solo esta línea (el resto se procesa después)
     resultado.push(l);
     i++;
   }
