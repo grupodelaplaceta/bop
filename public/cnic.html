@@ -71,7 +71,7 @@
         (c.etiqueta || '').toLowerCase().includes(q) ||
         (c.descripcion || '').toLowerCase().includes(q));
       lista.className = '';
-      lista.innerHTML = filtrados.length ? filtrados.map(cardCnic).join('') : '<div class="aviso aviso-info">Sin resultados.</div>';
+      lista.innerHTML = filtrados.length ? tablaCnicHtml(filtrados) : '<div class="aviso aviso-info">Sin resultados.</div>';
       document.getElementById('vista-lista').classList.remove('oculto');
       document.getElementById('vista-detalle').classList.add('oculto');
     }

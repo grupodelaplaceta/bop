@@ -345,6 +345,10 @@ body {
 .documento th { background: var(--bop-acento-claro); font-weight: 700; color: var(--bop-acento); }
 .documento tr:nth-child(even) td { background: var(--bop-fondo); }
 .cnic-valor { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.badge-nuevo { background: #e3f5ec; color: var(--bop-exito); border: 1px solid #bfe6d3; }
+.grid-novedades { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.novedad-card { border-left: 3px solid var(--bop-acento); }
+@media (max-width: 820px) { .grid-novedades { grid-template-columns: 1fr; } }
 .documento strong { font-weight: 700; color: var(--bop-acento); }
 .cnic-inline {
   display: inline-block; background: var(--bop-acento-claro); color: var(--bop-acento);

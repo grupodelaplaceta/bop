@@ -168,22 +168,76 @@ function cardCnic(c) {
     </div>`;
 }
 
+/** Renderiza los CNIC como TABLA de datos (código, etiqueta, valor, unidad, artículo, estado). */
+function tablaCnicHtml(lista) {
+  if (!lista || !lista.length) return '<div class="aviso aviso-info">No hay CNIC.</div>';
+  return `<div style="overflow-x:auto"><table class="tabla">
+    <thead><tr><th>Código</th><th>Etiqueta</th><th>Valor</th><th>Unidad</th><th>Artículo (CNI)</th><th>Estado</th></tr></thead>
+    <tbody>${lista.map(c => `
+      <tr>
+        <td><a href="cnic.html?codigo=${encodeURIComponent(c.codigo)}"><b>${escapar(c.codigo)}</b></a></td>
+        <td>${escapar(c.etiqueta)}</td>
+        <td class="cnic-valor"><strong>${escapar(c.valor)}</strong></td>
+        <td>${escapar(c.unidad || '')}</td>
+        <td>${escapar(c.articulo || '—')}</td>
+        <td>${badgeEstado(c.vigente === false ? 'derogado' : 'vigente')}</td>
+      </tr>`).join('')}</tbody></table></div>`;
+}
+
 async function renderInicio() {
   await BOP.init();
   const est = BOP.getEstatutos();
   const cni = BOP.getCni();
   const cnic = BOP.getCnic();
+  const docs = [...est, ...cni];
 
   document.getElementById('chip-estatutos').textContent = est.length;
   document.getElementById('chip-cni').textContent = cni.length;
   document.getElementById('chip-cnic').textContent = cnic.length;
+
+  // ── NOVEDADES: recién actualizado + nuevos datos ────────────────────
+  const fech = (x) => x.updated_at || x.created_at || '';
+  const recientes = docs.slice().sort((a, b) => String(fech(b)).localeCompare(String(fech(a)))).slice(0, 6);
+  const cnicNuevos = cnic.slice().sort((a, b) => String(fech(b)).localeCompare(String(fech(a)))).slice(0, 6);
+  const elNovedades = document.getElementById('lista-novedades');
+  if (elNovedades) {
+    const recientesHtml = recientes.map(d => `
+      <div class="card novedad-card">
+        <a href="documento.html?codigo=${encodeURIComponent(d.codigo)}" style="text-decoration:none;color:inherit;display:block">
+          <span class="codigo">${escapar(d.codigo)}</span> ${badgeTipo(d.tipo)} ${badgeEstado(d.estado)}
+          <span class="badge badge-nuevo">Recién actualizado · v${d.version || 1}</span>
+          <h3 style="margin-top:4px">${escapar(d.titulo)}</h3>
+          <div class="meta">${fechaLegible(fech(d))}</div>
+        </a>
+      </div>`).join('') || '<div class="aviso aviso-info">Sin novedades.</div>';
+    const nuevosHtml = cnicNuevos.map(c => `
+      <div class="card novedad-card">
+        <a href="cnic.html?codigo=${encodeURIComponent(c.codigo)}" style="text-decoration:none;color:inherit;display:block">
+          <span class="codigo">${escapar(c.codigo)}</span> <span class="badge badge-nuevo">Nuevo dato</span>
+          <h3 style="margin-top:4px">${escapar(c.etiqueta)}</h3>
+          <div class="meta"><strong>${escapar(c.valor)} ${escapar(c.unidad || '')}</strong> · ${escapar(c.articulo || '—')}</div>
+        </a>
+      </div>`).join('') || '<div class="aviso aviso-info">Sin nuevos datos.</div>';
+    elNovedades.className = '';
+    elNovedades.innerHTML = `
+      <div class="grid-novedades">
+        <div>
+          <div class="seccion-titulo">🆕 Recién actualizado</div>
+          <div class="grid-3">${recientesHtml}</div>
+        </div>
+        <div>
+          <div class="seccion-titulo">🧩 Nuevos datos (CNIC)</div>
+          <div class="grid-3">${nuevosHtml}</div>
+        </div>
+      </div>`;
+  }
 
   document.getElementById('lista-estatutos').innerHTML =
     est.length ? est.map(cardDocumento).join('') : '<div class="aviso aviso-info">No hay estatutos publicados.</div>';
   document.getElementById('lista-cni').innerHTML =
     cni.length ? cni.map(cardDocumento).join('') : '<div class="aviso aviso-info">No hay capítulos del CNI publicados.</div>';
   document.getElementById('lista-cnic').innerHTML =
-    cnic.length ? cnic.map(cardCnic).join('') : '<div class="aviso aviso-info">No hay CNIC publicados.</div>';
+    cnic.length ? tablaCnicHtml(cnic) : '<div class="aviso aviso-info">No hay CNIC publicados.</div>';
 }
 
 // Cargar al iniciar (solo si es la página de inicio con los elementos)
