@@ -10,7 +10,7 @@ function bopEscapeHtml(html) {
     .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 }
 
-/** Convierte inline markdown (**negrita**, *cursiva*, `code`) a HTML. */
+/** Convierte inline markdown (**negrita**, *cursiva*, `code`, {{CNIC-XXXX}}) a HTML. */
 function bopInline(md) {
   if (!md) return '';
   let s = bopEscapeHtml(md);
@@ -20,6 +20,14 @@ function bopInline(md) {
   s = s.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
   // Cursivas *texto*
   s = s.replace(/(^|[^*])\*([^*\n]+)\*/g, '$1<em>$2</em>');
+  // Referencias inline a CNIC: {{CNIC-CODIGO}} → muestra el valor actual
+  s = s.replace(/\{\{([A-Za-z0-9._-]+)\}\}/g, (m, codigo) => {
+    const res = (typeof window !== 'undefined' && window.BOP_RESOLVER_CNIC) ? window.BOP_RESOLVER_CNIC(codigo) : null;
+    if (res) {
+      return `<span class="cnic-inline" data-codigo="${bopEscapeHtml(codigo)}" title="${bopEscapeHtml(res.etiqueta || codigo)}">${bopEscapeHtml(res.valor)}${res.unidad ? '&nbsp;' + bopEscapeHtml(res.unidad) : ''}</span>`;
+    }
+    return `<span class="cnic-inline cnic-inline-falta" title="CNIC no encontrado">${m}</span>`;
+  });
   return s;
 }
 
@@ -177,6 +185,11 @@ function bopHtmlAMarkdown(html) {
         return `\n\n${filas.join('\n')}\n`;
       }
       case 'th': case 'td': return hijos;
+      case 'span': {
+        const dataCodigo = nodo.getAttribute('data-codigo');
+        if (dataCodigo) return `{{${dataCodigo}}}`;
+        return hijos;
+      }
       default: return hijos;
     }
   }
@@ -188,6 +201,7 @@ function bopHtmlAMarkdown(html) {
 function bopPlano(md, max) {
   if (!md) return '';
   let txt = String(md)
+    .replace(/\{\{[^}]*\}\}/g, '')
     .replace(/`([^`]+)`/g, '$1')
     .replace(/\*\*([^*]+)\*\*/g, '$1')
     .replace(/(^|[^*])\*([^*\n]+)\*/g, '$1$2')

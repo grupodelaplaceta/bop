@@ -51,11 +51,27 @@
         return;
       }
 
-      // CNIC referenciados
-      const refs = (d.cnic_refs || []).map(r => {
-        const c = BOP.getCnicPorCodigo(r.codigo);
-        return c ? `<a href="cnic.html?codigo=${encodeURIComponent(c.codigo)}" class="badge badge-cnic" style="text-decoration:none">${escapar(c.codigo)} · ${escapar(c.etiqueta)}</a>` : '';
-      }).filter(Boolean).join(' ');
+      // CNIC vinculados → tabla de datos justo debajo del documento
+      const cnicVinculados = (d.cnic_refs || []).map(r => {
+        const codigo = String(r.codigo || '').toUpperCase();
+        const c = BOP.getCnicPorCodigo(codigo);
+        if (!c) return '';
+        return `<tr>
+          <td><a href="cnic.html?codigo=${encodeURIComponent(codigo)}">${escapar(codigo)}</a></td>
+          <td>${escapar(c.etiqueta)}</td>
+          <td class="cnic-valor"><strong>${escapar(c.valor)}</strong> ${escapar(c.unidad || '')}</td>
+          <td>${escapar(c.articulo || '—')}</td>
+        </tr>`;
+      }).filter(Boolean).join('');
+      const tablaCnic = cnicVinculados ? `
+        <div style="margin:16px 0 4px">
+          <div class="seccion-titulo">🧩 Datos económicos vinculados (CNIC)</div>
+          <table class="tabla">
+            <thead><tr><th>Código</th><th>Etiqueta</th><th>Valor</th><th>Artículo</th></tr></thead>
+            <tbody>${cnicVinculados}</tbody>
+          </table>
+          <p style="font-size:11px;color:var(--bop-texto-suave);margin-top:6px">Valores variables gestionados en los CNIC del BOP. Se actualizan sin modificar este documento.</p>
+        </div>` : '';
 
       cont.className = '';
       cont.innerHTML = `
@@ -72,7 +88,7 @@
         </div>
         <div class="documento">
           <h1>${escapar(d.codigo)} — ${escapar(d.titulo)}</h1>
-          ${refs ? `<div class="flex flex-wrap" style="margin:10px 0">${refs}</div>` : ''}
+          ${tablaCnic}
           ${bopRenderMarkdown(d.contenido_md)}
         </div>
         <div class="seccion mt-16" id="seccion-historial">

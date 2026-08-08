@@ -106,6 +106,12 @@ const BOP = {
   }
 };
 
+// Resolver para etiquetas inline {{CNIC-XXXX}} (lo usa bopRenderMarkdown)
+window.BOP_RESOLVER_CNIC = (codigo) => {
+  const c = BOP.getCnicPorCodigo(codigo);
+  return c ? { valor: c.valor, unidad: c.unidad, etiqueta: c.etiqueta } : null;
+};
+
 // ── Renderizado ─────────────────────────────────────────────────────────
 
 function escapar(html) {

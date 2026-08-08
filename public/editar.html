@@ -116,6 +116,11 @@
           <label>Notas del cambio (motivo de esta versión)</label>
           <input type="text" id="fNotas" class="input" placeholder="Motivo/justificación de la edición…">
         </div>
+        <div class="form-grupo" style="grid-column:1/-1">
+          <label>CNIC vinculados (códigos separados por coma)</label>
+          <input type="text" id="fCnicRefs" class="input" placeholder="CNIC-CUENTA-CIUDADANA-SALDO, CNIC-EMISION-EXCEPCIONAL-TESORO">
+          <span style="font-size:11px;color:var(--bop-texto-suave)">Los CNIC vinculados aparecerán como tabla de datos justo debajo del documento. También puedes usar la etiqueta <code>{{CNIC-CODIGO}}</code> dentro del texto para insertar el valor en línea.</span>
+        </div>
       </div>
 
       <div class="form-grupo">
@@ -396,12 +401,13 @@
       document.getElementById('fFechaJunta').value = (d.fecha_aprobacion_junta || '').slice(0,10);
       document.getElementById('fAprobadaJunta').checked = !!d.aprobada_en_junta;
       document.getElementById('fNotas').value = '';
+      document.getElementById('fCnicRefs').value = (d.cnic_refs || []).map(r => r.codigo).join(', ');
       const btnDel = document.getElementById('btnEliminarDoc');
       if (btnDel) btnDel.classList.remove('oculto');
       ET.cargarMarkdown(d.contenido_md || '');
     }
     function nuevoDoc() {
-      ['fCodigo','fTitulo','fNotas'].forEach(id => document.getElementById(id).value='');
+      ['fCodigo','fTitulo','fNotas','fCnicRefs'].forEach(id => document.getElementById(id).value='');
       document.getElementById('fVersion').value = 1;
       document.getElementById('fTipo').value = 'cni';
       document.getElementById('fCategoria').value = 'capitulo';
@@ -451,6 +457,11 @@
         fecha_aprobacion_junta: document.getElementById('fFechaJunta').value || null,
         aprobada_en_junta: document.getElementById('fAprobadaJunta').checked,
         notas_cambio: document.getElementById('fNotas').value.trim() || null,
+        cnic_refs: document.getElementById('fCnicRefs').value
+          .split(',')
+          .map(function (s) { return s.trim(); })
+          .filter(Boolean)
+          .map(function (codigo) { return { codigo: codigo.toUpperCase(), etiqueta: codigo.toUpperCase() }; }),
         contenido_md: document.getElementById('fContenido').value
       };
 
