@@ -309,7 +309,7 @@
     };
 
     // ── API + desbloqueo de edición ──────────────────────────────────
-    const BOP_API = (window.BOP_API_URL || 'https://rsp.laplaceta.org').replace(/\/+$/, '');
+    // BOP_API ya está declarado globalmente en bop.js (evitar redeclaración)
     const KEY_STORAGE = 'bop_edit_key';
     let bopClave = localStorage.getItem(KEY_STORAGE) || '';
     let bopEditando = false;
