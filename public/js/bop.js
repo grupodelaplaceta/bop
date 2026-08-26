@@ -69,7 +69,8 @@ const BOP = {
     // (por si los datos migrados no lo incluyen explícitamente).
     this._docs = [
       ...(m.estatutos || []).map(d => ({ ...d, tipo: d.tipo || 'estatuto' })),
-      ...(m.cni || []).map(d => ({ ...d, tipo: d.tipo || 'cni' }))
+      ...(m.cni || []).map(d => ({ ...d, tipo: d.tipo || 'cni' })),
+      ...(m.junior || []).map(d => ({ ...d, tipo: d.tipo || 'cni' }))
     ];
     this._cnic = m.cnic || [];
     this._usandoSupabase = false;

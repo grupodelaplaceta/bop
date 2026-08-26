@@ -27,7 +27,7 @@ const supabase = createClient(SUPABASE_URL, key, { auth: { autoRefreshToken: fal
 const AUTOR = { dip: '23749931M', nombre: 'Mikel Alegre Marcos' };
 
 async function migrar() {
-  const docs = [...(BOP_MIGRADOS.estatutos || []), ...(BOP_MIGRADOS.cni || [])];
+  const docs = [...(BOP_MIGRADOS.estatutos || []), ...(BOP_MIGRADOS.cni || []), ...(BOP_MIGRADOS.junior || [])];
   let okDocs = 0, okCnic = 0, errs = 0;
 
   // ── Documentos ──────────────────────────────────────────────────────
