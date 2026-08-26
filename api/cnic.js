@@ -22,12 +22,19 @@ function cors(res) {
 function normalizar(c) {
   return {
     cnic: c.codigo,
+    // Campos de compatibilidad con el cliente BOP y consumidores antiguos.
+    codigo: c.codigo,
     etiqueta: c.etiqueta,
     descripcion: c.descripcion,
     tipo: c.tipo_valor,
+    tipo_valor: c.tipo_valor,
     valor_vigente: c.valor,
+    valor: c.valor,
     unidad: c.unidad,
     norma: c.articulo,
+    articulo: c.articulo,
+    vigente: Boolean(c.vigente),
+    desde: c.desde || null,
     estado: c.vigente ? 'vigente' : 'derogado',
     referencia_bop: `https://bop.laplaceta.org/cnic?codigo=${encodeURIComponent(c.codigo)}`,
     historial: (c.historial || []).map((h) => ({

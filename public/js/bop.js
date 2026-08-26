@@ -6,7 +6,9 @@
 
 // Configuración Supabase (RSP). En producción usar las variables de entorno
 // inyectadas en el build; el anon key permite solo lectura pública.
-const BOP_API = (window.BOP_API_URL || 'https://rsp.laplaceta.org').replace(/\/+$/, '');
+// La API canónica vive en BOP. BOP_API_URL se conserva para instalaciones
+// que todavía usan un gateway durante la migración.
+const BOP_API = (window.BOP_API_URL || '').replace(/\/+$/, '');
 const BOP_CONFIG = {
   supabaseUrl: window.BOP_SUPABASE_URL || 'https://htikrqaywapshlkdonvs.supabase.co',
   supabaseKey: window.BOP_SUPABASE_KEY || ''
@@ -39,11 +41,13 @@ const BOP = {
         fetch(BOP_API + '/api/bop/cnic')
       ]);
       if (rDocs.ok && rCnic.ok) {
-        const docs = await rDocs.json();
-        const cnic = await rCnic.json();
+        const docsPayload = await rDocs.json();
+        const cnicPayload = await rCnic.json();
+        const docs = Array.isArray(docsPayload) ? docsPayload : docsPayload.documentos;
+        const cnic = Array.isArray(cnicPayload) ? cnicPayload : cnicPayload.cnic;
         if (Array.isArray(docs) && Array.isArray(cnic)) {
           this._docs = docs;
-          this._cnic = cnic;
+          this._cnic = cnic.map(c => ({ ...c, codigo: c.codigo || c.cnic, valor: c.valor ?? c.valor_vigente }));
           this._usandoSupabase = true;
           return;
         }
