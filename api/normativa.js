@@ -52,6 +52,8 @@ function resumen(d) {
     fecha_aprobacion_junta: d.fecha_aprobacion_junta || '',
     autor_dip: d.autor_dip || '',
     autor_nombre: d.autor_nombre || '',
+    created_at: d.created_at || d.createdAt || '',
+    updated_at: d.updated_at || d.updatedAt || d.fecha_aprobacion_junta || d.fecha_aplicacion || '',
     // La portada necesita una previsualización y documento.html necesita
     // poder pintar el contenido sin una segunda llamada incompatible.
     contenido_md: d.contenido_md || '',
