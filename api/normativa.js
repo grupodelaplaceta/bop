@@ -11,12 +11,33 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 const { BOP_MIGRADOS } = require('../public/js/datos-migrados.js');
+const { createClient } = require('@supabase/supabase-js');
+
+const SUPABASE_URL = process.env.SUPABASE_URL || 'https://htikrqaywapshlkdonvs.supabase.co';
+const SUPABASE_KEY = process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_ANON_KEY || '';
+const supabase = SUPABASE_KEY ? createClient(SUPABASE_URL, SUPABASE_KEY) : null;
 
 function docs() {
   return [
     ...(Array.isArray(BOP_MIGRADOS && BOP_MIGRADOS.cni) ? BOP_MIGRADOS.cni : []),
     ...(Array.isArray(BOP_MIGRADOS && BOP_MIGRADOS.junior) ? BOP_MIGRADOS.junior : []),
   ];
+}
+
+async function cargarDocumentos() {
+  if (!supabase) return null;
+  try {
+    const { data, error } = await supabase.from('bop_documentos').select('*').eq('estado', 'vigente').order('codigo');
+    if (error || !Array.isArray(data) || data.length === 0) return null;
+    return data.map((d) => ({
+      ...d,
+      contenido_md: d.contenido_md || '',
+      fecha_aplicacion: d.fecha_aplicacion || '',
+      fecha_aprobacion_junta: d.fecha_aprobacion_junta || '',
+      autor_dip: d.autor_dip || '',
+      cnic_refs: Array.isArray(d.cnic_refs) ? d.cnic_refs : [],
+    }));
+  } catch { return null; }
 }
 
 function resumen(d) {
@@ -35,7 +56,7 @@ function resumen(d) {
   };
 }
 
-module.exports = (req, res) => {
+module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-API-Key');
@@ -56,7 +77,9 @@ module.exports = (req, res) => {
   try {
     const url = new URL(req.url, 'https://bop.laplaceta.org');
     const codigo = (url.searchParams.get('codigo') || '').trim().toUpperCase();
-    const todas = docs();
+    // La tabla compartida es la publicación hecha desde RSP. El fichero
+    // migrado solo se usa como respaldo inicial si aún no hay datos.
+    const todas = (await cargarDocumentos()) || docs();
 
     if (codigo) {
       const found = todas.find((d) => String(d.codigo || '').toUpperCase() === codigo);
