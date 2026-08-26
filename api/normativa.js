@@ -52,6 +52,10 @@ function resumen(d) {
     fecha_aprobacion_junta: d.fecha_aprobacion_junta || '',
     autor_dip: d.autor_dip || '',
     autor_nombre: d.autor_nombre || '',
+    // La portada necesita una previsualización y documento.html necesita
+    // poder pintar el contenido sin una segunda llamada incompatible.
+    contenido_md: d.contenido_md || '',
+    cnic_refs: Array.isArray(d.cnic_refs) ? d.cnic_refs : [],
     referencia_bop: `https://bop.laplaceta.org/documento?codigo=${encodeURIComponent(d.codigo)}`,
   };
 }

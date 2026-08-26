@@ -27,6 +27,18 @@ const BOP = {
   _cnic: null,
   _usandoSupabase: false,
 
+  normalizarDocumento(d) {
+    return {
+      ...d,
+      contenido_md: d.contenido_md ?? d.contenidoMd ?? '',
+      cnic_refs: d.cnic_refs ?? d.cnicRefs ?? [],
+      fecha_aplicacion: d.fecha_aplicacion ?? d.fechaAplicacion ?? '',
+      fecha_propuesta: d.fecha_propuesta ?? d.fechaPropuesta ?? '',
+      fecha_aprobacion_junta: d.fecha_aprobacion_junta ?? d.fechaAprobacionJunta ?? '',
+      aprobada_en_junta: d.aprobada_en_junta ?? d.aprobadaEnJunta ?? false,
+    };
+  },
+
   /**
    * Carga los datos SIEMPRE en vivo desde la API del RSP (lectura pública),
    * para que los documentos y CNIC creados/editados aparezcan de inmediato.
@@ -46,7 +58,7 @@ const BOP = {
         const docs = Array.isArray(docsPayload) ? docsPayload : docsPayload.documentos;
         const cnic = Array.isArray(cnicPayload) ? cnicPayload : cnicPayload.cnic;
         if (Array.isArray(docs) && Array.isArray(cnic)) {
-          this._docs = docs;
+          this._docs = docs.map(d => this.normalizarDocumento(d));
           this._cnic = cnic.map(c => ({ ...c, codigo: c.codigo || c.cnic, valor: c.valor ?? c.valor_vigente }));
           this._usandoSupabase = true;
           return;
@@ -59,7 +71,7 @@ const BOP = {
       try {
         const { data, error } = await BOP_SUPABASE.from('bop_documentos').select('*').limit(500);
         if (!error && data && data.length > 0) {
-          this._docs = data;
+          this._docs = data.map(d => this.normalizarDocumento(d));
           const { data: cnicData, error: cnicErr } = await BOP_SUPABASE.from('bop_cnic').select('*').limit(500);
           this._cnic = (!cnicErr && cnicData) ? cnicData : [];
           this._usandoSupabase = true;
@@ -72,9 +84,9 @@ const BOP = {
     // Normalizar tipo: los documentos de cada lista se etiquetan con su tipo
     // (por si los datos migrados no lo incluyen explícitamente).
     this._docs = [
-      ...(m.estatutos || []).map(d => ({ ...d, tipo: d.tipo || 'estatuto' })),
-      ...(m.cni || []).map(d => ({ ...d, tipo: d.tipo || 'cni' })),
-      ...(m.junior || []).map(d => ({ ...d, tipo: d.tipo || 'cni' }))
+      ...(m.estatutos || []).map(d => this.normalizarDocumento({ ...d, tipo: d.tipo || 'estatuto' })),
+      ...(m.cni || []).map(d => this.normalizarDocumento({ ...d, tipo: d.tipo || 'cni' })),
+      ...(m.junior || []).map(d => this.normalizarDocumento({ ...d, tipo: d.tipo || 'cni' }))
     ];
     this._cnic = m.cnic || [];
     this._usandoSupabase = false;
