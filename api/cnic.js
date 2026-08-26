@@ -9,8 +9,20 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 const { BOP_MIGRADOS } = require('../public/js/datos-migrados.js');
+const { createClient } = require('@supabase/supabase-js');
 
 const CNIC = Array.isArray(BOP_MIGRADOS && BOP_MIGRADOS.cnic) ? BOP_MIGRADOS.cnic : [];
+const SUPABASE_URL = process.env.SUPABASE_URL || 'https://htikrqaywapshlkdonvs.supabase.co';
+const SUPABASE_KEY = process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_ANON_KEY || '';
+const supabase = SUPABASE_KEY ? createClient(SUPABASE_URL, SUPABASE_KEY) : null;
+
+async function cargarCnic() {
+  if (!supabase) return CNIC;
+  try {
+    const { data, error } = await supabase.from('bop_cnic').select('*').eq('vigente', true).order('codigo');
+    return !error && Array.isArray(data) && data.length ? data : CNIC;
+  } catch { return CNIC; }
+}
 
 function cors(res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -45,7 +57,7 @@ function normalizar(c) {
   };
 }
 
-module.exports = (req, res) => {
+module.exports = async (req, res) => {
   cors(res);
   if (req.method === 'OPTIONS') {
     res.statusCode = 204;
@@ -63,8 +75,9 @@ module.exports = (req, res) => {
     const url = new URL(req.url, 'https://bop.laplaceta.org');
     const codigo = (url.searchParams.get('codigo') || '').toUpperCase().trim();
 
+    const catalogo = await cargarCnic();
     if (codigo) {
-      const found = CNIC.find((c) => String(c.codigo || '').toUpperCase() === codigo);
+      const found = catalogo.find((c) => String(c.codigo || '').toUpperCase() === codigo);
       if (!found) {
         res.statusCode = 404;
         res.setHeader('Content-Type', 'application/json');
@@ -80,9 +93,9 @@ module.exports = (req, res) => {
     res.statusCode = 200;
     res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify({
-      total: CNIC.length,
+      total: catalogo.length,
       actualizado: '2026-07-03',
-      cnic: CNIC.map(normalizar)
+      cnic: catalogo.map(normalizar)
     }));
   } catch (e) {
     res.statusCode = 500;
