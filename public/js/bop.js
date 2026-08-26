@@ -37,8 +37,8 @@ const BOP = {
     // 1) Fuente principal: API del RSP (siempre actualizada)
     try {
       const [rDocs, rCnic] = await Promise.all([
-        fetch(BOP_API + '/api/bop/documentos'),
-        fetch(BOP_API + '/api/bop/cnic')
+        fetch(BOP_API + '/api/normativa'),
+        fetch(BOP_API + '/api/cnic')
       ]);
       if (rDocs.ok && rCnic.ok) {
         const docsPayload = await rDocs.json();
