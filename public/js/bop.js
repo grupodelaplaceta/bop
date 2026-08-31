@@ -86,7 +86,8 @@ const BOP = {
     this._docs = [
       ...(m.estatutos || []).map(d => this.normalizarDocumento({ ...d, tipo: d.tipo || 'estatuto' })),
       ...(m.cni || []).map(d => this.normalizarDocumento({ ...d, tipo: d.tipo || 'cni' })),
-      ...(m.junior || []).map(d => this.normalizarDocumento({ ...d, tipo: d.tipo || 'cni' }))
+      ...(m.junior || []).map(d => this.normalizarDocumento({ ...d, tipo: d.tipo || 'cni' })),
+      ...(m.placetaid || []).map(d => this.normalizarDocumento({ ...d, tipo: d.tipo || 'cni' }))
     ];
     this._cnic = m.cnic || [];
     this._usandoSupabase = false;

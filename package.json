@@ -5,6 +5,8 @@
   "description": "Boletín Oficial de La Placeta — bop.laplaceta.org. Publicación y consulta de la normativa del Grupo de La Placeta (Estatutos, CNI, CNIC) con versiones, historial y exportación PDF.",
   "scripts": {
     "migrar": "node scripts/migrar-cni.js",
+    "migrar-junior": "node scripts/migrar-junior.js",
+    "migrar-placetaid": "node scripts/migrar-placetaid.js",
     "serve": "npx serve public"
   },
   "dependencies": {

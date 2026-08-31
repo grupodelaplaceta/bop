@@ -21,6 +21,7 @@ function docs() {
   return [
     ...(Array.isArray(BOP_MIGRADOS && BOP_MIGRADOS.cni) ? BOP_MIGRADOS.cni : []),
     ...(Array.isArray(BOP_MIGRADOS && BOP_MIGRADOS.junior) ? BOP_MIGRADOS.junior : []),
+    ...(Array.isArray(BOP_MIGRADOS && BOP_MIGRADOS.placetaid) ? BOP_MIGRADOS.placetaid : []),
   ];
 }
 
