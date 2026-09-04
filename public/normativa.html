@@ -10,28 +10,28 @@
 </head>
 <body>
   <header class="bop-header">
+    <a class="salto" href="#contenido">Saltar al contenido</a>
     <div class="mast-top"><span>Grupo de La Placeta</span><span id="mastFecha"></span></div>
     <div class="mast-head">
-      <img class="logo" src="img/boplogo.png" alt="BOLP">
-      <div class="mast-marca">
-        <div class="mast-line1">Boletín Oficial</div>
-        <div class="mast-line2">de La Placeta</div>
-        <div class="mast-sub">bop.laplaceta.org · Grupo de La Placeta</div>
-      </div>
+      <a class="mast-home" href="index.html" aria-label="Boletín Oficial de La Placeta — Inicio">
+        <img class="logo" src="img/boplogo.png" alt="">
+      </a>
+      <h1 class="sr-only">Boletín Oficial de La Placeta</h1>
       <div class="buscador-global" role="search">
-        <input type="search" id="buscadorGlobalInput" placeholder="Buscar en el boletín…" autocomplete="off" aria-label="Buscar en el boletín">
-        <div class="buscador-global-dropdown" id="buscadorGlobalResultados" hidden></div>
+        <label class="sr-only" for="buscadorGlobalInput">Buscar en el boletín</label>
+        <input type="search" id="buscadorGlobalInput" placeholder="Buscar norma, política o valor…" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="buscadorGlobalResultados" aria-autocomplete="list">
+        <div class="buscador-global-dropdown" id="buscadorGlobalResultados" role="listbox" aria-label="Resultados de la búsqueda" hidden></div>
       </div>
       <button type="button" class="menu-toggle" id="menuToggle" aria-label="Abrir menú" aria-expanded="false">☰</button>
     </div>
-    <nav id="navPrincipal">
+    <nav id="navPrincipal" aria-label="Navegación principal">
       <a href="index.html">Inicio</a>
-      <a href="normativa.html" class="activo">Normativa</a>
+      <a href="normativa.html" class="activo" aria-current="page">Normativa</a>
       <a href="cnic.html">Datos variables</a>
     </nav>
   </header>
 
-  <main class="container">
+  <main class="container" id="contenido" tabindex="-1">
     <nav class="migas" aria-label="Migas de pan"><a href="index.html">Inicio</a> / <b>Normativa</b></nav>
 
     <div id="seccionCabecera" class="hero hero-v2" style="padding:26px 30px"></div>

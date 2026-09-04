@@ -14,55 +14,87 @@ function __esc(html) {
     .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 }
 
-/* ── Buscador global (dropdown de resultados) ─────────────────────────── */
+/* ── Buscador global (resultados agrupados, accesible) ─────────────────── */
 function iniciarBuscadorGlobal() {
   const input = document.getElementById('buscadorGlobalInput');
   const drop = document.getElementById('buscadorGlobalResultados');
   if (!input || !drop) return;
 
-  const cerrar = () => { drop.hidden = true; };
+  const abrir = () => {
+    drop.hidden = false;
+    input.setAttribute('aria-expanded', 'true');
+  };
+  const cerrar = () => {
+    drop.hidden = true;
+    input.setAttribute('aria-expanded', 'false');
+  };
 
   input.addEventListener('input', async () => {
     const q = input.value.trim();
     if (q.length < 2) { cerrar(); return; }
     await __bopListo();
     const r = BOP.buscar(q);
-    const items = [];
-    (r.docs || []).forEach(d => items.push({
-      codigo: d.codigo, titulo: d.titulo, tipo: d.tipo || 'cni',
-      url: 'documento.html?codigo=' + encodeURIComponent(d.codigo)
-    }));
-    (r.cnic || []).forEach(c => items.push({
-      codigo: c.codigo, titulo: c.etiqueta, tipo: 'cnic',
-      url: 'cnic.html?codigo=' + encodeURIComponent(c.codigo)
-    }));
 
-    if (!items.length) {
-      drop.innerHTML = '<div class="sg-vacio">Sin resultados para «' + __esc(q) + '»</div>';
-      drop.hidden = false;
+    // Agrupar por tipo de contenido para «encontrarlo todo» fácilmente
+    const docs = (r.docs || []).slice(0, 6);
+    const cnic = (r.cnic || []).slice(0, 6);
+    const total = (r.docs || []).length + (r.cnic || []).length;
+
+    if (!total) {
+      drop.innerHTML = `<div class="sg-vacio" role="status">Sin resultados para «${__esc(q)}». Prueba con otro término o revisa el catálogo.</div>`;
+      abrir();
       return;
     }
-    const lista = items.slice(0, 8).map(it => `
-      <a class="sg-item" href="${it.url}">
+
+    const itemHtml = (it) => `
+      <a class="sg-item" role="option" href="${it.url}" tabindex="-1">
         <span class="sg-codigo">${__esc(it.codigo)}</span>
         <span class="sg-titulo">${__esc(it.titulo)}</span>
         <span class="badge ${it.tipo === 'cnic' ? 'badge-cnic' : 'badge-cni'}">${__esc(String(it.tipo).toUpperCase())}</span>
-      </a>`).join('');
-    drop.innerHTML = lista + `
-      <div class="sg-mas"><a href="normativa.html?q=${encodeURIComponent(q)}">Ver todos los resultados (${items.length})</a></div>`;
-    drop.hidden = false;
+      </a>`;
+
+    let html = `<div class="sg-mas" role="status" style="text-align:left;border-bottom:1px solid var(--bop-borde)">${total} ${total === 1 ? 'resultado' : 'resultados'} para «${__esc(q)}»</div>`;
+    if (docs.length) {
+      html += `<div class="sg-grupo">Normativa</div>` + docs.map((d) => itemHtml({
+        codigo: d.codigo, titulo: d.titulo, tipo: 'cni',
+        url: 'documento.html?codigo=' + encodeURIComponent(d.codigo)
+      })).join('');
+    }
+    if (cnic.length) {
+      html += `<div class="sg-grupo">Valores variables (CNIC)</div>` + cnic.map((c) => itemHtml({
+        codigo: c.codigo, titulo: c.etiqueta, tipo: 'cnic',
+        url: 'cnic.html?codigo=' + encodeURIComponent(c.codigo)
+      })).join('');
+    }
+    html += `<div class="sg-mas"><a href="normativa.html?q=${encodeURIComponent(q)}">Ver todos los resultados (${total}) →</a></div>`;
+    drop.innerHTML = html;
+    abrir();
   });
 
+  input.addEventListener('focus', () => {
+    const tiene = drop.querySelector('.sg-item');
+    if (tiene) abrir();
+  });
+
+  function opciones() { return Array.from(drop.querySelectorAll('.sg-item')); }
+
   input.addEventListener('keydown', (e) => {
+    const opts = opciones();
     if (e.key === 'Enter') {
-      const first = drop.querySelector('a.sg-item');
-      if (first) { e.preventDefault(); location.href = first.getAttribute('href'); }
+      const activo = drop.querySelector('.sg-item:focus') || opts[0];
+      if (activo) { e.preventDefault(); location.href = activo.getAttribute('href'); }
     } else if (e.key === 'Escape') {
       cerrar(); input.blur();
     } else if (e.key === 'ArrowDown') {
       e.preventDefault();
-      const first = drop.querySelector('a.sg-item');
-      if (first) first.focus();
+      const idx = opts.indexOf(document.activeElement);
+      const next = opts[idx + 1] || opts[0];
+      if (next) next.focus();
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      const idx = opts.indexOf(document.activeElement);
+      const prev = opts[idx - 1] || opts[opts.length - 1];
+      if (prev) prev.focus();
     }
   });
 
