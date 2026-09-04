@@ -28,9 +28,22 @@
       <button type="button" class="menu-toggle" id="menuToggle" aria-label="Abrir menú" aria-expanded="false">☰</button>
     </div>
     <nav id="navPrincipal" aria-label="Navegación principal">
-      <a href="index.html" class="activo" aria-current="page">Inicio</a>
-      <a href="normativa.html">Normativa</a>
-      <a href="cnic.html">Datos variables</a>
+      <div class="nav-item"><a href="index.html" class="activo" aria-current="page">Inicio</a></div>
+      <div class="nav-item nav-hijo">
+        <a href="normativa.html">Normativa</a>
+        <button type="button" class="nav-sub-btn" aria-haspopup="true" aria-expanded="false" aria-label="Desplegar secciones de normativa">▾</button>
+        <div class="nav-submenu">
+          <span class="nav-sub-titulo">Secciones del boletín</span>
+          <a href="normativa.html">Todo el catálogo</a>
+          <a href="normativa.html?seccion=asociativo">I · Asociativo</a>
+          <a href="normativa.html?seccion=codigo-normativo">II · Código Normativo</a>
+          <a href="normativa.html?seccion=terminos-politicas">III · Términos y políticas</a>
+          <a href="normativa.html?seccion=funcionamiento">IV · Documentación de funcionamiento</a>
+          <a href="normativa.html?seccion=sistemas">V · Sistemas</a>
+          <a href="normativa.html?seccion=publicaciones">VI · Publicaciones oficiales</a>
+        </div>
+      </div>
+      <div class="nav-item"><a href="cnic.html">Datos variables</a></div>
     </nav>
   </header>
 

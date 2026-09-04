@@ -141,8 +141,32 @@ function iniciarMenuMovil() {
   });
 }
 
+/* ── Submenús de navegación (accesibles) ──────────────────────────────── */
+function iniciarSubmenus() {
+  const subBtns = Array.from(document.querySelectorAll('.nav-sub-btn'));
+  if (!subBtns.length) return;
+  const abrir = (b) => { b.setAttribute('aria-expanded', 'true'); b.closest('.nav-hijo')?.classList.add('abierto'); };
+  const cerrar = (b) => { b.setAttribute('aria-expanded', 'false'); b.closest('.nav-hijo')?.classList.remove('abierto'); };
+  const cerrarTodos = () => subBtns.forEach(cerrar);
+
+  subBtns.forEach((b) => {
+    b.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const yaAbierto = b.getAttribute('aria-expanded') === 'true';
+      cerrarTodos();
+      if (!yaAbierto) abrir(b);
+    });
+    b.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') { cerrar(b); b.focus(); }
+    });
+  });
+  document.querySelectorAll('.nav-hijo .nav-submenu a').forEach((a) => a.addEventListener('click', cerrarTodos));
+  document.addEventListener('click', (e) => { if (!e.target.closest('.nav-hijo')) cerrarTodos(); });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   rellenarFechaMasthead();
   iniciarBuscadorGlobal();
+  iniciarSubmenus();
   iniciarMenuMovil();
 });
