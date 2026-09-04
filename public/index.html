@@ -9,70 +9,73 @@
   <meta property="og:description" content="Normativa oficial del Grupo de La Placeta · bop.laplaceta.org">
   <link rel="icon" type="image/png" href="img/favibop.png">
   <link rel="stylesheet" href="css/bop.css">
+  <link rel="stylesheet" href="css/bolp-oficial.css">
 </head>
 <body>
   <header class="bop-header">
-    <img class="logo" src="img/boplogo.png" alt="BOLP">
-    <div class="marca">
-      <h1><span class="bop-acronimo">BOLP</span> · Boletín Oficial de La Placeta</h1>
-      <span>Normativa oficial del Grupo de La Placeta · bop.laplaceta.org</span>
+    <div class="mast-top"><span>Grupo de La Placeta</span><span id="mastFecha"></span></div>
+    <div class="mast-head">
+      <img class="logo" src="img/boplogo.png" alt="BOLP">
+      <div class="mast-marca">
+        <div class="mast-line1">Boletín Oficial</div>
+        <div class="mast-line2">de La Placeta</div>
+        <div class="mast-sub">bop.laplaceta.org · Grupo de La Placeta</div>
+      </div>
+      <div class="buscador-global" role="search">
+        <input type="search" id="buscadorGlobalInput" placeholder="Buscar en el boletín…" autocomplete="off" aria-label="Buscar en el boletín">
+        <div class="buscador-global-dropdown" id="buscadorGlobalResultados" hidden></div>
+      </div>
+      <button type="button" class="menu-toggle" id="menuToggle" aria-label="Abrir menú" aria-expanded="false">☰</button>
     </div>
-    <div class="buscador-global" role="search">
-      <span class="sg-icono">🔍</span>
-      <input type="search" id="buscadorGlobalInput" placeholder="Buscar normativa…" autocomplete="off" aria-label="Buscar normativa">
-      <div class="buscador-global-dropdown" id="buscadorGlobalResultados" hidden></div>
-    </div>
-    <button type="button" class="menu-toggle" id="menuToggle" aria-label="Abrir menú" aria-expanded="false">☰</button>
     <nav id="navPrincipal">
       <a href="index.html" class="activo">Inicio</a>
       <a href="normativa.html">Normativa</a>
-      <a href="cnic.html">Datos (CNIC)</a>
+      <a href="cnic.html">Datos variables</a>
     </nav>
   </header>
 
   <main class="container">
     <section class="hero-v2">
-      <div class="hero-kicker">Grupo de La Placeta · Sistema institucional</div>
-      <h2>El Boletín Oficial de La Placeta</h2>
-      <p>El BOLP es el boletín oficial del Grupo: aquí se publica, versiona y archiva toda la normativa (Estatutos, Código Normativo, términos y políticas, documentación de funcionamiento, sistemas y publicaciones oficiales). Ningún documento vigente se modifica sin dejar trazabilidad.</p>
+      <div class="hero-kicker">Publicación oficial · bop.laplaceta.org</div>
+      <h2>Boletín Oficial de La Placeta</h2>
+      <p>Órgano de publicación de la normativa del Grupo de La Placeta. Este diario reúne los Estatutos, el Código Normativo, los términos y políticas, la documentación de funcionamiento, los sistemas y las publicaciones oficiales del Grupo, con su historial de versiones y su estado de vigencia.</p>
       <div class="hero-chips" id="heroCifras"></div>
       <div class="hero-cta">
-        <a class="btn btn-primario" style="background:#fff;color:var(--bolp-accent)" href="normativa.html">Explorar la normativa →</a>
-        <a class="btn btn-outline" style="background:transparent;color:#fff;border-color:rgba(255,255,255,0.5)" href="cnic.html">Valores y datos (CNIC)</a>
-        <a class="btn btn-outline" style="background:transparent;color:#fff;border-color:rgba(255,255,255,0.5)" href="#modelo">Cómo se publica la normativa</a>
+        <a class="btn btn-primario" href="normativa.html">Consultar la normativa</a>
+        <a class="btn btn-outline" href="#modelo">Cómo se publica la normativa</a>
       </div>
     </section>
 
     <section class="cifras-grid" id="cifrasGrid" aria-label="El BOLP en cifras"></section>
 
     <section class="seccion">
-      <div class="seccion-titulo">📚 Estructura documental del BOLP</div>
+      <div class="seccion-titulo">Estructura documental del BOLP</div>
       <p style="color:var(--bop-texto-suave);font-size:14px;margin-bottom:18px">La normativa se organiza en seis secciones documentales. Cada documento tiene su código, versión, órgano responsable, fechas de publicación y entrada en vigor, e historial completo.</p>
       <div id="bloquesSecciones" class="cargando">Clasificando documentos…</div>
     </section>
 
     <section class="seccion" id="seccion-novedades">
-      <div class="seccion-titulo">🆕 Novedades <span class="chip" id="chip-novedades">0</span></div>
+      <div class="seccion-titulo">Novedades <span class="chip" id="chip-novedades">0</span></div>
       <div id="lista-novedades" class="cargando">Cargando novedades…</div>
     </section>
 
     <section class="seccion" id="seccion-cnic-recientes">
-      <div class="seccion-titulo">🧩 Valores variables actualizados (CNIC) <span class="chip" id="chip-cnic">0</span></div>
+      <div class="seccion-titulo">Valores variables (CNIC) <span class="chip" id="chip-cnic">0</span></div>
       <div id="lista-cnic-recientes" class="cargando">Cargando datos…</div>
     </section>
 
     <section class="flujo-modelo" id="modelo">
-      <div class="seccion-titulo" style="margin:0">⚖️ Cómo se publica la normativa</div>
+      <div class="seccion-titulo" style="margin:0">Cómo se publica la normativa</div>
       <div class="flujo-pasos">
-        <span class="paso"><span class="icono">🏢</span>Departamento</span>
+        <span class="paso"><span class="icono">1</span>Departamento</span>
         <span class="paso-flecha">→</span>
-        <span class="paso"><span class="icono">📝</span>RSP · Propuesta</span>
+        <span class="paso"><span class="icono">2</span>RSP · Propuesta</span>
         <span class="paso-flecha">→</span>
-        <span class="paso"><span class="icono">🏛️</span>Junta · Votación</span>
+        <span class="paso"><span class="icono">3</span>Junta · Votación</span>
         <span class="paso-flecha">→</span>
-        <span class="paso"><span class="icono">📰</span>BOLP · Publicación</span>
+        <span class="paso"><span class="icono">4</span>BOLP · Publicación</span>
         <span class="paso-flecha">→</span>
-        <span class="paso"><span class="icono">🟢</span>Entrada en vigor</span>
+        <span class="paso"><span class="icono">5</span>Entrada en vigor</span>
       </div>
       <div class="regla-oro">
         <div class="ro-titulo">Regla de oro del sistema</div>
@@ -104,17 +107,17 @@
       const cniDocs = docs.filter(d => String(d.codigo || '').startsWith('CNI-'));
       const elHero = document.getElementById('heroCifras');
       if (elHero) elHero.innerHTML = [
-        `<span class="hero-chip">📄 Documentos publicados <b>${cifras.total}</b></span>`,
-        `<span class="hero-chip">🟢 Vigentes <b>${cifras.vigentes}</b></span>`,
-        `<span class="hero-chip">📘 Código Normativo <b>${cniDocs.length}</b></span>`,
-        `<span class="hero-chip">🧩 Datos variables (CNIC) <b>${cifras.cnic}</b></span>`
+        `<span class="hero-chip">Documentos publicados <b>${cifras.total}</b></span>`,
+        `<span class="hero-chip">Normativa vigente <b>${cifras.vigentes}</b></span>`,
+        `<span class="hero-chip">Código Normativo Interno <b>${cniDocs.length}</b></span>`,
+        `<span class="hero-chip">Valores variables (CNIC) <b>${cifras.cnic}</b></span>`
       ].join('');
 
       const grid = document.getElementById('cifrasGrid');
       if (grid) grid.innerHTML = [
         `<div class="cifra"><div class="cifra-num">${cifras.total}</div><div class="cifra-label">Documentos publicados</div></div>`,
         `<div class="cifra cifra-vigentes"><div class="cifra-num">${cifras.vigentes}</div><div class="cifra-label">Normativa vigente</div></div>`,
-        `<div class="cifra"><div class="cifra-num">${cniDocs.length}</div><div class="cifra-label">Capítulos y preámbulo del CNI</div></div>`,
+        `<div class="cifra"><div class="cifra-num">${cniDocs.length}</div><div class="cifra-label">Código Normativo Interno</div></div>`,
         `<div class="cifra cifra-cnic"><div class="cifra-num">${cifras.cnic}</div><div class="cifra-label">Valores variables (CNIC)</div></div>`
       ].join('');
 

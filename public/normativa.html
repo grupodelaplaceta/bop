@@ -6,24 +6,28 @@
   <title>Normativa — BOLP</title>
   <link rel="icon" type="image/png" href="img/favibop.png">
   <link rel="stylesheet" href="css/bop.css">
+  <link rel="stylesheet" href="css/bolp-oficial.css">
 </head>
 <body>
   <header class="bop-header">
-    <img class="logo" src="img/boplogo.png" alt="BOLP">
-    <div class="marca">
-      <h1><span class="bop-acronimo">BOLP</span> · Boletín Oficial de La Placeta</h1>
-      <span>Catálogo de la normativa</span>
+    <div class="mast-top"><span>Grupo de La Placeta</span><span id="mastFecha"></span></div>
+    <div class="mast-head">
+      <img class="logo" src="img/boplogo.png" alt="BOLP">
+      <div class="mast-marca">
+        <div class="mast-line1">Boletín Oficial</div>
+        <div class="mast-line2">de La Placeta</div>
+        <div class="mast-sub">bop.laplaceta.org · Grupo de La Placeta</div>
+      </div>
+      <div class="buscador-global" role="search">
+        <input type="search" id="buscadorGlobalInput" placeholder="Buscar en el boletín…" autocomplete="off" aria-label="Buscar en el boletín">
+        <div class="buscador-global-dropdown" id="buscadorGlobalResultados" hidden></div>
+      </div>
+      <button type="button" class="menu-toggle" id="menuToggle" aria-label="Abrir menú" aria-expanded="false">☰</button>
     </div>
-    <div class="buscador-global" role="search">
-      <span class="sg-icono">🔍</span>
-      <input type="search" id="buscadorGlobalInput" placeholder="Buscar normativa…" autocomplete="off" aria-label="Buscar normativa">
-      <div class="buscador-global-dropdown" id="buscadorGlobalResultados" hidden></div>
-    </div>
-    <button type="button" class="menu-toggle" id="menuToggle" aria-label="Abrir menú" aria-expanded="false">☰</button>
     <nav id="navPrincipal">
       <a href="index.html">Inicio</a>
       <a href="normativa.html" class="activo">Normativa</a>
-      <a href="cnic.html">Datos (CNIC)</a>
+      <a href="cnic.html">Datos variables</a>
     </nav>
   </header>
 
@@ -35,18 +39,18 @@
     <div class="tabs-secciones" id="tabsSecciones" role="tablist" aria-label="Secciones del BOLP"></div>
 
     <div class="filtros-bar">
-      <input type="text" id="buscador" class="input" placeholder="🔍 Buscar por código, título o contenido…" oninput="programarFiltro()" aria-label="Buscar">
+      <input type="text" id="buscador" class="input" placeholder="Buscar por código, título o contenido…" oninput="programarFiltro()" aria-label="Buscar">
       <select id="filtroFamilia" class="select" onchange="filtrar()" aria-label="Familia"></select>
       <select id="filtroDepartamento" class="select" onchange="filtrar()" aria-label="Departamento">
         <option value="">Todos los órganos</option>
       </select>
       <select id="filtroEstado" class="select" onchange="filtrar()" aria-label="Estado">
         <option value="">Todos los estados</option>
-        <option value="vigente">🟢 Vigente</option>
-        <option value="publicado">📌 Publicado</option>
-        <option value="enmienda">🔶 Enmienda / Propuesta</option>
-        <option value="proyecto">✏️ Proyecto</option>
-        <option value="derogado">⚪ Derogado / Histórico</option>
+        <option value="vigente">Vigente</option>
+        <option value="publicado">Publicado</option>
+        <option value="enmienda">Enmienda / Propuesta</option>
+        <option value="proyecto">Proyecto</option>
+        <option value="derogado">Derogado / Histórico</option>
       </select>
       <select id="filtroAnio" class="select" onchange="filtrar()" aria-label="Año">
         <option value="">Todos los años</option>
@@ -102,21 +106,21 @@
       const s = __estado.seccion ? BOLP.seccion(__estado.seccion) : null;
       el.className = 'hero-v2' + (s ? ' sec-' + s.id : '');
       el.innerHTML = s
-        ? `<div class="hero-kicker">Sección ${s.numero} · BOLP</div>
-           <h2 style="font-size:26px">${s.icono} ${bopEscapeHtml(s.titulo)}</h2>
+        ? `<div class="hero-kicker">Sección ${s.numero} del Boletín Oficial</div>
+           <h2 style="font-size:26px">${bopEscapeHtml(s.titulo)}</h2>
            <p>${bopEscapeHtml(s.descripcion)}</p>`
         : `<div class="hero-kicker">Catálogo general</div>
-           <h2 style="font-size:26px">📚 Toda la normativa del BOLP</h2>
-           <p>Explora los documentos por sección documental, familia, órgano responsable, estado o año. Cada ficha incluye versión, fechas y acceso al documento completo.</p>`;
+           <h2 style="font-size:26px">Normativa del Boletín Oficial de La Placeta</h2>
+           <p>Consulta los documentos por sección documental, familia, órgano responsable, estado o año. Cada entrada incluye versión, fechas y acceso al texto íntegro.</p>`;
     }
 
     function pintarTabs() {
       const el = __el('tabsSecciones');
       const total = __docs.length;
-      const base = `<button type="button" class="tab-sec ${!__estado.seccion ? 'activo' : ''}" onclick="seleccionarSeccion('')">Todos <span class="cnt">(${total})</span></button>`;
+      const base = `<button type="button" class="tab-sec ${!__estado.seccion ? 'activo' : ''}" onclick="seleccionarSeccion('')">Todas <span class="cnt">(${total})</span></button>`;
       const resto = BOLP.secciones.map(s => {
         const n = __docs.filter(d => BOLP.clasificar(d).seccion === s.id).length;
-        return `<button type="button" class="tab-sec sec-${s.id} ${__estado.seccion === s.id ? 'activo' : ''}" data-seccion="${s.id}" onclick="seleccionarSeccion('${s.id}')">${s.icono} <span class="n">${s.numero}</span> ${bopEscapeHtml(s.titulo)} <span class="cnt">(${n})</span></button>`;
+        return `<button type="button" class="tab-sec ${__estado.seccion === s.id ? 'activo' : ''}" data-seccion="${s.id}" onclick="seleccionarSeccion('${s.id}')"><span class="n">${s.numero}</span> ${bopEscapeHtml(s.titulo)} <span class="cnt">(${n})</span></button>`;
       }).join('');
       el.innerHTML = base + resto;
     }
@@ -196,17 +200,17 @@
         s.familias.forEach(f => {
           const grupo = docs.filter(d => BOLP.clasificar(d).familia === f.id);
           if (!grupo.length) return;
-          html += `<div class="grupo-familia"><div class="gf-titulo">📁 ${bopEscapeHtml(f.nombre)} <span class="chip">${grupo.length}</span></div><div class="gf-sub">${bopEscapeHtml(s.titulo)} · Sección ${s.numero}</div></div>`;
+          html += `<div class="grupo-familia"><div class="gf-titulo">${bopEscapeHtml(f.nombre)} <span class="chip">${grupo.length}</span></div><div class="gf-sub">${bopEscapeHtml(s.titulo)} · Sección ${s.numero}</div></div>`;
           html += grupo.map(d => bolpCardDocumento(d)).join('');
         });
         // documentos de la sección sin familia conocida
         const sinFamilia = docs.filter(d => !BOLP.clasificar(d).familia);
-        if (sinFamilia.length) html += `<div class="grupo-familia"><div class="gf-titulo">📁 Otros documentos</div></div>` + sinFamilia.map(d => bolpCardDocumento(d)).join('');
+        if (sinFamilia.length) html += `<div class="grupo-familia"><div class="gf-titulo">Otros documentos</div></div>` + sinFamilia.map(d => bolpCardDocumento(d)).join('');
       } else {
         BOLP.secciones.forEach(s => {
           const enSec = docs.filter(d => BOLP.clasificar(d).seccion === s.id);
           if (!enSec.length) return;
-          html += `<div class="grupo-familia sec-${s.id}"><div class="gf-titulo">${s.icono} Sección ${s.numero} · ${bopEscapeHtml(s.titulo)} <span class="chip">${enSec.length}</span></div><div class="gf-sub">${bopEscapeHtml(s.lema)}</div></div>`;
+          html += `<div class="grupo-familia sec-${s.id}"><div class="gf-titulo">Sección ${s.numero} · ${bopEscapeHtml(s.titulo)} <span class="chip">${enSec.length}</span></div><div class="gf-sub">${bopEscapeHtml(s.lema)}</div></div>`;
           // subagrupar por familia dentro de la sección
           s.familias.forEach(f => {
             const sub = enSec.filter(d => BOLP.clasificar(d).familia === f.id);

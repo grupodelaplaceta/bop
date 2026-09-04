@@ -70,6 +70,15 @@ function iniciarBuscadorGlobal() {
   document.addEventListener('click', (e) => { if (!e.target.closest('.buscador-global')) cerrar(); });
 }
 
+/* ── Fecha institucional en la cabecera de gaceta ─────────────────────── */
+function rellenarFechaMasthead() {
+  const el = document.getElementById('mastFecha');
+  if (!el) return;
+  const hoy = new Date();
+  const texto = hoy.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  el.textContent = texto.charAt(0).toUpperCase() + texto.slice(1);
+}
+
 /* ── Menú móvil (hamburguesa) ─────────────────────────────────────────── */
 function iniciarMenuMovil() {
   const toggle = document.getElementById('menuToggle');
@@ -101,6 +110,7 @@ function iniciarMenuMovil() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  rellenarFechaMasthead();
   iniciarBuscadorGlobal();
   iniciarMenuMovil();
 });

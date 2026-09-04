@@ -233,6 +233,36 @@ function bolpFechaVigor(d) {
   return (d && (d.fecha_entrada_vigor || d.fecha_publicacion || d.fecha_aplicacion)) || '';
 }
 
+/* Nombre de persona a efectos de boletín oficial: nombre + iniciales de los
+   apellidos (p. ej. «Mikel A. M.»). Nunca se publica el nombre completo. */
+function bolpCensurarNombre(nombre) {
+  if (!nombre) return '';
+  const partes = String(nombre).trim().replace(/\s+/g, ' ').split(' ').filter(Boolean);
+  if (partes.length <= 1) return partes[0] || '';
+  const [primero, ...apellidos] = partes;
+  const iniciales = apellidos.map((a) => a.charAt(0) + '.').join(' ');
+  return `${primero} ${iniciales}`;
+}
+
+/* DIP enmascarado para publicación: conserva el prefijo y la letra de control,
+   ocultando los dígitos centrales (p. ej. «237*****M»). */
+function bolpCensurarDip(dip) {
+  if (!dip) return '';
+  const s = String(dip).trim();
+  if (s.length <= 4) return '***';
+  const cabeza = s.slice(0, 3);
+  const cola = s.slice(-1);
+  const ocultos = Math.max(3, s.length - 4);
+  return `${cabeza}${'*'.repeat(ocultos)}${cola}`;
+}
+
+/* Autoría legible en boletín: «Nombre A. A. · DIP***» (sin datos completos). */
+function bolpAutorLegible(nombre, dip) {
+  const n = bolpCensurarNombre(nombre);
+  const d = dip ? bolpCensurarDip(dip) : '';
+  return [n, d ? `DIP ${d}` : ''].filter(Boolean).join(' · ');
+}
+
 /* Cifras para portada / paneles. */
 function bolpCifras(docs, cnic) {
   const arr = Array.isArray(docs) ? docs : [];
@@ -267,12 +297,16 @@ if (typeof window !== 'undefined') {
   window.bolpFechaPublicacion = bolpFechaPublicacion;
   window.bolpFechaVigor = bolpFechaVigor;
   window.bolpCifras = bolpCifras;
+  window.bolpCensurarNombre = bolpCensurarNombre;
+  window.bolpCensurarDip = bolpCensurarDip;
+  window.bolpAutorLegible = bolpAutorLegible;
 }
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     BOLP_SECCIONES, BOLP_DEPARTAMENTOS, BOLP_ESTADOS,
     bolpSeccionPorId, bolpDepartamentoPorId, bolpFamiliaEnSeccion,
     bolpClasificar, bolpNombreFamilia, bolpEstado,
-    bolpFechaPublicacion, bolpFechaVigor, bolpCifras
+    bolpFechaPublicacion, bolpFechaVigor, bolpCifras,
+    bolpCensurarNombre, bolpCensurarDip, bolpAutorLegible
   };
 }

@@ -7,7 +7,7 @@
 /* ── Badges ──────────────────────────────────────────────────────────── */
 function bolpEstadoBadge(d) {
   const e = bolpEstado(d);
-  return `<span class="badge ${e.clase}" title="${bopEscapeHtml(e.etiqueta)}">${e.icono}&nbsp;${bopEscapeHtml(e.etiqueta)}</span>`;
+  return `<span class="badge badge-estado ${e.clase}">${bopEscapeHtml(e.etiqueta)}</span>`;
 }
 
 function bolpSeccionBadge(d) {
@@ -15,7 +15,7 @@ function bolpSeccionBadge(d) {
   if (!c.seccion) return '';
   const s = bolpSeccionPorId(c.seccion);
   if (!s) return '';
-  return `<span class="badge badge-sec sec-${s.id}" title="Sección ${s.numero} · ${bopEscapeHtml(s.titulo)}">${s.icono}&nbsp;${s.numero}. ${bopEscapeHtml(s.titulo)}</span>`;
+  return `<span class="badge badge-sec" title="Sección ${s.numero} · ${bopEscapeHtml(s.titulo)}">Sección ${s.numero} · ${bopEscapeHtml(s.titulo)}</span>`;
 }
 
 function bolpFamiliaBadge(d) {
@@ -29,7 +29,7 @@ function bolpDepartamentoBadge(d) {
   if (!c.departamento) return '';
   const dep = bolpDepartamentoPorId(c.departamento);
   if (!dep) return '';
-  return `<span class="badge badge-dep" title="Órgano responsable">🏛 ${bopEscapeHtml(dep.nombre)}</span>`;
+  return `<span class="badge badge-dep" title="Órgano responsable">${bopEscapeHtml(dep.nombre)}</span>`;
 }
 
 /* ── Ficha de documento ──────────────────────────────────────────────── */
@@ -47,7 +47,7 @@ function bolpFichaMetadatos(d) {
   filas.push(['Entrada en vigor', fechaLegible(bolpFechaVigor(d))]);
   if (d.fecha_aprobacion_junta) filas.push(['Aprobado en Junta', fechaLegible(d.fecha_aprobacion_junta)]);
   if (d.aprobacion_referencia) filas.push(['Aprobación', d.aprobacion_referencia]);
-  if (d.autor_nombre || d.autor_dip) filas.push(['Autor', [d.autor_nombre, d.autor_dip].filter(Boolean).join(' · ')]);
+  if (d.autor_nombre || d.autor_dip) filas.push(['Autor', bopEscapeHtml(bolpAutorLegible(d.autor_nombre, d.autor_dip))]);
   if (d.fecha_propuesta) filas.push(['Fecha de propuesta', fechaLegible(d.fecha_propuesta)]);
 
   return filas.map(([k, v]) => `
@@ -78,7 +78,7 @@ function bolpHistorialHtml(d) {
     : [];
 
   if (!vers.length) {
-    return `<div class="version-item"><span class="num">v${d.version || 1}</span><div class="detalle">${bopEscapeHtml(d.notas_cambio || 'Versión actual en vigor.')}<div class="meta">${[d.autor_nombre, d.autor_dip].filter(Boolean).join(' · ') || '—'} · ${fechaLegible(d.fecha_aprobacion_junta || d.fecha_aplicacion)}</div></div></div>`;
+    return `<div class="version-item"><span class="num">v${d.version || 1}</span><div class="detalle">${bopEscapeHtml(d.notas_cambio || 'Versión actual en vigor.')}<div class="meta">${d.autor_nombre || d.autor_dip ? bopEscapeHtml(bolpAutorLegible(d.autor_nombre, d.autor_dip)) : '—'} · ${fechaLegible(d.fecha_aprobacion_junta || d.fecha_aplicacion)}</div></div></div>`;
   }
   return vers.map((v) => `
     <div class="version-item">
@@ -86,7 +86,7 @@ function bolpHistorialHtml(d) {
       <div class="detalle">
         <span class="version-estado">${bolpEstadoBadge({ estado: v.estado })}</span>
         ${bopEscapeHtml(v.notas_cambio || 'Actualización de la normativa.')}
-        <div class="meta">${[v.autor_nombre, v.autor_dip].filter(Boolean).join(' · ') || '—'} · ${fechaLegible(v.fecha_aprobacion_junta || v.fecha_aplicacion || v.creado_en)}</div>
+        <div class="meta">${v.autor_nombre || v.autor_dip ? bopEscapeHtml(bolpAutorLegible(v.autor_nombre, v.autor_dip)) : '—'} · ${fechaLegible(v.fecha_aprobacion_junta || v.fecha_aplicacion || v.creado_en)}</div>
         ${v.contenido_md ? `<button type="button" class="btn btn-mini btn-enlace" onclick="bolpVerVersion('${bopEscapeHtml(String(d.codigo).replace(/'/g, "\\'"))}', ${v.version})">👁 Ver esta versión</button>` : ''}
       </div>
     </div>`).join('');
@@ -191,7 +191,7 @@ function bolpCambiosVersionHtml(d) {
   const prev = anteriores[0];
 
   if (d.notas_cambio) {
-    const notas = `<div class="aviso aviso-info">💬 <strong>Motivo de esta versión:</strong> ${bopEscapeHtml(d.notas_cambio)}</div>`;
+    const notas = `<div class="aviso aviso-info"><strong>Motivo de esta versión:</strong> ${bopEscapeHtml(d.notas_cambio)}</div>`;
     if (!prev) return notas;
     const codigoJson = bopEscapeHtml(String(d.codigo || '').replace(/'/g, "\\'"));
     return notas + `
@@ -265,18 +265,14 @@ function bolpBloqueSeccion(s, docsEnSeccion) {
     kpis.push(`<span class="bloque-familia">${bopEscapeHtml(f.nombre)} <b>${n}</b></span>`);
   });
   return `
-    <div class="bloque-seccion sec-${s.id}">
+    <div class="bloque-seccion">
       <div class="bloque-cab">
-        <span class="bloque-icono">${s.icono}</span>
-        <div>
-          <div class="bloque-numero">Sección ${s.numero}</div>
-          <div class="bloque-titulo">${bopEscapeHtml(s.titulo)}</div>
-          <div class="bloque-lema">${bopEscapeHtml(s.lema)}</div>
-        </div>
-        <span class="bloque-chip">${docsEnSeccion.length} ${docsEnSeccion.length === 1 ? 'documento' : 'documentos'}</span>
+        <div class="bloque-marca">SECCIÓN ${s.numero}</div>
+        <div class="bloque-titulo">${bopEscapeHtml(s.titulo)}</div>
+        <div class="bloque-lema">${bopEscapeHtml(s.lema)}</div>
       </div>
       <div class="bloque-kpis">${kpis.join('') || '<span class="bloque-familia">Sin publicaciones todavía</span>'}</div>
-      <div class="bloque-acciones"><a class="btn btn-mini btn-outline" href="normativa.html?seccion=${s.id}">Explorar la sección →</a></div>
+      <div class="bloque-acciones"><a class="btn btn-mini btn-outline" href="normativa.html?seccion=${s.id}">Consultar la sección →</a></div>
     </div>`;
 }
 
@@ -291,6 +287,14 @@ function bolpFamiliaOptionsHtml(seccionId) {
   if (!s) return '<option value="">Todas las familias</option>';
   return '<option value="">Todas las familias</option>' + s.familias.map((f) => `<option value="${f.id}">${bopEscapeHtml(f.nombre)}</option>`).join('');
 }
+
+/* Referencia de autoría para el pie de documento (censurada). */
+function bolpFirmaDocumento(d) {
+  const a = d.autor_nombre || d.autor_dip ? bolpAutorLegible(d.autor_nombre, d.autor_dip) : '';
+  return a;
+}
+
+window.bolpFirmaDocumento = bolpFirmaDocumento;
 
 /* Namespace de utilidades para páginas inline. */
 window.BOLP = {

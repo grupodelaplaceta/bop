@@ -6,24 +6,28 @@
   <title>Exportar PDF — BOLP</title>
   <link rel="icon" type="image/png" href="img/favibop.png">
   <link rel="stylesheet" href="css/bop.css">
+  <link rel="stylesheet" href="css/bolp-oficial.css">
 </head>
 <body>
   <header class="bop-header">
-    <img class="logo" src="img/boplogo.png" alt="BOLP">
-    <div class="marca">
-      <h1><span class="bop-acronimo">BOLP</span> · Boletín Oficial de La Placeta</h1>
-      <span>Exportación PDF</span>
+    <div class="mast-top"><span>Grupo de La Placeta</span><span id="mastFecha"></span></div>
+    <div class="mast-head">
+      <img class="logo" src="img/boplogo.png" alt="BOLP">
+      <div class="mast-marca">
+        <div class="mast-line1">Boletín Oficial</div>
+        <div class="mast-line2">de La Placeta</div>
+        <div class="mast-sub">bop.laplaceta.org · Grupo de La Placeta</div>
+      </div>
+      <div class="buscador-global" role="search">
+        <input type="search" id="buscadorGlobalInput" placeholder="Buscar en el boletín…" autocomplete="off" aria-label="Buscar en el boletín">
+        <div class="buscador-global-dropdown" id="buscadorGlobalResultados" hidden></div>
+      </div>
+      <button type="button" class="menu-toggle" id="menuToggle" aria-label="Abrir menú" aria-expanded="false">☰</button>
     </div>
-    <div class="buscador-global" role="search">
-      <span class="sg-icono">🔍</span>
-      <input type="search" id="buscadorGlobalInput" placeholder="Buscar normativa…" autocomplete="off" aria-label="Buscar normativa">
-      <div class="buscador-global-dropdown" id="buscadorGlobalResultados" hidden></div>
-    </div>
-    <button type="button" class="menu-toggle" id="menuToggle" aria-label="Abrir menú" aria-expanded="false">☰</button>
     <nav id="navPrincipal">
       <a href="index.html">Inicio</a>
       <a href="normativa.html">Normativa</a>
-      <a href="cnic.html">Datos (CNIC)</a>
+      <a href="cnic.html">Datos variables</a>
     </nav>
   </header>
 
@@ -84,8 +88,8 @@
           Documento oficial del Boletín Oficial de La Placeta. Verifíquese en bop.laplaceta.org.
         </div>
         <div style="margin-top:20px;display:flex;gap:10px">
-          <button class="btn btn-secundario" onclick="history.back()">← Volver</button>
-          <button class="btn btn-primario" onclick="window.print()">🖨️ Imprimir / Guardar PDF</button>
+          <button class="btn btn-secundario" onclick="history.back()">Volver</button>
+          <button class="btn btn-primario" onclick="window.print()">Imprimir / Guardar PDF</button>
         </div>
       `;
       window.print();
