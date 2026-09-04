@@ -10,10 +10,12 @@ function bopEscapeHtml(html) {
     .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 }
 
-/** Convierte inline markdown (**negrita**, *cursiva*, `code`, {{CNIC-XXXX}}) a HTML. */
+/** Convierte inline markdown (**negrita**, *cursiva*, `code`, [enlace](url), {{CNIC-XXXX}}) a HTML. */
 function bopInline(md) {
   if (!md) return '';
   let s = bopEscapeHtml(md);
+  // Enlaces [texto](url)
+  s = s.replace(/\[([^\]]+)\]\((https?:[^)\s]+)\)/g, (m, texto, url) => `<a href="${url}" target="_blank" rel="noopener noreferrer">${texto}</a>`);
   // Código inline
   s = s.replace(/`([^`]+)`/g, '<code>$1</code>');
   // Negritas **texto**
@@ -96,7 +98,10 @@ function bopParseTablas(lineas) {
 /** Renderiza un documento markdown completo a HTML. */
 function bopRenderMarkdown(md) {
   if (!md) return '<p>Sin contenido.</p>';
-  const lineas = String(md).split('\n');
+  // Normaliza saltos de línea (los textos legales suelen venir con CRLF,
+  // y '.' no cruza '\r' en los regex de encabezados/listas).
+  md = String(md).replace(/\r\n?/g, '\n');
+  const lineas = md.split('\n');
   const procesadas = bopParseTablas(lineas);
   let html = '';
   let enLista = false;
@@ -202,6 +207,7 @@ function bopHtmlAMarkdown(html) {
 function bopPlano(md, max) {
   if (!md) return '';
   let txt = String(md)
+    .replace(/\r\n?/g, '\n')
     .replace(/\{\{[^}]*\}\}/g, '')
     .replace(/`([^`]+)`/g, '$1')
     .replace(/\*\*([^*]+)\*\*/g, '$1')

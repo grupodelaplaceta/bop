@@ -3,16 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Normativa — BOP</title>
+  <title>Normativa — BOLP</title>
   <link rel="icon" type="image/png" href="img/favibop.png">
   <link rel="stylesheet" href="css/bop.css">
 </head>
 <body>
   <header class="bop-header">
-    <img class="logo" src="img/boplogo.png" alt="BOP">
+    <img class="logo" src="img/boplogo.png" alt="BOLP">
     <div class="marca">
-      <h1>Boletín Oficial de La Placeta</h1>
-      <span>Normativa del Grupo de La Placeta</span>
+      <h1><span class="bop-acronimo">BOLP</span> · Boletín Oficial de La Placeta</h1>
+      <span>Catálogo de la normativa</span>
     </div>
     <div class="buscador-global" role="search">
       <span class="sg-icono">🔍</span>
@@ -23,29 +23,39 @@
     <nav id="navPrincipal">
       <a href="index.html">Inicio</a>
       <a href="normativa.html" class="activo">Normativa</a>
-      <a href="cnic.html">CNIC</a>
-      <a href="editar.html">Editar</a>
+      <a href="cnic.html">Datos (CNIC)</a>
     </nav>
   </header>
 
   <main class="container">
-    <div class="flex mb-16">
-      <input type="text" id="buscador" class="input" placeholder="🔍 Buscar por código, título o contenido…" oninput="filtrar()" style="flex:1">
-      <select id="filtroTipo" class="select" style="max-width:180px" onchange="filtrar()">
-        <option value="">Todos los tipos</option>
-        <option value="estatuto">Estatutos</option>
-        <option value="cni">CNI</option>
+    <nav class="migas" aria-label="Migas de pan"><a href="index.html">Inicio</a> / <b>Normativa</b></nav>
+
+    <div id="seccionCabecera" class="hero hero-v2" style="padding:26px 30px"></div>
+
+    <div class="tabs-secciones" id="tabsSecciones" role="tablist" aria-label="Secciones del BOLP"></div>
+
+    <div class="filtros-bar">
+      <input type="text" id="buscador" class="input" placeholder="🔍 Buscar por código, título o contenido…" oninput="programarFiltro()" aria-label="Buscar">
+      <select id="filtroFamilia" class="select" onchange="filtrar()" aria-label="Familia"></select>
+      <select id="filtroDepartamento" class="select" onchange="filtrar()" aria-label="Departamento">
+        <option value="">Todos los órganos</option>
       </select>
-      <select id="filtroEstado" class="select" style="max-width:180px" onchange="filtrar()">
+      <select id="filtroEstado" class="select" onchange="filtrar()" aria-label="Estado">
         <option value="">Todos los estados</option>
-        <option value="vigente">Vigente</option>
-        <option value="derogado">Derogado</option>
-        <option value="proyecto">Proyecto</option>
-        <option value="enmienda">Enmienda</option>
+        <option value="vigente">🟢 Vigente</option>
+        <option value="publicado">📌 Publicado</option>
+        <option value="enmienda">🔶 Enmienda / Propuesta</option>
+        <option value="proyecto">✏️ Proyecto</option>
+        <option value="derogado">⚪ Derogado / Histórico</option>
+      </select>
+      <select id="filtroAnio" class="select" onchange="filtrar()" aria-label="Año">
+        <option value="">Todos los años</option>
       </select>
     </div>
+
+    <div class="resumen-filtros" id="resumenFiltros"></div>
     <div id="lista" class="cargando">Cargando normativa…</div>
-    <p id="sinResultados" class="oculto aviso aviso-info">Sin resultados.</p>
+    <p id="sinResultados" class="oculto aviso aviso-info">Sin resultados para los filtros actuales.</p>
   </main>
 
   <footer class="bop-footer">Boletín Oficial de La Placeta · Grupo de La Placeta</footer>
@@ -53,29 +63,160 @@
   <script src="js/datos-migrados.js"></script>
   <script src="js/markdown.js"></script>
   <script src="js/bop.js"></script>
+  <script src="js/bolp-clasificacion.js"></script>
+  <script src="js/bolp.js"></script>
   <script src="js/bop-nav.js"></script>
   <script>
+    /* ── Explorador del catálogo BOLP ──────────────────────────────── */
+    let __docs = [];
+    const __params = new URLSearchParams(location.search);
+    const __estado = {
+      seccion: __params.get('seccion') || '',
+      q: __params.get('q') || '',
+      familia: '', departamento: '', estado: '', anio: ''
+    };
+    let __timer = null;
+
+    function __el(id) { return document.getElementById(id); }
+
     document.addEventListener('DOMContentLoaded', async () => {
       await BOP.init();
-      window.__docs = BOP._docs;
-      // Prefill desde el buscador global (?q=…)
-      const q = new URLSearchParams(location.search).get('q');
-      if (q) document.getElementById('buscador').value = q;
+      __docs = BOP._docs || [];
+
+      // Cabecera de la sección seleccionada
+      pintarCabecera();
+      pintarTabs();
+      pintarSelects();
+
+      if (__estado.q) __el('buscador').value = __estado.q;
       filtrar();
     });
 
+    function programarFiltro() {
+      clearTimeout(__timer);
+      __timer = setTimeout(filtrar, 150);
+    }
+
+    function pintarCabecera() {
+      const el = __el('seccionCabecera');
+      const s = __estado.seccion ? BOLP.seccion(__estado.seccion) : null;
+      el.className = 'hero-v2' + (s ? ' sec-' + s.id : '');
+      el.innerHTML = s
+        ? `<div class="hero-kicker">Sección ${s.numero} · BOLP</div>
+           <h2 style="font-size:26px">${s.icono} ${bopEscapeHtml(s.titulo)}</h2>
+           <p>${bopEscapeHtml(s.descripcion)}</p>`
+        : `<div class="hero-kicker">Catálogo general</div>
+           <h2 style="font-size:26px">📚 Toda la normativa del BOLP</h2>
+           <p>Explora los documentos por sección documental, familia, órgano responsable, estado o año. Cada ficha incluye versión, fechas y acceso al documento completo.</p>`;
+    }
+
+    function pintarTabs() {
+      const el = __el('tabsSecciones');
+      const total = __docs.length;
+      const base = `<button type="button" class="tab-sec ${!__estado.seccion ? 'activo' : ''}" onclick="seleccionarSeccion('')">Todos <span class="cnt">(${total})</span></button>`;
+      const resto = BOLP.secciones.map(s => {
+        const n = __docs.filter(d => BOLP.clasificar(d).seccion === s.id).length;
+        return `<button type="button" class="tab-sec sec-${s.id} ${__estado.seccion === s.id ? 'activo' : ''}" data-seccion="${s.id}" onclick="seleccionarSeccion('${s.id}')">${s.icono} <span class="n">${s.numero}</span> ${bopEscapeHtml(s.titulo)} <span class="cnt">(${n})</span></button>`;
+      }).join('');
+      el.innerHTML = base + resto;
+    }
+
+    function seleccionarSeccion(id) {
+      __estado.seccion = id;
+      __estado.familia = '';
+      pintarCabecera();
+      pintarTabs();
+      pintarSelects();
+      filtrar();
+    }
+
+    function pintarSelects() {
+      // Familias de la sección activa
+      __el('filtroFamilia').innerHTML = __estado.seccion
+        ? bolpFamiliaOptionsHtml(__estado.seccion)
+        : '<option value="">Todas las familias</option>';
+      // Departamentos presentes
+      const depsPresentes = [...new Set(__docs.map(d => BOLP.clasificar(d).departamento).filter(Boolean))];
+      __el('filtroDepartamento').innerHTML = '<option value="">Todos los órganos</option>' +
+        depsPresentes.map(did => {
+          const dep = BOLP.departamento(did);
+          return dep ? `<option value="${dep.id}">${bopEscapeHtml(dep.nombre)}</option>` : '';
+        }).join('');
+      // Años de publicación presentes
+      const anios = [...new Set(__docs.map(d => (BOLP.fechaPublicacion(d) || '').slice(0, 4)).filter(Boolean))].sort().reverse();
+      __el('filtroAnio').innerHTML = '<option value="">Todos los años</option>' +
+        anios.map(a => `<option value="${a}">${a}</option>`).join('');
+    }
+
+    function __coincide(d) {
+      const c = BOLP.clasificar(d);
+      if (__estado.seccion && c.seccion !== __estado.seccion) return false;
+      if (__estado.familia && c.familia !== __estado.familia) return false;
+      if (__estado.departamento && c.departamento !== __estado.departamento) return false;
+      if (__estado.estado && String(d.estado || 'vigente').toLowerCase() !== __estado.estado.toLowerCase()) return false;
+      if (__estado.anio && (BOLP.fechaPublicacion(d) || '').slice(0, 4) !== __estado.anio) return false;
+      return true;
+    }
+
     function filtrar() {
-      const q = document.getElementById('buscador').value;
-      const tipo = document.getElementById('filtroTipo').value;
-      const estado = document.getElementById('filtroEstado').value;
-      let docs = window.__docs || [];
-      if (tipo) docs = docs.filter(d => d.tipo === tipo);
-      if (estado) docs = docs.filter(d => d.estado === estado);
-      if (q) docs = BOP.buscar(q).docs.filter(d => docs.some(x => x.codigo === d.codigo));
-      const lista = document.getElementById('lista');
+      __estado.q = __el('buscador').value.trim();
+      __estado.familia = __el('filtroFamilia').value;
+      __estado.departamento = __el('filtroDepartamento').value;
+      __estado.estado = __el('filtroEstado').value;
+      __estado.anio = __el('filtroAnio').value;
+
+      let docs = __docs.filter(__coincide);
+      if (__estado.q) {
+        const q = __estado.q.toLowerCase();
+        docs = docs.filter(d =>
+          (d.codigo || '').toLowerCase().includes(q) ||
+          (d.titulo || '').toLowerCase().includes(q) ||
+          (d.contenido_md || '').toLowerCase().includes(q) ||
+          String(BOLP.nombreFamilia(d) || '').toLowerCase().includes(q)
+        );
+      }
+
+      const lista = __el('lista');
       lista.className = '';
-      lista.innerHTML = docs.length ? docs.map(cardDocumento).join('') : '';
-      document.getElementById('sinResultados').classList.toggle('oculto', docs.length > 0);
+      __el('sinResultados').classList.toggle('oculto', docs.length > 0);
+      __el('resumenFiltros').innerHTML = `<b>${docs.length}</b> ${docs.length === 1 ? 'documento' : 'documentos'}` +
+        (__estado.seccion ? ` · ${bopEscapeHtml(BOLP.seccion(__estado.seccion).titulo)}` : '') +
+        (__estado.familia ? ` · ${bopEscapeHtml(bolpFamiliaEnSeccion(__estado.seccion, __estado.familia)?.nombre || __estado.familia)}` : '') +
+        (__estado.departamento ? ` · Órgano: ${bopEscapeHtml(BOLP.departamento(__estado.departamento)?.nombre || __estado.departamento)}` : '') +
+        (__estado.anio ? ` · Año ${__estado.anio}` : '');
+
+      lista.innerHTML = docs.length ? __agrupar(docs) : '';
+    }
+
+    /* Agrupa los documentos por sección (si es «todos») o por familia. */
+    function __agrupar(docs) {
+      let html = '';
+      if (__estado.seccion) {
+        const s = BOLP.seccion(__estado.seccion);
+        s.familias.forEach(f => {
+          const grupo = docs.filter(d => BOLP.clasificar(d).familia === f.id);
+          if (!grupo.length) return;
+          html += `<div class="grupo-familia"><div class="gf-titulo">📁 ${bopEscapeHtml(f.nombre)} <span class="chip">${grupo.length}</span></div><div class="gf-sub">${bopEscapeHtml(s.titulo)} · Sección ${s.numero}</div></div>`;
+          html += grupo.map(d => bolpCardDocumento(d)).join('');
+        });
+        // documentos de la sección sin familia conocida
+        const sinFamilia = docs.filter(d => !BOLP.clasificar(d).familia);
+        if (sinFamilia.length) html += `<div class="grupo-familia"><div class="gf-titulo">📁 Otros documentos</div></div>` + sinFamilia.map(d => bolpCardDocumento(d)).join('');
+      } else {
+        BOLP.secciones.forEach(s => {
+          const enSec = docs.filter(d => BOLP.clasificar(d).seccion === s.id);
+          if (!enSec.length) return;
+          html += `<div class="grupo-familia sec-${s.id}"><div class="gf-titulo">${s.icono} Sección ${s.numero} · ${bopEscapeHtml(s.titulo)} <span class="chip">${enSec.length}</span></div><div class="gf-sub">${bopEscapeHtml(s.lema)}</div></div>`;
+          // subagrupar por familia dentro de la sección
+          s.familias.forEach(f => {
+            const sub = enSec.filter(d => BOLP.clasificar(d).familia === f.id);
+            if (sub.length) html += `<div class="grupo-familia" style="border-top:none;padding-top:4px;margin-top:4px"><div class="gf-titulo" style="font-size:14px;color:var(--bop-texto-suave)">${bopEscapeHtml(f.nombre)} <span class="chip">${sub.length}</span></div></div>` + sub.map(d => bolpCardDocumento(d)).join('');
+          });
+          const resto = enSec.filter(d => !BOLP.clasificar(d).familia);
+          if (resto.length) html += resto.map(d => bolpCardDocumento(d)).join('');
+        });
+      }
+      return html;
     }
   </script>
 </body>

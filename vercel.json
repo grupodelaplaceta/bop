@@ -13,7 +13,7 @@
     { "src": "/normativa", "dest": "/public/normativa.html" },
     { "src": "/documento", "dest": "/public/documento.html" },
     { "src": "/cnic", "dest": "/public/cnic.html" },
-    { "src": "/editar", "dest": "/public/editar.html" },
+    { "src": "/exportar", "dest": "/public/exportar.html" },
     { "src": "/(.*)", "dest": "/public/$1" }
   ]
 }

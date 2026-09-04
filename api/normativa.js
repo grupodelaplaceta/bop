@@ -50,17 +50,49 @@ function resumen(d) {
     estado: d.estado || 'vigente',
     version: d.version || 1,
     fecha_aplicacion: d.fecha_aplicacion || '',
+    fecha_publicacion: d.fecha_publicacion || '',
+    fecha_entrada_vigor: d.fecha_entrada_vigor || '',
     fecha_aprobacion_junta: d.fecha_aprobacion_junta || '',
+    fecha_propuesta: d.fecha_propuesta || '',
+    aprobada_en_junta: !!d.aprobada_en_junta,
     autor_dip: d.autor_dip || '',
     autor_nombre: d.autor_nombre || '',
+    // Taxonomía BOLP (secciones I–VI). Puede venir de la BD o rellenarse
+    // en el cliente a partir del código/tipo del documento.
+    seccion: d.seccion || '',
+    familia: d.familia || '',
+    departamento: d.departamento || '',
+    organo_responsable: d.organo_responsable || '',
+    aprobacion_referencia: d.aprobacion_referencia || '',
+    documento_anterior: d.documento_anterior || '',
+    documento_posterior: d.documento_posterior || '',
     created_at: d.created_at || d.createdAt || '',
     updated_at: d.updated_at || d.updatedAt || d.fecha_aprobacion_junta || d.fecha_aplicacion || '',
     // La portada necesita una previsualización y documento.html necesita
     // poder pintar el contenido sin una segunda llamada incompatible.
     contenido_md: d.contenido_md || '',
     cnic_refs: Array.isArray(d.cnic_refs) ? d.cnic_refs : [],
+    historial_versiones: Array.isArray(d.historial_versiones) ? d.historial_versiones : [],
     referencia_bop: `https://bop.laplaceta.org/documento?codigo=${encodeURIComponent(d.codigo)}`,
   };
+}
+
+/* Añade el historial completo de versiones (bop_versiones) a un documento. */
+async function conHistorial(d) {
+  const out = resumen(d);
+  if (!supabase || !d || !d.id) return out;
+  try {
+    const { data, error } = await supabase
+      .from('bop_versiones')
+      .select('version, estado, contenido_md, autor_dip, autor_nombre, notas_cambio, fecha_propuesta, fecha_aprobacion_junta, aprobada_en_junta, creado_en')
+      .eq('documento_id', d.id)
+      .order('version', { ascending: true })
+      .limit(200);
+    if (!error && Array.isArray(data)) {
+      out.historial_versiones = data.map((v) => ({ ...v, fecha_aplicacion: v.fecha_aprobacion_junta || v.fecha_propuesta || v.creado_en }));
+    }
+  } catch { /* sin historial */ }
+  return out;
 }
 
 module.exports = async (req, res) => {
@@ -96,9 +128,10 @@ module.exports = async (req, res) => {
         res.end(JSON.stringify({ error: 'norma_no_encontrada', codigo }));
         return;
       }
+      const detalle = await conHistorial(found);
       res.statusCode = 200;
       res.setHeader('Content-Type', 'application/json');
-      res.end(JSON.stringify({ ...resumen(found), contenido_md: found.contenido_md || '' }));
+      res.end(JSON.stringify({ ...detalle, contenido_md: found.contenido_md || '' }));
       return;
     }
 

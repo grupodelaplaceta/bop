@@ -3,16 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Documento — BOP</title>
+  <title>Documento — BOLP</title>
   <link rel="icon" type="image/png" href="img/favibop.png">
   <link rel="stylesheet" href="css/bop.css">
 </head>
 <body>
   <header class="bop-header">
-    <img class="logo" src="img/boplogo.png" alt="BOP">
+    <img class="logo" src="img/boplogo.png" alt="BOLP">
     <div class="marca">
-      <h1>Boletín Oficial de La Placeta</h1>
-      <span>Documento normativo</span>
+      <h1><span class="bop-acronimo">BOLP</span> · Boletín Oficial de La Placeta</h1>
+      <span>Ficha de documento</span>
     </div>
     <div class="buscador-global" role="search">
       <span class="sg-icono">🔍</span>
@@ -23,12 +23,12 @@
     <nav id="navPrincipal">
       <a href="index.html">Inicio</a>
       <a href="normativa.html">Normativa</a>
-      <a href="cnic.html">CNIC</a>
-      <a href="editar.html">Editar</a>
+      <a href="cnic.html">Datos (CNIC)</a>
     </nav>
   </header>
 
   <main class="container">
+    <nav class="migas" id="migas" aria-label="Migas de pan"></nav>
     <div id="contenido" class="cargando">Cargando documento…</div>
   </main>
 
@@ -37,6 +37,8 @@
   <script src="js/datos-migrados.js"></script>
   <script src="js/markdown.js"></script>
   <script src="js/bop.js"></script>
+  <script src="js/bolp-clasificacion.js"></script>
+  <script src="js/bolp.js"></script>
   <script src="js/bop-nav.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', async () => {
@@ -45,76 +47,76 @@
       const codigo = (params.get('codigo') || '').toUpperCase();
       const d = BOP.getDocumento(codigo);
       const cont = document.getElementById('contenido');
+      const migas = document.getElementById('migas');
+
       if (!d) {
         cont.className = '';
-        cont.innerHTML = '<div class="aviso aviso-error">Documento no encontrado.</div>';
+        migas.innerHTML = `<a href="index.html">Inicio</a> / <a href="normativa.html">Normativa</a>`;
+        cont.innerHTML = '<div class="aviso aviso-error">Documento no encontrado.</div><p style="margin-top:12px"><a class="btn btn-primario" href="normativa.html">← Explorar el catálogo de normativa</a></p>';
         return;
       }
 
-      // CNIC vinculados → tabla de datos justo debajo del documento
+      const cl = BOLP.clasificar(d);
+      const sec = cl.seccion ? BOLP.seccion(cl.seccion) : null;
+      migas.innerHTML = `<a href="index.html">Inicio</a> / <a href="normativa.html${sec ? '?seccion=' + sec.id : ''}">Normativa</a>` +
+        (sec ? ` / <a href="normativa.html?seccion=${sec.id}">${sec.numero}. ${bopEscapeHtml(sec.titulo)}</a>` : '') +
+        ` / <b>${bopEscapeHtml(d.codigo)}</b>`;
+
+      // CNIC vinculados → tabla de datos
       const cnicVinculados = (d.cnic_refs || []).map(r => {
-        const codigo = String(r.codigo || '').toUpperCase();
-        const c = BOP.getCnicPorCodigo(codigo);
+        const rcod = String(r.codigo || '').toUpperCase();
+        const c = BOP.getCnicPorCodigo(rcod);
         if (!c) return '';
-        return `<tr>
-          <td><a href="cnic.html?codigo=${encodeURIComponent(codigo)}">${escapar(codigo)}</a></td>
-          <td>${escapar(c.etiqueta)}</td>
-          <td class="cnic-valor"><strong>${escapar(c.valor)}</strong> ${escapar(c.unidad || '')}</td>
-          <td>${escapar(c.articulo || '—')}</td>
-        </tr>`;
+        return `<tr><td><a href="cnic.html?codigo=${encodeURIComponent(rcod)}">${bopEscapeHtml(rcod)}</a></td><td>${bopEscapeHtml(c.etiqueta)}</td><td class="cnic-valor"><strong>${bopEscapeHtml(c.valor)}</strong> ${bopEscapeHtml(c.unidad || '')}</td><td>${bopEscapeHtml(c.articulo || '—')}</td></tr>`;
       }).filter(Boolean).join('');
       const tablaCnic = cnicVinculados ? `
-        <div style="margin:16px 0 4px">
-          <div class="seccion-titulo">🧩 Datos económicos vinculados (CNIC)</div>
-          <table class="tabla">
-            <thead><tr><th>Código</th><th>Etiqueta</th><th>Valor</th><th>Artículo</th></tr></thead>
-            <tbody>${cnicVinculados}</tbody>
-          </table>
-          <p style="font-size:11px;color:var(--bop-texto-suave);margin-top:6px">Valores variables gestionados en los CNIC del BOP. Se actualizan sin modificar este documento.</p>
+        <div style="margin:18px 0 4px">
+          <div class="seccion-titulo">🧩 Datos variables vinculados (CNIC)</div>
+          <table class="tabla"><thead><tr><th>Código</th><th>Etiqueta</th><th>Valor</th><th>Artículo</th></tr></thead><tbody>${cnicVinculados}</tbody></table>
+          <p style="font-size:11px;color:var(--bop-texto-suave);margin-top:6px">Valores variables gestionados en los CNIC del BOLP. Se actualizan sin modificar este documento.</p>
         </div>` : '';
 
       cont.className = '';
       cont.innerHTML = `
-        <div class="flex flex-wrap mb-16">
+        <div class="ficha-acciones">
           <button class="btn btn-secundario" onclick="history.back()">← Volver</button>
           <button class="btn btn-primario" onclick="exportarPdf('${encodeURIComponent(d.codigo)}')">⬇️ Exportar PDF</button>
+          <button class="btn btn-outline" onclick="window.print()">🖨️ Imprimir</button>
         </div>
-        <div class="aviso aviso-info">
-          ${badgeTipo(d.tipo)} ${badgeEstado(d.estado)}
-          <span style="margin-left:8px">Aplicación: <strong>${fechaLegible(d.fecha_aplicacion)}</strong></span>
-          ${d.fecha_propuesta ? `<span style="margin-left:8px">Propuesta: ${fechaLegible(d.fecha_propuesta)}</span>` : ''}
-          ${d.fecha_aprobacion_junta ? `<span style="margin-left:8px">Aprobada en Junta: ${fechaLegible(d.fecha_aprobacion_junta)}</span>` : ''}
-          ${d.version ? `<span style="margin-left:8px">Versión: ${d.version}</span>` : ''}
+
+        <div class="ficha-cab">
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+            ${bolpSeccionBadge(d)} ${bolpFamiliaBadge(d)} ${bolpEstadoBadge(d)}
+            ${d.version ? `<span class="badge badge-enmienda">v${d.version}</span>` : ''}
+          </div>
+          <div class="ficha-codigo-linea" style="margin-top:10px">${bopEscapeHtml(d.codigo)}</div>
+          <h1 class="ficha-titulo">${bopEscapeHtml(d.titulo)}</h1>
+          <div class="ficha-grid">${bolpFichaMetadatos(d)}</div>
         </div>
+
+        ${bolpNavVersion(d, BOP._docs)}
+
         <div class="documento">
-          <h1>${escapar(d.codigo)} — ${escapar(d.titulo)}</h1>
           ${bopRenderMarkdown(d.contenido_md)}
           ${tablaCnic}
         </div>
+
+        <div class="seccion mt-16" id="seccion-cambios">
+          <div class="seccion-titulo">🔄 Cambios de esta versión</div>
+          <div class="leyenda-diff">
+            <span><i class="swatch-add"></i> Añadido</span>
+            <span><i class="swatch-del"></i> Eliminado</span>
+          </div>
+          <div id="cambios">${bolpCambiosVersionHtml(d)}</div>
+        </div>
+
         <div class="seccion mt-16" id="seccion-historial">
           <div class="seccion-titulo">🕘 Historial de versiones</div>
-          <div id="historial">Cargando historial…</div>
+          <p style="color:var(--bop-texto-suave);font-size:12px;margin:-6px 0 8px">Cada versión archivada permanece accesible. Ninguna se elimina.</p>
+          <div id="historial">${bolpHistorialHtml(d)}</div>
         </div>
       `;
-      renderHistorial(d);
     });
-
-    function renderHistorial(d) {
-      const el = document.getElementById('historial');
-      const vers = (d.historial_versiones || []).slice().sort((a, b) => b.version - a.version);
-      if (vers.length === 0) {
-        el.innerHTML = `<div class="version-item"><span class="num">v${d.version || 1}</span><div class="detalle">Versión actual · ${escapar(d.notas_cambio || 'Sin notas.')}<div class="meta">${d.autor_nombre || d.autor_dip || '—'}</div></div></div>`;
-        return;
-      }
-      el.innerHTML = vers.map(v => `
-        <div class="version-item">
-          <span class="num">v${v.version}</span>
-          <div class="detalle">
-            ${escapar(v.notas_cambio || 'Actualización de la normativa.')}
-            <div class="meta">${v.autor_nombre || v.autor_dip || '—'} · ${fechaLegible(v.creado_en || v.fecha_aprobacion_junta || v.fecha_propuesta)}</div>
-          </div>
-        </div>`).join('');
-    }
 
     function exportarPdf(codigoEnc) {
       window.open('exportar.html?codigo=' + codigoEnc, '_blank');

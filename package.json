@@ -2,11 +2,12 @@
   "name": "bop",
   "version": "1.0.0",
   "private": true,
-  "description": "Boletín Oficial de La Placeta — bop.laplaceta.org. Publicación y consulta de la normativa del Grupo de La Placeta (Estatutos, CNI, CNIC) con versiones, historial y exportación PDF.",
+  "description": "BOLP — Boletín Oficial de La Placeta · bop.laplaceta.org. Sistema institucional de publicación y consulta de la normativa del Grupo de La Placeta (secciones I–VI: Estatutos, Código Normativo, términos y políticas, funcionamiento, sistemas, publicaciones oficiales) con versionado, historial, comparador y exportación PDF.",
   "scripts": {
     "migrar": "node scripts/migrar-cni.js",
     "migrar-junior": "node scripts/migrar-junior.js",
     "migrar-placetaid": "node scripts/migrar-placetaid.js",
+    "migrar-bolp": "node scripts/migrar-bolp.js",
     "serve": "npx serve public"
   },
   "dependencies": {
