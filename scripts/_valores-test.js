@@ -63,6 +63,12 @@ function comprobar(nombre, cond, extra) {
   comprobar('valores encontrados 2 sin fallos', r.json && r.json.encontrados === 2 && r.json.no_encontrados.length === 0);
   comprobar('valores revision fecha', r.json && /^\d{4}-\d{2}-\d{2}$/.test(r.json.revision), r.json && r.json.revision);
 
+  // — Catálogo completo (todo=1)
+  r = await pedir(port, '/api/valores?todo=1');
+  comprobar('todo=1 total 68', r.status === 200 && r.json.total === 68 && r.json.encontrados === 68, 'total ' + (r.json && r.json.total));
+  comprobar('todo=1 valores tipados', r.json && r.json.valores['CNIC-IA-TRAMO-2'].numero === 5 && r.json.valores['CNIC-IGF-PF-TIPO-3'].numero === 30);
+  comprobar('todo=1 sin no_encontrados', r.json && r.json.no_encontrados.length === 0);
+
   // — Alias único
   r = await pedir(port, '/api/valores?refs=CNIC-4.4');
   comprobar('alias CNIC-4.4 → CNIC-IVA', r.status === 200 && r.json.valores['CNIC-IVA'] && r.json.valores['CNIC-4.4'] && r.json.valores['CNIC-4.4'].alias_de === 'CNIC-IVA');

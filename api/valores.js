@@ -140,6 +140,7 @@ module.exports = async (req, res) => {
   try {
     const url = new URL(req.url, 'https://bop.laplaceta.org');
     const pedidoRevision = (url.searchParams.get('revision') || '').trim();
+    const todo = url.searchParams.get('todo') === '1';
     const grupo = (url.searchParams.get('grupo') || '').trim().toUpperCase();
     let refs = (url.searchParams.get('refs') || '')
       .split(',').map((s) => s.trim().toUpperCase()).filter(Boolean);
@@ -158,9 +159,9 @@ module.exports = async (req, res) => {
     }
 
     const refsUnicos = Array.from(new Set(refs));
-    if (!refsUnicos.length) return send(400, {
+    if (!todo && !refsUnicos.length) return send(400, {
       error: 'refs_requeridas',
-      ejemplo: '/api/valores?refs=CNIC-IVA,CNIC-SMI-MENSUAL'
+      ejemplo: '/api/valores?refs=CNIC-IVA,CNIC-SMI-MENSUAL  ·  /api/valores?todo=1'
     });
 
     const catalogo = await cargarCanonicos();
@@ -171,6 +172,23 @@ module.exports = async (req, res) => {
         solicitada: pedidoRevision,
         actual: revision,
         detalle: 'Los valores han cambiado. Recarga la versión oficial antes de seguir usando esta página.'
+      });
+    }
+
+    // todo=1 → todo el catálogo canónico vigente, en el mismo formato tipado
+    // (lo usa el BFF del RSP como fuente única de valores para cálculos).
+    if (todo) {
+      const valores = {};
+      catalogo.forEach((c) => { valores[c.codigo || c.cnic] = serializar(c, null); });
+      return send(200, {
+        servicio: 'bop.valores',
+        organizacion: 'La Placeta',
+        revision,
+        docs: 'https://bop.laplaceta.org/cnic',
+        total: catalogo.length,
+        encontrados: catalogo.length,
+        no_encontrados: [],
+        valores
       });
     }
 
