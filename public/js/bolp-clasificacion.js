@@ -300,6 +300,23 @@ function bolpIndiceDepartamento(id) {
   return i < 0 ? 99 : i;
 }
 
+/* Orden natural de los códigos del CNI dentro de su serie: el Preámbulo va el
+   primero y los capítulos siguen el orden de su numeral romano (CNI-IV antes
+   que CNI-V, CNI-IX antes que CNI-X, etc.). Los códigos de dominio/programa
+   (CNI-ALTAS, CNI-BANCO, CNI-BDP, CNI-PEDU…) devuelven null y quedan al final. */
+function bolpOrdenCni(codigo) {
+  const c = String(codigo || '').toUpperCase();
+  if (c.slice(0, 4) !== 'CNI-') return null;
+  const sufijo = c.slice(4);
+  const ROMANOS = {
+    PREAMBULO: 0,
+    I: 1, II: 2, III: 3, IV: 4, IVBIS: 5,
+    V: 6, VI: 7, VII: 8, VIII: 9, IX: 10,
+    X: 11, XI: 12, XII: 13, XIII: 14, XIV: 15, XV: 16, XVI: 17, XVII: 18,
+  };
+  return Object.prototype.hasOwnProperty.call(ROMANOS, sufijo) ? ROMANOS[sufijo] : null;
+}
+
 /* Clave de orden de un documento dentro del esquema (sin mutar la entrada). */
 function bolpClaveOrden(d) {
   const c = bolpClasificar(d);
@@ -307,6 +324,7 @@ function bolpClaveOrden(d) {
     sec: bolpIndiceSeccion(c.seccion),
     fam: bolpIndiceFamilia(c.seccion, c.familia),
     dep: bolpIndiceDepartamento(c.departamento),
+    ord: bolpOrdenCni(d && d.codigo),
     cod: String((d && d.codigo) || '').toUpperCase(),
   };
 }
@@ -320,6 +338,9 @@ function bolpOrdenDocumentos(lista) {
       if (a.k.sec !== b.k.sec) return a.k.sec - b.k.sec;
       if (a.k.fam !== b.k.fam) return a.k.fam - b.k.fam;
       if (a.k.dep !== b.k.dep) return a.k.dep - b.k.dep;
+      const oa = a.k.ord == null ? Number.MAX_SAFE_INTEGER : a.k.ord;
+      const ob = b.k.ord == null ? Number.MAX_SAFE_INTEGER : b.k.ord;
+      if (oa !== ob) return oa - ob;
       return String(a.k.cod).localeCompare(String(b.k.cod), 'es', { numeric: true });
     })
     .map((x) => x.d);

@@ -10,9 +10,10 @@
      node scripts/sincronizar-cni.js            → ensayo (no escribe)
      node scripts/sincronizar-cni.js --apply    → aplica (upsert por codigo)
 
-   NOTA: no toca los documentos de dominio (Banco, Junior, RSP, PlacetaID…),
-   que se gestionan aparte. Tras aplicar, el modo offline debe reflejar los
-   mismos textos (se alimenta de estos mismos .md en una futura pasada).
+   NOTA: publica la edición coherente de 3 de julio de 2026 (aprobada por la
+   Junta). La capa de «modificación de 4 de julio» está pendiente de completar
+   (cni-preamble-4jul-pendiente.md) y no se publica. No toca los documentos de
+   dominio (Banco, Junior, RSP, PlacetaID…), que se gestionan aparte.
    ═══════════════════════════════════════════════════════════════════════ */
 const fs = require('fs');
 const path = require('path');
@@ -45,6 +46,30 @@ const CNI_DOCS = [
   { codigo: 'CNI-XV', archivo: 'cni-xv.md', titulo: 'Capítulo XV: Evaluación de Impacto y Régimen Sancionador en Protección de Datos' },
   { codigo: 'CNI-XVI', archivo: 'cni-xvi.md', titulo: 'Capítulo XVI: Disposiciones Finales' },
 ];
+
+// Referencias a valores CNIC que algunos capítulos citan (códigos del espejo offline;
+// el visor las resuelve a su código canónico vía cnic-alias.js).
+const CNIC_REFS = {
+  'CNI-III': [
+    { codigo: 'CNIC-7-1', etiqueta: 'Cuentas y límites por franja de edad' },
+    { codigo: 'CNIC-9-1', etiqueta: 'Límite de emisión por usuario' },
+  ],
+  'CNI-IV': [
+    { codigo: 'CNIC-4.1', etiqueta: 'Límites de capital' },
+    { codigo: 'CNIC-4.3', etiqueta: 'Tasa de transferencia' },
+    { codigo: 'CNIC-4.4', etiqueta: 'IVA' },
+    { codigo: 'CNIC-4.5', etiqueta: 'Cotizaciones laborales' },
+    { codigo: 'CNIC-4.6', etiqueta: 'RBU' },
+    { codigo: 'CNIC-4.7', etiqueta: 'SMI y salario máximo' },
+    { codigo: 'CNIC-4.10', etiqueta: 'Escala IRM' },
+    { codigo: 'CNIC-4.13', etiqueta: 'Escala IGF personal' },
+    { codigo: 'CNIC-4.14', etiqueta: 'Escala IGF empresa' },
+    { codigo: 'CNIC-4.15', etiqueta: 'Exención empresa pequeña' },
+  ],
+  'CNI-VII': [
+    { codigo: 'CNIC-15-1', etiqueta: 'Tabla de sueldos públicos' },
+  ],
+};
 
 function leerMd(codigo) {
   const doc = CNI_DOCS.find((d) => d.codigo === codigo);
@@ -84,12 +109,15 @@ async function main() {
       tipo: 'cni', categoria: 'cni',
       seccion: 'codigo-normativo', familia: 'cni',
       organo_responsable: 'Junta del Grupo de La Placeta',
-      estado: 'vigente', version: 2, aprobada_en_junta: true,
-      fecha_publicacion: '2026-07-04',
-      fecha_entrada_vigor: '2026-07-04',
+      estado: 'vigente', version: 1, aprobada_en_junta: true,
+      fecha_publicacion: '2026-09-05',
+      fecha_aplicacion: '2026-07-03',
+      fecha_entrada_vigor: '2026-07-03',
       fecha_aprobacion_junta: '2026-07-03',
-      notasCambio: 'Edición actualizada (modificación de 4 de julio de 2026).',
+      notas_cambio: 'Publicación en el BOLP del CNI consolidado (edición aprobada por la Junta el 3 de julio de 2026).',
       contenido_md: leido.md,
+      cnic_refs: CNIC_REFS[codigo] || [],
+      etiquetas: ['cni', 'normativa'],
     };
     if (!APLICAR) { console.log(`· [ensayo] ${codigo}: ${leido.md.length} caracteres listos para publicar.`); continue; }
     const existente = await requestJson('GET', `/rest/v1/bop_documentos?select=id&codigo=eq.${codigo}&limit=1`);
