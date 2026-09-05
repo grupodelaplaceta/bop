@@ -117,6 +117,30 @@
       return [v, u].filter(Boolean).join(' ');
     }
 
+    function cnicEsLargo(c) { return !!(c && (c.tipo_valor === 'texto' || String(c.valor || '').length > 60)); }
+
+    /* Valor corto para la tabla (sin desbordar). */
+    function cnicValorLista(c) {
+      const s = cnicValorCorto(c);
+      return s.length > 70 ? s.slice(0, 70).trimEnd() + '…' : s;
+    }
+
+    /* Valor en detalle: escalas / baremos se muestran como lista legible. */
+    function cnicValorDetalleHtml(c) {
+      const v = String((c && c.valor) || '');
+      const unidad = c && c.unidad ? `<span class="u">${bopEscapeHtml(c.unidad)}</span>` : '';
+      if (!cnicEsLargo(c)) {
+        return `<div class="valor-actual">${bopEscapeHtml(cnicValorCorto(c))}</div>`;
+      }
+      const partes = v.split(/\s*·\s*/).filter(Boolean);
+      const cuerpo = partes.length > 1
+        ? `<ul class="valor-lista">${partes.map(p => `<li>${bopEscapeHtml(p)}</li>`).join('')}</ul>`
+        : `<div class="valor-wrap">${bopEscapeHtml(v)}${unidad ? ' ' + unidad : ''}</div>`;
+      return cuerpo + (partes.length > 1 && unidad
+        ? `<div class="valor-unidad" style="font-size:12px;color:var(--bop-texto-suave);margin-top:6px">Unidad: ${unidad}</div>`
+        : '');
+    }
+
     function filtrar() {
       const q = (__el('buscador').value || '').toLowerCase();
       const tipo = __el('filtroTipo').value;
@@ -144,7 +168,7 @@
             onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();verDetalle('${bopEscapeHtml(String(c.codigo).replace(/'/g, "\\'"))}')}">
           <td class="cnic-codigo"><a href="cnic.html?codigo=${encodeURIComponent(c.codigo)}" onclick="event.stopPropagation()">${bopEscapeHtml(c.codigo)}</a></td>
           <td><strong>${bopEscapeHtml(c.etiqueta)}</strong><br><span style="color:var(--bop-texto-suave);font-size:12px">${bopEscapeHtml((c.descripcion || '').slice(0, 90))}</span></td>
-          <td class="cnic-valor"><strong>${bopEscapeHtml(cnicValorCorto(c))}</strong></td>
+          <td class="cnic-valor" title="${bopEscapeHtml(cnicValorCorto(c))}"><strong>${bopEscapeHtml(cnicValorLista(c))}</strong></td>
           <td>${bopEscapeHtml(c.articulo || '—')}</td>
           <td><span class="estado-texto" style="color:${cnicEsVigente(c) ? 'var(--bop-exito)' : 'var(--bop-error)'}">${cnicEstado(c)}</span></td>
         </tr>`).join('');
@@ -210,7 +234,7 @@
           <h1 class="ficha-titulo">${bopEscapeHtml(c.etiqueta)}</h1>
           ${c.descripcion ? `<p class="desc" style="color:var(--bop-texto-suave);margin:4px 0 0">${bopEscapeHtml(c.descripcion)}</p>` : ''}
           <div class="ficha-grid">
-            <div class="ficha-celda"><div class="ficha-k">Valor actual</div><div class="valor-actual">${bopEscapeHtml(cnicValorCorto(c))}</div></div>
+            <div class="ficha-celda"><div class="ficha-k">Valor actual</div>${cnicValorDetalleHtml(c)}</div>
             <div class="ficha-celda"><div class="ficha-k">Tipo</div><div class="ficha-v">${__TIPOS[c.tipo_valor || 'texto'] || c.tipo_valor || 'Texto'}</div></div>
             <div class="ficha-celda"><div class="ficha-k">Unidad</div><div class="ficha-v">${bopEscapeHtml(c.unidad || '—')}</div></div>
             <div class="ficha-celda"><div class="ficha-k">Artículo (CNI)</div><div class="ficha-v">${bopEscapeHtml(c.articulo || '—')}</div></div>

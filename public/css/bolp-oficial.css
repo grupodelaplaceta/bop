@@ -519,6 +519,15 @@ a, button { transition: background 0.15s, color 0.15s, border-color 0.15s, box-s
 .ref-lista a { color: var(--bop-acento); font-weight: 700; text-decoration: none; }
 .ref-lista a:hover { text-decoration: underline; }
 .copia-feedback { font-size: 12px; font-weight: 700; color: var(--bop-exito); margin-left: 10px; }
+/* Valores largos (escalas / baremos) no desbordan */
+.cnic-valor { white-space: normal; }
+.tabla-wrap td, .tabla-wrap th { overflow-wrap: anywhere; }
+.valor-actual { max-width: 100%; overflow-wrap: anywhere; }
+.valor-lista { margin: 2px 0 0; padding-left: 20px; }
+.valor-lista li { margin-bottom: 4px; font-size: 14px; }
+.valor-wrap { font-size: 15px; line-height: 1.6; overflow-wrap: anywhere; }
+.valor-wrap .u { color: var(--bop-texto-suave); font-weight: 700; }
+.valor-lista + .valor-unidad { margin-top: 6px; }
 .hero-chip { display: none; }
 .flujo-pasos .paso { background: none; border: none; border-radius: 0; padding: 0 6px; color: var(--bop-texto); }
 .flujo-pasos .paso .icono {
