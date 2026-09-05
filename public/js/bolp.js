@@ -228,51 +228,45 @@ function bolpSoloCambios(solo, codigo) {
 
 /* ── Tarjetas ────────────────────────────────────────────────────────── */
 function bolpCardDocumento(d) {
-  const preview = bopPlano(d.contenido_md, 180);
+  const preview = bopPlano(d.contenido_md, 150);
+  const esVigente = ['vigente', 'publicado', 'pendiente_vigor'].includes(String((d && d.estado) || 'vigente').toLowerCase());
+  const est = bolpEstado(d);
+  const fecha = fechaLegible(bolpFechaPublicacion(d));
   return `
     <div class="card bop-card">
       <a href="documento.html?codigo=${encodeURIComponent(d.codigo)}" style="text-decoration:none;color:inherit;display:block">
         <div class="bop-card-cab">
           <span class="codigo">${bopEscapeHtml(d.codigo)}</span>
-          <span class="bop-card-badges">${bolpSeccionBadge(d)} ${bolpEstadoBadge(d)}</span>
+          ${d.version ? `<span class="bop-v">v${d.version}</span>` : ''}
         </div>
         <h3>${bopEscapeHtml(d.titulo)}</h3>
-        <div class="meta">${bolpDepartamentoBadge(d)} ${bolpFamiliaBadge(d)} ${d.version ? '· v' + d.version : ''} · ${fechaLegible(bolpFechaPublicacion(d))}</div>
+        <div class="meta">${esVigente ? 'En vigor' : `<span class="no-vigente">${bopEscapeHtml(est.etiqueta)}</span>`}${fecha && fecha !== '—' ? ' · ' + fecha : ''}</div>
         <div class="desc">${bopEscapeHtml(preview)}</div>
       </a>
     </div>`;
 }
 
 function bolpCardNovedad(d) {
+  const fecha = fechaLegible(d.updated_at || d.created_at || bolpFechaPublicacion(d));
   return `
     <div class="card novedad-card">
       <a href="documento.html?codigo=${encodeURIComponent(d.codigo)}" style="text-decoration:none;color:inherit;display:block">
-        <div class="bop-card-cab">
-          <span class="codigo">${bopEscapeHtml(d.codigo)}</span>
-          <span class="bop-card-badges">${bolpSeccionBadge(d)} ${bolpEstadoBadge(d)}</span>
-        </div>
+        <div class="bop-card-cab"><span class="codigo">${bopEscapeHtml(d.codigo)}</span></div>
         <h3>${bopEscapeHtml(d.titulo)}</h3>
-        <div class="meta">${fechaLegible(d.updated_at || d.created_at || bolpFechaPublicacion(d))} · v${d.version || 1}</div>
+        <div class="meta">${fecha}${d.version ? ' · v' + d.version : ''}</div>
       </a>
     </div>`;
 }
 
-/* ── Bloque de sección para la portada ───────────────────────────────── */
+/* ── Bloque de sección para la portada (directorio limpio) ────────────── */
 function bolpBloqueSeccion(s, docsEnSeccion) {
-  const kpis = [];
-  s.familias.forEach((f) => {
-    const n = docsEnSeccion.filter((x) => bolpClasificar(x).familia === f.id).length;
-    kpis.push(`<span class="bloque-familia">${bopEscapeHtml(f.nombre)} <b>${n}</b></span>`);
-  });
+  const n = docsEnSeccion.length;
   return `
     <div class="bloque-seccion">
-      <div class="bloque-cab">
-        <div class="bloque-marca">SECCIÓN ${s.numero}</div>
-        <div class="bloque-titulo">${bopEscapeHtml(s.titulo)}</div>
-        <div class="bloque-lema">${bopEscapeHtml(s.lema)}</div>
-      </div>
-      <div class="bloque-kpis">${kpis.join('') || '<span class="bloque-familia">Sin publicaciones todavía</span>'}</div>
-      <div class="bloque-acciones"><a class="btn btn-mini btn-outline" href="normativa.html?seccion=${s.id}">Consultar la sección →</a></div>
+      <div class="bloque-marca">Sección ${s.numero}</div>
+      <div class="bloque-titulo">${bopEscapeHtml(s.titulo)}</div>
+      <div class="bloque-lema">${bopEscapeHtml(s.lema)}</div>
+      <div class="bloque-acciones"><a class="bloque-enlace" href="normativa.html?seccion=${s.id}">Ver la sección${n ? ` (${n} ${n === 1 ? 'documento' : 'documentos'})` : ''} →</a></div>
     </div>`;
 }
 

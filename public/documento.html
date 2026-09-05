@@ -102,11 +102,7 @@
         </div>
 
         <div class="ficha-cab">
-          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
-            ${bolpSeccionBadge(d)} ${bolpFamiliaBadge(d)} ${bolpEstadoBadge(d)}
-            ${d.version ? `<span class="badge badge-enmienda">v${d.version}</span>` : ''}
-          </div>
-          <div class="ficha-codigo-linea" style="margin-top:10px">${bopEscapeHtml(d.codigo)}</div>
+          <div class="ficha-codigo-linea">${bopEscapeHtml(d.codigo)}</div>
           <h1 class="ficha-titulo">${bopEscapeHtml(d.titulo)}</h1>
           <div class="ficha-grid">${bolpFichaMetadatos(d)}</div>
         </div>

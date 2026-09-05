@@ -198,7 +198,7 @@ function tablaCnicHtml(lista) {
         <td class="cnic-valor"><strong>${escapar(c.valor)}</strong></td>
         <td>${escapar(c.unidad || '')}</td>
         <td>${escapar(c.articulo || '—')}</td>
-        <td>${badgeEstado(c.vigente === false ? 'derogado' : 'vigente')}</td>
+        <td><span class="estado-texto">${c.vigente === false ? 'Derogado' : 'Vigente'}</span></td>
       </tr>`).join('')}</tbody></table></div>`;
 }
 

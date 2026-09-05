@@ -466,6 +466,61 @@ a, button { transition: background 0.15s, color 0.15s, border-color 0.15s, box-s
   .nav-item.abierto .nav-submenu { display: block; }
   .nav-submenu a { font-size: 13px; padding: 8px 12px; text-transform: none; }
 }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   AJUSTE DE SOBRIEDAD · menos insignias, navegación limpia tipo índice
+   ═══════════════════════════════════════════════════════════════════════ */
+.bop-header nav { gap: 2px; }
+.bop-header nav a {
+  background: none; color: var(--bop-texto-suave);
+  padding: 8px 10px; border-radius: 0;
+}
+.bop-header nav a:hover { background: none; color: var(--bop-acento); }
+.bop-header nav a.activo { background: none; color: var(--bop-acento); box-shadow: inset 0 -2px 0 0 var(--bop-acento); }
+.nav-sub-btn { color: var(--bop-texto-suave); }
+.nav-item.abierto .nav-sub-btn { color: var(--bop-acento); }
+
+/* Pestañas del catálogo: texto con subrayado, sin píldoras */
+.tabs-secciones { gap: 4px; border-bottom: 1px solid var(--bop-borde); margin-bottom: 18px; }
+.tab-sec {
+  background: none; border: none; border-radius: 0; color: var(--bop-texto-suave);
+  padding: 8px 8px 6px; border-bottom: 2px solid transparent; margin-bottom: -1px;
+}
+.tab-sec:hover { background: none; color: var(--bop-acento); }
+.tab-sec.activo { background: none; color: var(--bop-acento); border-bottom-color: var(--bop-acento); }
+
+/* Tarjetas del catálogo: quitar mini-insignias de cada entrada */
+.bop-card .bop-card-badges, .novedad-card .bop-card-badges,
+.bop-card .badge, .novedad-card .badge { display: none; }
+.bop-card .meta { color: var(--bop-texto-suave); font-size: 12.5px; }
+.bop-card .meta .no-vigente { font-weight: 700; color: var(--bop-aviso); text-transform: uppercase; font-size: 10.5px; letter-spacing: 0.5px; }
+.bop-card { border-left: 3px solid var(--bop-acento); padding: 14px 18px; margin-bottom: 10px; }
+.bop-card .bop-v { font-size: 11px; font-weight: 800; color: var(--bop-texto-suave); letter-spacing: 1px; }
+
+/* Badges restantes: planos y discretos (solo contexto) */
+.badge { background: none; border: none; color: var(--bop-texto-suave); text-transform: none; letter-spacing: 0; padding: 0; }
+.badge-vigente { color: var(--bop-exito); }
+.badge-derogado { color: var(--bop-error); }
+.badge-proyecto { color: var(--bop-aviso); }
+.badge-enmienda, .badge-sec, .badge-dep { color: var(--bop-acento); }
+.badge-familia { color: var(--bop-texto-suave); }
+
+/* Portada: sin franja de chips ni cajas de pasos */
+.flujo-linea { font-size: 14px; color: var(--bop-texto-suave); margin: 16px 0 6px; }
+.flujo-linea strong { color: var(--bop-acento); font-weight: 800; }
+.estado-texto { font-weight: 700; color: var(--bop-texto-suave); text-transform: uppercase; font-size: 11px; letter-spacing: 0.6px; }
+.hero-chip { display: none; }
+.flujo-pasos .paso { background: none; border: none; border-radius: 0; padding: 0 6px; color: var(--bop-texto); }
+.flujo-pasos .paso .icono {
+  display: inline-flex; width: 18px; height: 18px; margin-right: 5px;
+  background: var(--bop-acento); color: #fff; border-radius: 50%;
+  font-size: 10px;
+}
+.bloque-seccion .bloque-kpis { display: none; }
+.bloque-seccion { padding: 14px 18px 12px; border-left: 3px solid var(--bop-acento); }
+.bloque-enlace { font-weight: 700; color: var(--bop-acento); text-decoration: none; }
+.bloque-enlace:hover { text-decoration: underline; }
+
 @media print {
   .tabla-wrap { overflow: visible; }
   .tabla-wrap table { font-size: 11px; }

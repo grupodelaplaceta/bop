@@ -52,7 +52,6 @@
       <div class="hero-kicker">Publicación oficial · bop.laplaceta.org</div>
       <h2>Boletín Oficial de La Placeta</h2>
       <p>Órgano de publicación de la normativa del Grupo de La Placeta. Este diario reúne los Estatutos, el Código Normativo, los términos y políticas, la documentación de funcionamiento, los sistemas y las publicaciones oficiales del Grupo, con su historial de versiones y su estado de vigencia.</p>
-      <div class="hero-chips" id="heroCifras"></div>
       <div class="hero-cta">
         <a class="btn btn-primario" href="normativa.html">Consultar la normativa</a>
         <a class="btn btn-outline" href="#modelo">Cómo se publica la normativa</a>
@@ -79,17 +78,7 @@
 
     <section class="flujo-modelo" id="modelo">
       <div class="seccion-titulo" style="margin:0">Cómo se publica la normativa</div>
-      <div class="flujo-pasos">
-        <span class="paso"><span class="icono">1</span>Departamento</span>
-        <span class="paso-flecha">→</span>
-        <span class="paso"><span class="icono">2</span>RSP · Propuesta</span>
-        <span class="paso-flecha">→</span>
-        <span class="paso"><span class="icono">3</span>Junta · Votación</span>
-        <span class="paso-flecha">→</span>
-        <span class="paso"><span class="icono">4</span>BOLP · Publicación</span>
-        <span class="paso-flecha">→</span>
-        <span class="paso"><span class="icono">5</span>Entrada en vigor</span>
-      </div>
+      <p class="flujo-linea"><strong>Departamento</strong> → <strong>RSP · Propuesta</strong> → <strong>Junta · Votación</strong> → <strong>BOLP · Publicación</strong> → <strong>Entrada en vigor</strong></p>
       <div class="regla-oro">
         <div class="ro-titulo">Regla de oro del sistema</div>
         <p>Ningún documento oficial vigente puede modificarse directamente. Toda modificación genera una nueva versión mediante RSP y, cuando corresponda, es aprobada por el órgano competente antes de adquirir vigencia. Las versiones anteriores quedan archivadas en el historial y nunca se eliminan.</p>
@@ -162,8 +151,8 @@
         listaC.className = '';
         const recientes = cnic.slice().sort((a, b) => String(fech(b)).localeCompare(String(fech(a)))).slice(0, 8);
         listaC.innerHTML = recientes.length
-          ? '<div style="overflow-x:auto"><table class="tabla"><thead><tr><th>Código</th><th>Etiqueta</th><th>Valor</th><th>Unidad</th><th>Artículo</th><th>Estado</th></tr></thead><tbody>' +
-            recientes.map(c => `<tr><td><a href="cnic.html?codigo=${encodeURIComponent(c.codigo)}"><b>${bopEscapeHtml(c.codigo)}</b></a></td><td>${bopEscapeHtml(c.etiqueta)}</td><td class="cnic-valor"><strong>${bopEscapeHtml(c.valor)}</strong></td><td>${bopEscapeHtml(c.unidad || '')}</td><td>${bopEscapeHtml(c.articulo || '—')}</td><td>${badgeEstado(c.vigente === false ? 'derogado' : 'vigente')}</td></tr>`).join('') +
+          ? '<div style="overflow-x:auto"><table class="tabla"><thead><tr><th>Código</th><th>Etiqueta</th><th>Valor</th><th>Artículo</th></tr></thead><tbody>' +
+            recientes.map(c => `<tr><td><a href="cnic.html?codigo=${encodeURIComponent(c.codigo)}"><b>${bopEscapeHtml(c.codigo)}</b></a></td><td>${bopEscapeHtml(c.etiqueta)}</td><td class="cnic-valor"><strong>${bopEscapeHtml(c.valor)}</strong> ${bopEscapeHtml(c.unidad || '')}</td><td>${bopEscapeHtml(c.articulo || '—')}</td></tr>`).join('') +
             '</tbody></table></div>' +
             '<p style="font-size:12px;color:var(--bop-texto-suave);margin-top:8px"><a href="cnic.html">Ver todos los CNIC →</a></p>'
           : '<div class="aviso aviso-info">No hay valores variables publicados.</div>';

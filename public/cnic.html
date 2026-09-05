@@ -111,7 +111,7 @@
           <button class="btn btn-secundario" onclick="filtrar()">Volver</button>
           <button class="btn btn-primario" onclick="exportarPdf('${encodeURIComponent(c.codigo)}')">Descargar PDF</button>
         </div>
-        <div class="aviso aviso-info">${badgeTipo('cnic')} ${badgeEstado(c.vigente === false ? 'derogado' : 'vigente')}</div>
+        <div class="aviso aviso-info" style="margin-bottom:10px"><span class="estado-texto">Código complementario (CNIC) · ${c.vigente === false ? 'Derogado' : 'Vigente'}</span></div>
         <div class="card">
           <span class="codigo">${escapar(c.codigo)}</span>
           <h3>${escapar(c.etiqueta)}</h3>
