@@ -52,9 +52,23 @@
       <p>Los <strong>Códigos Normativos Internos Complementarios</strong> contienen los datos variables del CNI (porcentajes, precios en Placetas, límites y plazos). Se actualizan sin modificar el texto del Código, que los cita mediante su referencia.</p>
     </section>
 
-    <div class="flex mb-16">
-      <input type="text" id="buscador" class="input" placeholder="Buscar por código o etiqueta…" oninput="filtrar()" style="flex:1">
+    <div class="filtros-bar" role="search">
+      <input type="search" id="buscador" class="input" placeholder="Buscar por código, etiqueta o descripción…" oninput="programarFiltro()" aria-label="Buscar valores">
+      <select id="filtroTipo" class="select" onchange="filtrar()" aria-label="Tipo de valor">
+        <option value="">Todos los tipos</option>
+        <option value="porcentaje">Porcentaje</option>
+        <option value="placeta">Placetas</option>
+        <option value="entero">Entero</option>
+        <option value="texto">Texto</option>
+        <option value="fecha">Fecha</option>
+      </select>
+      <select id="filtroEstado" class="select" onchange="filtrar()" aria-label="Estado">
+        <option value="">Vigentes y derogados</option>
+        <option value="vigente">Solo vigentes</option>
+        <option value="derogado">Solo derogados</option>
+      </select>
     </div>
+    <div class="resumen-filtros" id="resumenCnic" role="status"></div>
 
     <!-- Vista lista -->
     <div id="vista-lista">
@@ -74,58 +88,166 @@
   <script src="js/bop-nav.js"></script>
   <script>
     let __cnic = [];
+    let __timer = null;
+    const __el = (id) => document.getElementById(id);
+
+    const __TIPOS = { porcentaje: 'Porcentaje', placeta: 'Placetas', entero: 'Entero', texto: 'Texto', fecha: 'Fecha' };
+
     document.addEventListener('DOMContentLoaded', async () => {
       await BOP.init();
-      __cnic = BOP.getCnic();
-      const params = new URLSearchParams(location.search);
-      const codigo = (params.get('codigo') || '').toUpperCase();
-      if (codigo) { verDetalle(codigo); } else { filtrar(); }
+      __cnic = (BOP.getCnic() || []).slice().sort((a, b) =>
+        String(a.codigo || '').localeCompare(String(b.codigo || ''), 'es', { numeric: true }));
+      const codigo = (new URLSearchParams(location.search).get('codigo') || '').toUpperCase();
+      if (codigo) verDetalle(codigo); else filtrar();
     });
 
+    function programarFiltro() { clearTimeout(__timer); __timer = setTimeout(filtrar, 120); }
+
+    function cnicEstado(c) { return (c && c.vigente === false) ? 'Derogado' : 'Vigente'; }
+    function cnicEsVigente(c) { return !c || c.vigente !== false; }
+
+    /* Valor legible según el tipo del CNIC (porcentaje → 12 %). */
+    function cnicValorCorto(c) {
+      const v = String((c && c.valor) || '').trim();
+      const u = String((c && c.unidad) || '').trim();
+      if (c && c.tipo_valor === 'porcentaje' && u === '%') {
+        const n = parseFloat(v.replace(',', '.'));
+        if (!isNaN(n)) return `${(n * 100).toString().replace(/\.?0+$/, '')} %`;
+      }
+      return [v, u].filter(Boolean).join(' ');
+    }
+
     function filtrar() {
-      const q = document.getElementById('buscador').value.toLowerCase();
-      const lista = document.getElementById('lista');
-      const filtrados = __cnic.filter(c =>
+      const q = (__el('buscador').value || '').toLowerCase();
+      const tipo = __el('filtroTipo').value;
+      const estado = __el('filtroEstado').value;
+      let lista = __cnic;
+      if (tipo) lista = lista.filter(c => (c.tipo_valor || 'texto') === tipo);
+      if (estado === 'vigente') lista = lista.filter(c => cnicEsVigente(c));
+      if (estado === 'derogado') lista = lista.filter(c => !cnicEsVigente(c));
+      if (q) lista = lista.filter(c =>
         (c.codigo || '').toLowerCase().includes(q) ||
         (c.etiqueta || '').toLowerCase().includes(q) ||
-        (c.descripcion || '').toLowerCase().includes(q));
-      lista.className = '';
-      lista.innerHTML = filtrados.length ? tablaCnicHtml(filtrados) : '<div class="aviso aviso-info">Sin resultados.</div>';
-      document.getElementById('vista-lista').classList.remove('oculto');
-      document.getElementById('vista-detalle').classList.add('oculto');
+        (c.descripcion || '').toLowerCase().includes(q) ||
+        String(c.valor || '').toLowerCase().includes(q));
+
+      const vigentes = __cnic.filter(cnicEsVigente).length;
+      const cont = __el('resumenCnic');
+      cont.innerHTML = `<b>${lista.length}</b> ${lista.length === 1 ? 'valor' : 'valores'}` +
+        (tipo ? ` · ${__TIPOS[tipo] || tipo}` : '') +
+        (q ? ` · búsqueda «${bopEscapeHtml(q)}»` : '') +
+        ` · de ${__cnic.length} totales (${vigentes} vigentes)`;
+
+      const filas = lista.map(c => `
+        <tr class="fila-cnic" tabindex="0" title="Ver detalle de ${bopEscapeHtml(c.codigo)}"
+            onclick="verDetalle('${bopEscapeHtml(String(c.codigo).replace(/'/g, "\\'"))}')"
+            onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();verDetalle('${bopEscapeHtml(String(c.codigo).replace(/'/g, "\\'"))}')}">
+          <td class="cnic-codigo"><a href="cnic.html?codigo=${encodeURIComponent(c.codigo)}" onclick="event.stopPropagation()">${bopEscapeHtml(c.codigo)}</a></td>
+          <td><strong>${bopEscapeHtml(c.etiqueta)}</strong><br><span style="color:var(--bop-texto-suave);font-size:12px">${bopEscapeHtml((c.descripcion || '').slice(0, 90))}</span></td>
+          <td class="cnic-valor"><strong>${bopEscapeHtml(cnicValorCorto(c))}</strong></td>
+          <td>${bopEscapeHtml(c.articulo || '—')}</td>
+          <td><span class="estado-texto" style="color:${cnicEsVigente(c) ? 'var(--bop-exito)' : 'var(--bop-error)'}">${cnicEstado(c)}</span></td>
+        </tr>`).join('');
+
+      const listado = __el('lista');
+      listado.className = '';
+      listado.innerHTML = lista.length
+        ? `<div style="overflow-x:auto"><table class="tabla"><thead><tr><th scope="col">Código</th><th scope="col">Etiqueta</th><th scope="col">Valor</th><th scope="col">Artículo (CNI)</th><th scope="col">Estado</th></tr></thead><tbody>${filas}</tbody></table></div>` +
+          '<p style="font-size:12px;color:var(--bop-texto-suave);margin-top:8px">Pulsa una fila para ver el detalle, el historial y dónde se usa cada valor.</p>'
+        : '<div class="aviso aviso-info">Sin resultados para los filtros actuales.</div>';
+      mostrarLista();
+    }
+
+    function mostrarLista() {
+      __el('vista-lista').classList.remove('oculto');
+      __el('vista-detalle').classList.add('oculto');
     }
 
     function verDetalle(codigo) {
       const c = __cnic.find(x => x.codigo === codigo);
-      document.getElementById('vista-lista').classList.add('oculto');
-      const det = document.getElementById('vista-detalle');
+      __el('vista-lista').classList.add('oculto');
+      const det = __el('vista-detalle');
       det.classList.remove('oculto');
-      if (!c) { det.innerHTML = '<div class="aviso aviso-error">CNIC no encontrado.</div>'; return; }
-      const hist = (c.historial || []).slice().reverse().map(h => `
+      if (!c) { det.innerHTML = '<div class="aviso aviso-error">Valor no encontrado.</div>'; return; }
+
+      const vigente = cnicEsVigente(c);
+      // Fecha del último cambio
+      const hist = (c.historial || []).slice();
+      const ultimo = hist[hist.length - 1] || null;
+      const ultimoCambio = ultimo ? fechaLegible(ultimo.desde) : '—';
+      const nCambios = hist.length;
+
+      // Referencias: documentos que citan este CNIC (cnic_refs o {{codigo}})
+      const docs = (BOP._docs || []).filter(d => {
+        const refs = Array.isArray(d.cnic_refs) && d.cnic_refs.some(r => String(r.codigo || '').toUpperCase() === codigo);
+        const inline = (d.contenido_md || '').includes('{{' + codigo + '}}');
+        return refs || inline;
+      });
+      const refsHtml = docs.length
+        ? `<ul class="ref-lista">${docs.map(d => `<li><a href="documento.html?codigo=${encodeURIComponent(d.codigo)}">${bopEscapeHtml(d.codigo)} · ${bopEscapeHtml(d.titulo)}</a></li>`).join('')}</ul>`
+        : '<p style="font-size:13px;color:var(--bop-texto-suave);margin:8px 0 0">Este valor no se cita por referencia en ningún documento publicado.</p>';
+
+      const histItems = hist.slice().reverse().map((h, i, arr) => `
         <div class="version-item">
-          <span class="num">↺</span>
-          <div class="detalle">Valor: <strong>${bopEscapeHtml(h.valor)}</strong><div class="meta">desde ${bopEscapeHtml(h.desde || '—')} · ${bopEscapeHtml(h.autor_dip ? bolpCensurarDip(h.autor_dip) : '—')} · ${bopEscapeHtml(h.notas || '')}</div></div>
-        </div>`).join('') || '<div class="version-item"><span class="num">v0</span><div class="detalle">Valor inicial.</div></div>';
+          <span class="num">${i === 0 && vigente ? '✔' : '↺'}</span>
+          <div class="detalle">
+            <strong>${bopEscapeHtml(cnicValorCorto({ ...c, valor: h.valor }))}</strong>
+            <div class="meta">${fechaLegible(h.desde || '')} · ${h.autor_dip ? bopEscapeHtml(bolpCensurarDip(h.autor_dip)) : '—'}${h.notas ? ' · ' + bopEscapeHtml(h.notas) : ''}</div>
+          </div>
+        </div>`).join('') ||
+        `<div class="version-item"><span class="num">${vigente ? '✔' : '↺'}</span><div class="detalle"><strong>${bopEscapeHtml(cnicValorCorto(c))}</strong><div class="meta">Valor inicial · ${fechaLegible(c.updated_at || c.created_at || '')}</div></div></div>`;
+
       det.innerHTML = `
-        <div class="flex mb-16">
+        <div class="ficha-acciones">
           <button class="btn btn-secundario" onclick="filtrar()">Volver</button>
           <button class="btn btn-primario" onclick="exportarPdf('${encodeURIComponent(c.codigo)}')">Descargar PDF</button>
+          <button class="btn btn-outline" onclick="copiarRef('${bopEscapeHtml(String(c.codigo).replace(/'/g, "\\'"))}')">Copiar referencia {{…}}</button>
+          <span class="copia-feedback" id="copiaFeedback" role="status"></span>
         </div>
-        <div class="aviso aviso-info" style="margin-bottom:10px"><span class="estado-texto">Código complementario (CNIC) · ${c.vigente === false ? 'Derogado' : 'Vigente'}</span></div>
-        <div class="card">
-          <span class="codigo">${escapar(c.codigo)}</span>
-          <h3>${escapar(c.etiqueta)}</h3>
-          <p class="desc">${escapar(c.descripcion || '')}</p>
-          <div style="margin-top:14px;padding:14px;background:var(--bop-acento-claro);border-radius:10px">
-            <div style="font-size:12px;font-weight:700;color:var(--bop-acento)">VALOR ACTUAL</div>
-            <div style="font-size:22px;font-weight:800;color:var(--bop-acento)">${escapar(c.valor)} <span style="font-size:14px">${escapar(c.unidad || '')}</span></div>
-            <div style="font-size:12px;color:var(--bop-texto-suave)">${escapar(c.articulo || '')} · ${escapar(c.tipo_valor || 'texto')}</div>
+
+        <div class="ficha-cab">
+          <div class="ficha-codigo-linea">${bopEscapeHtml(c.codigo)}</div>
+          <h1 class="ficha-titulo">${bopEscapeHtml(c.etiqueta)}</h1>
+          ${c.descripcion ? `<p class="desc" style="color:var(--bop-texto-suave);margin:4px 0 0">${bopEscapeHtml(c.descripcion)}</p>` : ''}
+          <div class="ficha-grid">
+            <div class="ficha-celda"><div class="ficha-k">Valor actual</div><div class="valor-actual">${bopEscapeHtml(cnicValorCorto(c))}</div></div>
+            <div class="ficha-celda"><div class="ficha-k">Tipo</div><div class="ficha-v">${__TIPOS[c.tipo_valor || 'texto'] || c.tipo_valor || 'Texto'}</div></div>
+            <div class="ficha-celda"><div class="ficha-k">Unidad</div><div class="ficha-v">${bopEscapeHtml(c.unidad || '—')}</div></div>
+            <div class="ficha-celda"><div class="ficha-k">Artículo (CNI)</div><div class="ficha-v">${bopEscapeHtml(c.articulo || '—')}</div></div>
+            <div class="ficha-celda"><div class="ficha-k">Estado</div><div class="ficha-v" style="color:${vigente ? 'var(--bop-exito)' : 'var(--bop-error)'}">${vigente ? 'Vigente' : 'Derogado'}</div></div>
+            <div class="ficha-celda"><div class="ficha-k">Último cambio</div><div class="ficha-v">${ultimoCambio}${nCambios ? ` · ${nCambios} ${nCambios === 1 ? 'registro' : 'registros'}` : ''}</div></div>
           </div>
         </div>
-        <div class="seccion mt-16">
+
+        <div class="seccion panel mt-16">
+          <div class="seccion-titulo">Dónde se usa este valor</div>
+          ${refsHtml}
+        </div>
+
+        <div class="seccion panel mt-16">
           <div class="seccion-titulo">Historial de cambios del valor</div>
-          ${hist}
+          <p style="color:var(--bop-texto-suave);font-size:12px;margin:-6px 0 8px">Cada cambio registra cuándo se produjo y quién lo autorizó (datos censurados).</p>
+          ${histItems}
         </div>`;
+    }
+
+    function copiarRef(codigo) {
+      const texto = '{{' + codigo + '}}';
+      const ok = () => {
+        const fb = __el('copiaFeedback');
+        if (fb) { fb.textContent = 'Referencia copiada: ' + texto; setTimeout(() => { fb.textContent = ''; }, 2500); }
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(texto).then(ok).catch(() => fallbackCopiar(texto, ok));
+      } else fallbackCopiar(texto, ok);
+    }
+    function fallbackCopiar(texto, ok) {
+      try {
+        const ta = document.createElement('textarea');
+        ta.value = texto; ta.style.position = 'fixed'; ta.style.opacity = '0';
+        document.body.appendChild(ta); ta.select();
+        document.execCommand('copy'); document.body.removeChild(ta); ok();
+      } catch { /* sin soporte */ }
     }
 
     function exportarPdf(codigoEnc) {

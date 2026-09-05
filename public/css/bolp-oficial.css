@@ -509,6 +509,16 @@ a, button { transition: background 0.15s, color 0.15s, border-color 0.15s, box-s
 .flujo-linea { font-size: 14px; color: var(--bop-texto-suave); margin: 16px 0 6px; }
 .flujo-linea strong { color: var(--bop-acento); font-weight: 800; }
 .estado-texto { font-weight: 700; color: var(--bop-texto-suave); text-transform: uppercase; font-size: 11px; letter-spacing: 0.6px; }
+/* Datos variables (CNIC) */
+.fila-cnic { cursor: pointer; }
+.fila-cnic:hover td { background: #fbfaff; }
+.cnic-codigo a { color: var(--bop-acento); font-weight: 800; }
+.valor-actual { font-family: var(--serif); font-size: 30px; font-weight: 700; color: var(--bop-acento); line-height: 1.1; }
+.ref-lista { margin: 8px 0 0; }
+.ref-lista li { margin-bottom: 6px; }
+.ref-lista a { color: var(--bop-acento); font-weight: 700; text-decoration: none; }
+.ref-lista a:hover { text-decoration: underline; }
+.copia-feedback { font-size: 12px; font-weight: 700; color: var(--bop-exito); margin-left: 10px; }
 .hero-chip { display: none; }
 .flujo-pasos .paso { background: none; border: none; border-radius: 0; padding: 0 6px; color: var(--bop-texto); }
 .flujo-pasos .paso .icono {
