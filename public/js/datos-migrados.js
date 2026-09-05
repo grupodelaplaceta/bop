@@ -24,9 +24,9 @@ const BOP_MIGRADOS = {
       codigo: 'ACTA-FUND-001',
       titulo: 'Acta Fundacional — Grupo de La Placeta',
       tipo: 'acta',
-      categoria: 'actas',
-      seccion: 'funcionamiento',
-      familia: 'actas',
+      categoria: 'organizacion',
+      seccion: 'asociativo',
+      familia: 'organizacion',
       organo_responsable: 'Junta del Grupo de La Placeta',
       estado: 'vigente',
       fecha_publicacion: '2025-12-23',
@@ -60,6 +60,52 @@ Sin más asuntos que tratar, se levanta la sesión siendo las 15:00 horas del d�
 ---
 
 *Firman esta acta las personas fundadoras de la Asociación Grupo de La Placeta (firmas censuradas). Documento publicado por la Junta del Grupo de La Placeta.*`
+    },
+    {
+      codigo: 'CERT-JD-001',
+      titulo: 'Certificación del Acuerdo Bancario de la Junta Directiva',
+      tipo: 'cni',
+      categoria: 'organizacion',
+      seccion: 'asociativo',
+      familia: 'organizacion',
+      organo_responsable: 'Junta del Grupo de La Placeta',
+      estado: 'vigente',
+      fecha_publicacion: '2026-06-11',
+      fecha_entrada_vigor: '2026-06-11',
+      aprobada_en_junta: true,
+      contenido_md: `# Certificación del Acuerdo Bancario de la Junta Directiva
+
+**Asociación Grupo de La Placeta**
+
+Quien suscribe, en calidad de Secretario de la Junta Directiva de la Asociación Grupo de La Placeta (domicilio social en Tarragona), **certifica**:
+
+Que en la reunión extraordinaria de la Junta Directiva, válidamente convocada y celebrada por medios telemáticos el **11 de junio de 2026**, con la asistencia de los miembros exigidos por los Estatutos vigentes, se adoptó por unanimidad el siguiente acuerdo relativo a la agilización de la gestión bancaria y de tesorería de la entidad:
+
+**Primero. Concesión de facultades bancarias y apoderamiento.**
+Ante la ausencia de facultades bancarias expresas en el texto estatutario vigente, y con el fin de dotar a la Asociación de la agilidad necesaria para su funcionamiento diario, se aprueba la creación de un registro de apoderamiento y disposición de cuentas de la entidad ante las instituciones bancarias pertinentes.
+
+**Segundo. Designación de personas autorizadas.**
+Se acuerda delegar de forma expresa la facultad de disposición, gestión y administración de las cuentas corrientes, libretas de ahorro y cualquier otro producto financiero formalizado a nombre de la Asociación en las siguientes personas miembros de la Junta Directiva *(datos personales censurados: no constan NIF)*:
+
+1. Presidente — Mikel A. M.
+2. Secretario — Unai G. A.
+3. Vocal de Comunicación — Salma E. H.
+
+**Tercero. Régimen de actuación indistinta (solidaria).**
+Para evitar trabas administrativas y asegurar la máxima eficiencia operativa, las facultades delegadas se ejercerán bajo el régimen de actuación solidaria o indistinta: bastará la firma de una cualquiera de las personas autorizadas enumeradas para obligar a la Asociación y realizar válidamente cualquier operación bancaria, sin necesidad de concurrencia de otras firmas.
+
+**Cuarto. Alcance de las facultades delegadas.**
+La persona autorizada podrá realizar, con su única firma, en el marco operativo y legal de la entidad:
+
+- Abrir, seguir operando, mantener y cancelar cuentas corrientes o productos financieros a nombre de la Asociación.
+- Disponer de los fondos constituidos en dichas cuentas mediante transferencias, cheques, reintegros u órdenes de pago.
+- Solicitar y gestionar las credenciales de banca digital, extractos bancarios y herramientas de control contable.
+
+Y para que así conste y surta los efectos oportunos ante las entidades financieras correspondientes, se expide la presente certificación en Tarragona, a 11 de junio de 2026.
+
+---
+
+*Firman la Presidencia y la Secretaría de la Junta Directiva del Grupo de La Placeta (firmas censuradas). Documento publicado por la Junta del Grupo de La Placeta.*`
     }
   ],
 

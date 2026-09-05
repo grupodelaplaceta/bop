@@ -86,8 +86,8 @@ async function main() {
   const acta = {
     codigo: 'ACTA-FUND-001',
     titulo: 'Acta Fundacional — Grupo de La Placeta',
-    tipo: 'acta', categoria: 'actas',
-    seccion: 'funcionamiento', familia: 'actas',
+    tipo: 'acta', categoria: 'organizacion',
+    seccion: 'asociativo', familia: 'organizacion',
     organo_responsable: ORGANO,
     estado: 'vigente', version: 1, aprobada_en_junta: true,
     ...fechas, contenido_md: ACTA_MD,
