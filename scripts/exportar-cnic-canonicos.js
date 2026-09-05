@@ -42,12 +42,49 @@ function rest(seg) {
   });
 }
 
+/* Valores curados de Placeta Junior que el CNI-BANCO no recoge todavía.
+   Si ya existen en bop_cnic (con su articulo oficial), manda la base; estos
+   son el respaldo para que el espejo y el modo offline los tengan SIEMPRE.
+   Se insertan en bop_cnic mediante scripts/insertar-cnic-junior.js. */
+const JUNIOR_EXTRAS = [
+  {
+    codigo: 'CNIC-JUNIOR-RBU-DIARIA',
+    etiqueta: 'RBU diaria Placeta Junior',
+    descripcion: 'Cantidad diaria de Renta Básica Universal que Placeta Junior abona a cada menor desde la cuenta de la Fundación.',
+    tipo_valor: 'placeta', valor: '5', unidad: 'Pz/día', articulo: 'Placeta Junior · Academia', vigente: true,
+  },
+  {
+    codigo: 'CNIC-JUNIOR-GASTO-DIARIO',
+    etiqueta: 'Límite de gasto diario Placeta Junior',
+    descripcion: 'Límite diario de gasto de la cuenta infantil por defecto (el tutor puede ajustarlo en el control parental).',
+    tipo_valor: 'placeta', valor: '10', unidad: 'Pz/día', articulo: 'Placeta Junior · Control parental', vigente: true,
+  },
+  {
+    codigo: 'CNIC-JUNIOR-GASTO-SEMANAL',
+    etiqueta: 'Límite de gasto semanal Placeta Junior',
+    descripcion: 'Límite semanal de gasto de la cuenta infantil por defecto (el tutor puede ajustarlo en el control parental).',
+    tipo_valor: 'placeta', valor: '50', unidad: 'Pz/semana', articulo: 'Placeta Junior · Control parental', vigente: true,
+  },
+  {
+    codigo: 'CNIC-JUNIOR-APROBACION-TUTOR',
+    etiqueta: 'Umbral de aprobación del tutor',
+    descripcion: 'A partir de este importe, las operaciones de Placeta Junior requieren la aprobación del tutor.',
+    tipo_valor: 'placeta', valor: '1000', unidad: 'Pz', articulo: 'Placeta Junior · Control parental', vigente: true,
+  },
+];
+
 async function main() {
   const { status, data } = await rest('/rest/v1/bop_cnic?select=codigo,etiqueta,descripcion,tipo_valor,valor,unidad,articulo,vigente&order=codigo&limit=1000');
   if (status !== 200 || !Array.isArray(data)) { console.error('No se pudo leer bop_cnic', status); process.exit(1); }
 
-  const entradas = data
-    .sort((a, b) => String(a.codigo).localeCompare(String(b.codigo)))
+  // La base manda; los curados solo completan lo que aún no está en bop_cnic.
+  const porCodigo = new Map(data.map((x) => [String(x.codigo), x]));
+  const extras = JUNIOR_EXTRAS
+    .filter((e) => !porCodigo.has(e.codigo))
+    .map((e) => ({ ...e, descripcion: e.descripcion, etiqueta: e.etiqueta }));
+  const mezcla = [...data, ...extras].sort((a, b) => String(a.codigo).localeCompare(String(b.codigo)));
+
+  const entradas = mezcla
     .map((x) => {
       const resumen = resumenDe(x);
       return `  '${x.codigo}': { codigo: '${x.codigo}', etiqueta: ${JSON.stringify(x.etiqueta || '')}, descripcion: ${JSON.stringify(x.descripcion || '')}, tipo_valor: '${x.tipo_valor || 'texto'}', valor: '${String(x.valor == null ? '' : x.valor).replace(/'/g, "\\'")}', unidad: ${JSON.stringify(x.unidad || '')}, articulo: ${JSON.stringify(x.articulo || '')}, vigente: ${x.vigente !== false}, es_baremo: false, resumen: ${JSON.stringify(resumen)} }`;
