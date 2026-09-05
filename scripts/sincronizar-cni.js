@@ -24,10 +24,26 @@ const KEY = process.env.SUPABASE_SERVICE_KEY || FALLBACK_KEY;
 const APLICAR = process.argv.includes('--apply');
 
 // Manifiesto: cada capítulo = archivo .md en public/docs/cni/
-// (codigo -> { titulo, archivo }). Se rellena progresivamente.
+// (codigo -> { titulo, archivo }).
+// Regenerar los .md desde el espejo offline: node scripts/extraer-cni-docs.js
 const CNI_DOCS = [
   { codigo: 'CNI-PREAMBULO', archivo: 'cni-preamble.md', titulo: 'Preámbulo — Fundamento y derogación de versiones anteriores' },
-  // Capítulos I–XVI se incorporan por lotes en public/docs/cni/
+  { codigo: 'CNI-I', archivo: 'cni-i.md', titulo: 'Capítulo I: Altas al Sistema' },
+  { codigo: 'CNI-II', archivo: 'cni-ii.md', titulo: 'Capítulo II: PlacetaID y Documento de Identidad (DIP)' },
+  { codigo: 'CNI-III', archivo: 'cni-iii.md', titulo: 'Capítulo III: Banco de La Placeta' },
+  { codigo: 'CNI-IV', archivo: 'cni-iv.md', titulo: 'Capítulo IV: Banca, Capital e Impuestos' },
+  { codigo: 'CNI-V', archivo: 'cni-v.md', titulo: 'Capítulo V: Recursos Digitales' },
+  { codigo: 'CNI-VI', archivo: 'cni-vi.md', titulo: 'Capítulo VI: Loterías, Juegos e Inversiones' },
+  { codigo: 'CNI-VII', archivo: 'cni-vii.md', titulo: 'Capítulo VII: Sueldos Públicos' },
+  { codigo: 'CNI-VIII', archivo: 'cni-viii.md', titulo: 'Capítulo VIII: Convivencia y Respeto' },
+  { codigo: 'CNI-IX', archivo: 'cni-ix.md', titulo: 'Capítulo IX: Difamación e Injurias' },
+  { codigo: 'CNI-X', archivo: 'cni-x.md', titulo: 'Capítulo X: Régimen Sancionador General' },
+  { codigo: 'CNI-XI', archivo: 'cni-xi.md', titulo: 'Capítulo XI: Marco de Cumplimiento Real — Protección de Datos del GDLP' },
+  { codigo: 'CNI-XII', archivo: 'cni-xii.md', titulo: 'Capítulo XII: Protección de Datos — Organizaciones Privadas' },
+  { codigo: 'CNI-XIII', archivo: 'cni-xiii.md', titulo: 'Capítulo XIII: Protección de Datos — Organizaciones Públicas' },
+  { codigo: 'CNI-XIV', archivo: 'cni-xiv.md', titulo: 'Capítulo XIV: Protección de Datos — Asociaciones' },
+  { codigo: 'CNI-XV', archivo: 'cni-xv.md', titulo: 'Capítulo XV: Evaluación de Impacto y Régimen Sancionador en Protección de Datos' },
+  { codigo: 'CNI-XVI', archivo: 'cni-xvi.md', titulo: 'Capítulo XVI: Disposiciones Finales' },
 ];
 
 function leerMd(codigo) {
