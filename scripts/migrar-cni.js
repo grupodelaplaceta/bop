@@ -11,6 +11,8 @@ const { createClient } = require('@supabase/supabase-js');
 
 // Cargar datos migrados (CommonJS)
 const { BOP_MIGRADOS } = require(path.join(__dirname, '..', 'public', 'js', 'datos-migrados.js'));
+// Datos CNIC corregidos y estructurados (escalares + baremos)
+const { BOP_CNIC_DATOS } = require(path.join(__dirname, '..', 'public', 'js', 'cnic-datos.js'));
 
 // ── Configuración Supabase (igual que admin-placeta) ────────────────────
 const SUPABASE_URL = process.env.SUPABASE_URL || 'https://htikrqaywapshlkdonvs.supabase.co';
@@ -68,12 +70,16 @@ async function migrar() {
   }
 
   // ── CNIC ────────────────────────────────────────────────────────────
-  for (const c of (BOP_MIGRADOS.cnic || [])) {
+  for (const orig of (BOP_MIGRADOS.cnic || [])) {
+    const c = Object.assign({}, orig, (BOP_CNIC_DATOS[orig.codigo] || {}));
     const row = {
       codigo: c.codigo, etiqueta: c.etiqueta, descripcion: c.descripcion || '',
       tipo_valor: c.tipo_valor || 'texto', valor: c.valor || '', unidad: c.unidad || '',
       articulo: c.articulo || '', vigente: c.vigente !== false,
-      historial: c.historial || [{ valor: c.valor, desde: c.desde || null, autor_dip: AUTOR.dip, notas: 'Migración inicial.' }],
+      es_baremo: !!c.es_baremo,
+      baremo: c.baremo || [],
+      resumen: c.resumen || '',
+      historial: c.historial || [{ valor: c.valor || '', desde: c.desde || null, autor_dip: AUTOR.dip, notas: 'Migración inicial.' }],
       autor_dip: AUTOR.dip
     };
     const { error } = await supabase.from('bop_cnic').upsert(row, { onConflict: 'codigo' });

@@ -21,6 +21,15 @@ if (BOP_CONFIG.supabaseKey && window.supabase) {
   } catch (e) { BOP_SUPABASE = null; }
 }
 
+/* Fusiona los CNIC con su ficha corregida/estructurada (cnic-datos.js). */
+function bopCnicFinal(base) {
+  const datos = (typeof window !== 'undefined' && window.BOP_CNIC_DATOS) || {};
+  return (base || []).map((c) => {
+    const fix = datos[c.codigo] || datos[c.cnic] || null;
+    return fix ? Object.assign({}, c, fix) : c;
+  });
+}
+
 const BOP = {
   // Cache en memoria
   _docs: null,
@@ -59,7 +68,7 @@ const BOP = {
         const cnic = Array.isArray(cnicPayload) ? cnicPayload : cnicPayload.cnic;
         if (Array.isArray(docs) && Array.isArray(cnic)) {
           this._docs = docs.map(d => this.normalizarDocumento(d));
-          this._cnic = cnic.map(c => ({ ...c, codigo: c.codigo || c.cnic, valor: c.valor ?? c.valor_vigente }));
+          this._cnic = bopCnicFinal(cnic.map(c => ({ ...c, codigo: c.codigo || c.cnic, valor: c.valor ?? c.valor_vigente })));
           this._usandoSupabase = true;
           return;
         }
@@ -73,7 +82,7 @@ const BOP = {
         if (!error && data && data.length > 0) {
           this._docs = data.map(d => this.normalizarDocumento(d));
           const { data: cnicData, error: cnicErr } = await BOP_SUPABASE.from('bop_cnic').select('*').limit(500);
-          this._cnic = (!cnicErr && cnicData) ? cnicData : [];
+          this._cnic = bopCnicFinal((!cnicErr && cnicData) ? cnicData : []);
           this._usandoSupabase = true;
           return;
         }
@@ -89,7 +98,7 @@ const BOP = {
       ...(m.junior || []).map(d => this.normalizarDocumento({ ...d, tipo: d.tipo || 'cni' })),
       ...(m.placetaid || []).map(d => this.normalizarDocumento({ ...d, tipo: d.tipo || 'cni' }))
     ];
-    this._cnic = m.cnic || [];
+    this._cnic = bopCnicFinal(m.cnic || []);
     this._usandoSupabase = false;
   },
 
@@ -127,7 +136,9 @@ const BOP = {
 // Resolver para etiquetas inline {{CNIC-XXXX}} (lo usa bopRenderMarkdown)
 window.BOP_RESOLVER_CNIC = (codigo) => {
   const c = BOP.getCnicPorCodigo(codigo);
-  return c ? { valor: c.valor, unidad: c.unidad, etiqueta: c.etiqueta } : null;
+  if (!c) return null;
+  if (c.resumen) return { valor: c.resumen, unidad: '', etiqueta: c.etiqueta };
+  return { valor: c.valor, unidad: c.unidad, etiqueta: c.etiqueta };
 };
 
 // ── Renderizado ─────────────────────────────────────────────────────────

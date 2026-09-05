@@ -61,6 +61,7 @@
         <option value="entero">Entero</option>
         <option value="texto">Texto</option>
         <option value="fecha">Fecha</option>
+        <option value="baremo">Baremo / Escala</option>
       </select>
       <select id="filtroEstado" class="select" onchange="filtrar()" aria-label="Estado">
         <option value="">Vigentes y derogados</option>
@@ -82,6 +83,7 @@
   <footer class="bop-footer">Boletín Oficial de La Placeta · Grupo de La Placeta</footer>
 
   <script src="js/datos-migrados.js"></script>
+  <script src="js/cnic-datos.js"></script>
   <script src="js/markdown.js"></script>
   <script src="js/bop.js"></script>
   <script src="js/bolp-clasificacion.js"></script>
@@ -91,7 +93,7 @@
     let __timer = null;
     const __el = (id) => document.getElementById(id);
 
-    const __TIPOS = { porcentaje: 'Porcentaje', placeta: 'Placetas', entero: 'Entero', texto: 'Texto', fecha: 'Fecha' };
+    const __TIPOS = { porcentaje: 'Porcentaje', placeta: 'Placetas', entero: 'Entero', texto: 'Texto', fecha: 'Fecha', baremo: 'Baremo / Escala' };
 
     document.addEventListener('DOMContentLoaded', async () => {
       await BOP.init();
@@ -106,39 +108,76 @@
     function cnicEstado(c) { return (c && c.vigente === false) ? 'Derogado' : 'Vigente'; }
     function cnicEsVigente(c) { return !c || c.vigente !== false; }
 
-    /* Valor legible según el tipo del CNIC (porcentaje → 12 %). */
+    function cnicEsBaremo(c) {
+      return !!(c && c.es_baremo === true && c.baremo && Array.isArray(c.baremo.columnas) && c.baremo.columnas.length);
+    }
+
+    /* Valor legible según el tipo del CNIC (porcentaje → 12 %; baremo → resumen). */
     function cnicValorCorto(c) {
-      const v = String((c && c.valor) || '').trim();
-      const u = String((c && c.unidad) || '').trim();
-      if (c && c.tipo_valor === 'porcentaje' && u === '%') {
+      if (!c) return '';
+      if (c.resumen && c.es_baremo && !String(c.valor || '').trim()) return c.resumen;
+      const v = String(c.valor || '').trim();
+      const u = String(c.unidad || '').trim();
+      if (c.tipo_valor === 'porcentaje' && u === '%') {
         const n = parseFloat(v.replace(',', '.'));
         if (!isNaN(n)) return `${(n * 100).toString().replace(/\.?0+$/, '')} %`;
       }
       return [v, u].filter(Boolean).join(' ');
     }
 
-    function cnicEsLargo(c) { return !!(c && (c.tipo_valor === 'texto' || String(c.valor || '').length > 60)); }
+    function cnicEsLargo(c) {
+      return !!(c && !cnicEsBaremo(c) && (c.tipo_valor === 'texto' || String(c.valor || '').length > 60));
+    }
 
     /* Valor corto para la tabla (sin desbordar). */
     function cnicValorLista(c) {
+      if (cnicEsBaremo(c)) {
+        const n = c.baremo && Array.isArray(c.baremo.filas) ? c.baremo.filas.length : 0;
+        return c.resumen || ('Baremo · ' + n + (n === 1 ? ' fila' : ' filas'));
+      }
       const s = cnicValorCorto(c);
       return s.length > 70 ? s.slice(0, 70).trimEnd() + '…' : s;
     }
 
-    /* Valor en detalle: escalas / baremos se muestran como lista legible. */
+    /* Baremo → tabla de datos real. */
+    function cnicBaremoHtml(c) {
+      const b = c.baremo || {};
+      const cols = Array.isArray(b.columnas) ? b.columnas : [];
+      const filas = Array.isArray(b.filas) ? b.filas : [];
+      if (!cols.length || !filas.length) return '';
+      const thead = '<thead><tr>' + cols.map((col) => `<th scope="col">${bopEscapeHtml(col)}</th>`).join('') + '</tr></thead>';
+      const tbody = '<tbody>' + filas.map((f) => '<tr>' + (f || []).map((cel) => `<td>${bopEscapeHtml(cel)}</td>`).join('') + '</tr>').join('') + '</tbody>';
+      return `<div class="tabla-wrap cnic-baremo"><table class="tabla tabla-cnic">${thead}${tbody}</table></div>`;
+    }
+
+    /* Valor en detalle: escalar grande o baremo en tabla. */
     function cnicValorDetalleHtml(c) {
+      if (cnicEsBaremo(c)) {
+        const tabla = cnicBaremoHtml(c);
+        const unidad = c && c.unidad ? 'Unidad: ' + bopEscapeHtml(c.unidad) : '';
+        // CNIC con valor principal escalar + baremo (p. ej. SMI)
+        if (c && String(c.valor || '').trim() && c.tipo_valor !== 'baremo') {
+          return `<div class="valor-actual" style="font-size:24px">${bopEscapeHtml(cnicValorCorto(c))}</div>` +
+            (c.resumen ? `<p class="texto-mini" style="margin:4px 0 12px">${bopEscapeHtml(c.resumen)}</p>` : '') +
+            tabla + (unidad ? `<p class="texto-mini">${unidad}</p>` : '');
+        }
+        return tabla + (unidad ? `<p class="texto-mini">${unidad}</p>` : '');
+      }
       const v = String((c && c.valor) || '');
       const unidad = c && c.unidad ? `<span class="u">${bopEscapeHtml(c.unidad)}</span>` : '';
-      if (!cnicEsLargo(c)) {
-        return `<div class="valor-actual">${bopEscapeHtml(cnicValorCorto(c))}</div>`;
-      }
+      if (!cnicEsLargo(c)) return `<div class="valor-actual">${bopEscapeHtml(cnicValorCorto(c))}</div>`;
       const partes = v.split(/\s*·\s*/).filter(Boolean);
       const cuerpo = partes.length > 1
-        ? `<ul class="valor-lista">${partes.map(p => `<li>${bopEscapeHtml(p)}</li>`).join('')}</ul>`
+        ? `<ul class="valor-lista">${partes.map((p) => `<li>${bopEscapeHtml(p)}</li>`).join('')}</ul>`
         : `<div class="valor-wrap">${bopEscapeHtml(v)}${unidad ? ' ' + unidad : ''}</div>`;
       return cuerpo + (partes.length > 1 && unidad
         ? `<div class="valor-unidad" style="font-size:12px;color:var(--bop-texto-suave);margin-top:6px">Unidad: ${unidad}</div>`
         : '');
+    }
+
+    function cnicHistValor(c, h) {
+      if (cnicEsBaremo(c)) return bopEscapeHtml(h.valor || 'Baremo actualizado');
+      return bopEscapeHtml(cnicValorCorto(Object.assign({}, c, { valor: h.valor })));
     }
 
     function filtrar() {
@@ -188,38 +227,39 @@
     }
 
     function verDetalle(codigo) {
-      const c = __cnic.find(x => x.codigo === codigo);
+      const c = __cnic.find((x) => x.codigo === codigo);
       __el('vista-lista').classList.add('oculto');
       const det = __el('vista-detalle');
       det.classList.remove('oculto');
       if (!c) { det.innerHTML = '<div class="aviso aviso-error">Valor no encontrado.</div>'; return; }
 
       const vigente = cnicEsVigente(c);
-      // Fecha del último cambio
+      const esBaremo = cnicEsBaremo(c);
       const hist = (c.historial || []).slice();
       const ultimo = hist[hist.length - 1] || null;
       const ultimoCambio = ultimo ? fechaLegible(ultimo.desde) : '—';
       const nCambios = hist.length;
 
-      // Referencias: documentos que citan este CNIC (cnic_refs o {{codigo}})
-      const docs = (BOP._docs || []).filter(d => {
-        const refs = Array.isArray(d.cnic_refs) && d.cnic_refs.some(r => String(r.codigo || '').toUpperCase() === codigo);
-        const inline = (d.contenido_md || '').includes('{{' + codigo + '}}');
-        return refs || inline;
+      // Referencias: documentos que citan este CNIC
+      const docs = (BOP._docs || []).filter((d) => {
+        const refs = Array.isArray(d.cnic_refs) && d.cnic_refs.some((r) => String(r.codigo || '').toUpperCase() === codigo);
+        return refs || (d.contenido_md || '').includes('{{' + codigo + '}}');
       });
-      const refsHtml = docs.length
-        ? `<ul class="ref-lista">${docs.map(d => `<li><a href="documento.html?codigo=${encodeURIComponent(d.codigo)}">${bopEscapeHtml(d.codigo)} · ${bopEscapeHtml(d.titulo)}</a></li>`).join('')}</ul>`
-        : '<p style="font-size:13px;color:var(--bop-texto-suave);margin:8px 0 0">Este valor no se cita por referencia en ningún documento publicado.</p>';
 
-      const histItems = hist.slice().reverse().map((h, i, arr) => `
+      const histItems = hist.slice().reverse().map((h, i) => `
         <div class="version-item">
           <span class="num">${i === 0 && vigente ? '✔' : '↺'}</span>
-          <div class="detalle">
-            <strong>${bopEscapeHtml(cnicValorCorto({ ...c, valor: h.valor }))}</strong>
-            <div class="meta">${fechaLegible(h.desde || '')} · ${h.autor_dip ? bopEscapeHtml(bolpCensurarDip(h.autor_dip)) : '—'}${h.notas ? ' · ' + bopEscapeHtml(h.notas) : ''}</div>
-          </div>
+          <div class="detalle"><strong>${cnicHistValor(c, h)}</strong><div class="meta">${fechaLegible(h.desde || '')} · ${h.autor_dip ? bopEscapeHtml(bolpCensurarDip(h.autor_dip)) : '—'}${h.notas ? ' · ' + bopEscapeHtml(h.notas) : ''}</div></div>
         </div>`).join('') ||
-        `<div class="version-item"><span class="num">${vigente ? '✔' : '↺'}</span><div class="detalle"><strong>${bopEscapeHtml(cnicValorCorto(c))}</strong><div class="meta">Valor inicial · ${fechaLegible(c.updated_at || c.created_at || '')}</div></div></div>`;
+        `<div class="version-item"><span class="num">${vigente ? '✔' : '↺'}</span><div class="detalle"><strong>${bopEscapeHtml(cnicValorLista(c))}</strong><div class="meta">Valor inicial · ${fechaLegible(c.updated_at || c.created_at || '')}</div></div></div>`;
+
+      const infoFilas = [
+        ['Tipo', __TIPOS[c.tipo_valor || 'texto'] || c.tipo_valor || 'Texto'],
+        ['Unidad', c.unidad || '—'],
+        ['Artículo (CNI)', c.articulo || '—'],
+        ['Estado', vigente ? 'Vigente' : 'Derogado'],
+        ['Último cambio', ultimoCambio + (nCambios ? ` (${nCambios} ${nCambios === 1 ? 'registro' : 'registros'})` : '')]
+      ].map(([k, v]) => `<div class="ficha-celda"><div class="ficha-k">${bopEscapeHtml(k)}</div><div class="ficha-v">${bopEscapeHtml(v)}</div></div>`).join('');
 
       det.innerHTML = `
         <div class="ficha-acciones">
@@ -230,29 +270,28 @@
         </div>
 
         <div class="ficha-cab">
-          <div class="ficha-codigo-linea">${bopEscapeHtml(c.codigo)}</div>
+          <div class="ficha-codigo-linea">${bopEscapeHtml(c.codigo)} <span class="estado-texto" style="color:${vigente ? 'var(--bop-exito)' : 'var(--bop-error)'}">· ${vigente ? 'Vigente' : 'Derogado'}</span></div>
           <h1 class="ficha-titulo">${bopEscapeHtml(c.etiqueta)}</h1>
           ${c.descripcion ? `<p class="desc" style="color:var(--bop-texto-suave);margin:4px 0 0">${bopEscapeHtml(c.descripcion)}</p>` : ''}
-          <div class="ficha-grid">
-            <div class="ficha-celda"><div class="ficha-k">Valor actual</div>${cnicValorDetalleHtml(c)}</div>
-            <div class="ficha-celda"><div class="ficha-k">Tipo</div><div class="ficha-v">${__TIPOS[c.tipo_valor || 'texto'] || c.tipo_valor || 'Texto'}</div></div>
-            <div class="ficha-celda"><div class="ficha-k">Unidad</div><div class="ficha-v">${bopEscapeHtml(c.unidad || '—')}</div></div>
-            <div class="ficha-celda"><div class="ficha-k">Artículo (CNI)</div><div class="ficha-v">${bopEscapeHtml(c.articulo || '—')}</div></div>
-            <div class="ficha-celda"><div class="ficha-k">Estado</div><div class="ficha-v" style="color:${vigente ? 'var(--bop-exito)' : 'var(--bop-error)'}">${vigente ? 'Vigente' : 'Derogado'}</div></div>
-            <div class="ficha-celda"><div class="ficha-k">Último cambio</div><div class="ficha-v">${ultimoCambio}${nCambios ? ` · ${nCambios} ${nCambios === 1 ? 'registro' : 'registros'}` : ''}</div></div>
-          </div>
         </div>
 
-        <div class="seccion panel mt-16">
-          <div class="seccion-titulo">Dónde se usa este valor</div>
-          ${refsHtml}
-        </div>
+        <section class="panel" aria-label="Dato del valor variable">
+          <div class="seccion-titulo">Dato${esBaremo ? ' · Baremo' : ''}</div>
+          ${cnicValorDetalleHtml(c)}
+        </section>
 
-        <div class="seccion panel mt-16">
-          <div class="seccion-titulo">Historial de cambios del valor</div>
+        <details class="cnic-info mt-16">
+          <summary>Información técnica</summary>
+          <div class="ficha-grid">${infoFilas}</div>
+        </details>
+
+        ${docs.length ? `<section class="panel mt-16"><div class="seccion-titulo">Dónde se usa este valor</div><ul class="ref-lista">${docs.map((d) => `<li><a href="documento.html?codigo=${encodeURIComponent(d.codigo)}">${bopEscapeHtml(d.codigo)} · ${bopEscapeHtml(d.titulo)}</a></li>`).join('')}</ul></section>` : ''}
+
+        <section class="panel mt-16">
+          <div class="seccion-titulo">Historial de cambios</div>
           <p style="color:var(--bop-texto-suave);font-size:12px;margin:-6px 0 8px">Cada cambio registra cuándo se produjo y quién lo autorizó (datos censurados).</p>
           ${histItems}
-        </div>`;
+        </section>`;
     }
 
     function copiarRef(codigo) {

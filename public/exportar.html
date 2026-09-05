@@ -50,6 +50,7 @@
   <footer class="bop-footer">Boletín Oficial de La Placeta · Grupo de La Placeta</footer>
 
   <script src="js/datos-migrados.js"></script>
+  <script src="js/cnic-datos.js"></script>
   <script src="js/markdown.js"></script>
   <script src="js/bop.js"></script>
   <script src="js/bop-nav.js"></script>
@@ -72,6 +73,17 @@
         return;
       }
       const esCnic = !!c;
+      // PDF de CNIC: si es baremo se imprime como tabla; si es escalar, caja con valor legible
+      const baremo = (esCnic && c.baremo && Array.isArray(c.baremo.columnas) && Array.isArray(c.baremo.filas)) ? c.baremo : null;
+      const baremoH = baremo
+        ? '<div style="margin:12px 0"><table style="border-collapse:collapse;width:100%;font-size:12px">' +
+          '<thead><tr>' + baremo.columnas.map((x) => '<th style="border:1px solid #dcd7e6;padding:6px 10px;background:#eeebf7;text-align:left">' + bopEscapeHtml(x) + '</th>').join('') + '</tr></thead>' +
+          '<tbody>' + baremo.filas.map((f) => '<tr>' + f.map((cel) => '<td style="border:1px solid #dcd7e6;padding:5px 10px">' + bopEscapeHtml(cel) + '</td>').join('') + '</tr>').join('') + '</tbody>' +
+          '</table></div>'
+        : '';
+      const cajaH = (c && String(c.valor || '').trim())
+        ? `<div style="background:var(--bop-acento-claro);border-radius:10px;padding:16px;margin:12px 0;font-size:22px;font-weight:800;color:var(--bop-acento)">${bopEscapeHtml(c.resumen || ((c.valor || '') + ' ' + (c.unidad || '')))}</div>`
+        : '';
       cuerpo.innerHTML = `
         <div style="display:flex;align-items:center;gap:14px;border-bottom:3px solid var(--bop-acento);padding-bottom:14px;margin-bottom:20px">
           <img src="img/boplogo.png" style="height:52px;background:#fff;border-radius:8px;padding:4px" alt="BOP">
@@ -83,10 +95,9 @@
         ${esCnic ? `
           <h1 style="font-size:22px;color:var(--bop-acento)">${bopEscapeHtml(c.codigo)} — ${bopEscapeHtml(c.etiqueta)}</h1>
           <p style="color:var(--bop-texto-suave)">${bopEscapeHtml(c.descripcion || '')}</p>
-          <div style="background:var(--bop-acento-claro);border-radius:10px;padding:16px;margin:16px 0;font-size:20px;font-weight:800;color:var(--bop-acento)">
-            ${bopEscapeHtml(c.valor)} ${bopEscapeHtml(c.unidad || '')}
-          </div>
-          <p style="font-size:12px;color:var(--bop-texto-suave)">${bopEscapeHtml(c.articulo || '')} · ${bopEscapeHtml(c.tipo_valor || 'texto')}</p>
+          ${cajaH}
+          ${baremoH}
+          <p style="font-size:12px;color:var(--bop-texto-suave)">${bopEscapeHtml(c.articulo || '')} · Tipo: ${bopEscapeHtml(c.tipo_valor || 'texto')}${c.unidad ? ' · Unidad: ' + bopEscapeHtml(c.unidad) : ''}</p>
         ` : `
           <h1 style="font-size:22px;color:var(--bop-acento)">${bopEscapeHtml(d.codigo)} — ${bopEscapeHtml(d.titulo)}</h1>
           <p style="font-size:12px;color:var(--bop-texto-suave)">

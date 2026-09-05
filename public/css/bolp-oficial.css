@@ -556,3 +556,20 @@ a, button { transition: background 0.15s, color 0.15s, border-color 0.15s, box-s
   .tabla-cnic td { padding: 8px 8px; }
   .tabla-cnic .cnic-valor strong { font-size: 12px; }
 }
+
+/* Detalle CNIC: Dato (tabla/scalar) e Información plegable */
+.texto-mini { font-size: 12px; color: var(--bop-texto-suave); }
+.cnic-info {
+  border: 1px solid var(--bop-borde); border-radius: var(--r);
+  background: #fff; box-shadow: var(--sombra); padding: 2px 18px 10px;
+}
+.cnic-info summary {
+  cursor: pointer; list-style: none; font-weight: 800;
+  color: var(--bop-acento); padding: 12px 0 10px;
+}
+.cnic-info summary::-webkit-details-marker { display: none; }
+.cnic-info[open] summary { border-bottom: 1px solid var(--bop-borde); margin-bottom: 14px; }
+.cnic-info .ficha-grid { border-top: none; padding-top: 0; margin-top: 0; }
+.cnic-baremo { margin: 6px 0 10px; }
+.cnic-baremo table { font-size: 13px; }
+.panel .seccion-titulo { margin-bottom: 12px; }
