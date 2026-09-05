@@ -112,16 +112,12 @@
       return !!(c && c.es_baremo === true && c.baremo && Array.isArray(c.baremo.columnas) && c.baremo.columnas.length);
     }
 
-    /* Valor legible según el tipo del CNIC (porcentaje → 12 %; baremo → resumen). */
+    /* Valor legible según el tipo del CNIC (usa el resumen canónico de la base). */
     function cnicValorCorto(c) {
       if (!c) return '';
-      if (c.resumen && c.es_baremo && !String(c.valor || '').trim()) return c.resumen;
+      if (c.resumen) return c.resumen;
       const v = String(c.valor || '').trim();
       const u = String(c.unidad || '').trim();
-      if (c.tipo_valor === 'porcentaje' && u === '%') {
-        const n = parseFloat(v.replace(',', '.'));
-        if (!isNaN(n)) return `${(n * 100).toString().replace(/\.?0+$/, '')} %`;
-      }
       return [v, u].filter(Boolean).join(' ');
     }
 

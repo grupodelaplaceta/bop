@@ -580,3 +580,17 @@ a, button { transition: background 0.15s, color 0.15s, border-color 0.15s, box-s
 .cnic-baremo { margin: 6px 0 10px; }
 .cnic-baremo table { font-size: 13px; }
 .panel .seccion-titulo { margin-bottom: 12px; }
+
+/* Detalle CNIC: plano y sin tarjetas/márgenes superfluos */
+#vista-detalle .ficha-acciones { margin-bottom: 12px; }
+#vista-detalle .ficha-cab { background: none; border: none; box-shadow: none; padding: 0 0 8px; border-radius: 0; }
+#vista-detalle .ficha-titulo { font-size: 23px; }
+#vista-detalle .panel, #vista-detalle .cnic-info {
+  background: none; border: none; box-shadow: none;
+  border-radius: 0; padding: 12px 0 6px;
+}
+#vista-detalle .panel { margin-top: 0; }
+#vista-detalle .cnic-info { border-bottom: 1px solid var(--bop-borde); padding: 0 0 6px; }
+#vista-detalle .cnic-info[open] summary { border-bottom: none; margin-bottom: 8px; }
+#vista-detalle .cnic-info .ficha-grid { border-top: none; padding-top: 2px; }
+#vista-detalle .panel .seccion-titulo { margin-bottom: 8px; }

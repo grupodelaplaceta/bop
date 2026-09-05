@@ -1,243 +1,78 @@
 /* ═══════════════════════════════════════════════════════════════════════
-   CNIC — Datos corregidos y estructurados (fuente canónica)
-   ------------------------------------------------------------------------
-   Objetivo: que cada valor sea UTILIZABLE.
-   · Los CNIC escalares (tasa, IVA, RBU, exención, límite…) tienen un único
-     `valor` numérico/legible para código ({{CNIC-XXXX}}, APIs, apps).
-   · Los CNIC que en realidad son Baremos/escalas (límites por franja,
-     cotizaciones por tramo, IRM/IGF, sueldos…) pasan a `tipo_valor:
-     'baremo'` con `baremo: { columnas[], filas[][] }`, sin meter un texto
-     suelto en `valor` (que antes "desbordaba" y no era usable).
-   · CNIC con un valor principal + tabla auxiliar (p. ej. SMI) conservan su
-     valor escalar y añaden `baremo` complementario.
-   Se fusiona en el navegador (bop.js) y en las migraciones (migrar-cni.js);
-   el volcado a la nueva base de datos usará este fichero como fuente.
+   CNIC — Registro canónico (espejo de Supabase · bop_cnic)
+   Valores atómicos utilizables en código ({{CNIC-XXXX}}, APIs, apps).
+   GENERADO por scripts/exportar-cnic-canonicos.js — no editar a mano.
    ═══════════════════════════════════════════════════════════════════════ */
 
 const BOP_CNIC_DATOS = {
-  'CNIC-7-1': {
-    codigo: 'CNIC-7-1',
-    etiqueta: 'Cuentas y límites por franja de edad',
-    descripcion: 'Límites de cuenta, transferencia diaria y bono de bienvenida según la franja de edad (Art. 7).',
-    tipo_valor: 'baremo',
-    valor: '',
-    unidad: 'Pz',
-    articulo: 'Art. 7',
-    vigente: true,
-    es_baremo: true,
-    resumen: 'Baremo de cuentas por franja de edad (4 filas)',
-    baremo: {
-      columnas: ['Modalidad', 'Saldo máximo', 'Transferencia diaria', 'Bono de bienvenida'],
-      filas: [
-        ['Junior básica', '500', '50 / día', '750'],
-        ['Junior senior', '1.000', '100 / día', '500'],
-        ['Ciudadana', '500.000', 'Sin límite', '500'],
-        ['Institucional', '10.000.000', '—', '—']
-      ]
-    }
-  },
-  'CNIC-4.1': {
-    codigo: 'CNIC-4.1',
-    etiqueta: 'Límites de capital por tipo de cuenta',
-    descripcion: 'Máximo de saldo y sanción por exceso en cada tipo de cuenta (Art. 4.1).',
-    tipo_valor: 'baremo',
-    valor: '',
-    unidad: 'Pz',
-    articulo: 'Art. 4.1',
-    vigente: true,
-    es_baremo: true,
-    resumen: 'Baremo de límites de capital por tipo de cuenta (2 filas)',
-    baremo: {
-      columnas: ['Tipo de cuenta', 'Límite de capital', 'Multa por exceso'],
-      filas: [
-        ['Personal', '500.000', '225.000'],
-        ['Empresarial / Estatal', '10.000.000', 'A determinar por la Junta']
-      ]
-    }
-  },
-  'CNIC-4.3': {
-    codigo: 'CNIC-4.3',
-    etiqueta: 'Tasa de transferencia',
-    descripcion: 'Tasa operativa aplicada a transferencias internas, máximo 12 % (Art. 4.3).',
-    tipo_valor: 'porcentaje',
-    valor: '0.12',
-    unidad: '%',
-    articulo: 'Art. 4.3',
-    vigente: true,
-    es_baremo: false,
-    resumen: '12 %'
-  },
-  'CNIC-4.4': {
-    codigo: 'CNIC-4.4',
-    etiqueta: 'IVA',
-    descripcion: 'Impuesto sobre el Valor Añadido interno del Grupo (Art. 4.4).',
-    tipo_valor: 'porcentaje',
-    valor: '0.12',
-    unidad: '%',
-    articulo: 'Art. 4.4',
-    vigente: true,
-    es_baremo: false,
-    resumen: '12 %'
-  },
-  'CNIC-4.5': {
-    codigo: 'CNIC-4.5',
-    etiqueta: 'Cotizaciones laborales',
-    descripcion: 'Tramos de retención de cotizaciones laborales por salario (Art. 4.5).',
-    tipo_valor: 'baremo',
-    valor: '',
-    unidad: '%',
-    articulo: 'Art. 4.5',
-    vigente: true,
-    es_baremo: true,
-    resumen: 'Baremo de cotizaciones por tramo de salario (3 filas)',
-    baremo: {
-      columnas: ['Tramo salarial (Pz/mes)', 'Trabajador', 'Empresa', 'Total'],
-      filas: [
-        ['Hasta 1.700', '7,5 %', '7,5 %', '15 %'],
-        ['1.701 – 3.000', '10,5 %', '10,5 %', '21 %'],
-        ['Desde 3.001', '17,5 %', '17,5 %', '35 %']
-      ]
-    }
-  },
-  'CNIC-4.6': {
-    codigo: 'CNIC-4.6',
-    etiqueta: 'RBU',
-    descripcion: 'Renta Básica Universal semanal (Art. 4.6).',
-    tipo_valor: 'placeta',
-    valor: '5',
-    unidad: 'Pz/semana',
-    articulo: 'Art. 4.6',
-    vigente: true,
-    es_baremo: false,
-    resumen: '5 Pz/semana'
-  },
-  'CNIC-4.7': {
-    codigo: 'CNIC-4.7',
-    etiqueta: 'SMI y salario máximo',
-    descripcion: 'Salario Mínimo Interprofesional (referencia) y Salario Máximo Interprofesional mensual (Art. 4.7 y 4.7 bis).',
-    tipo_valor: 'placeta',
-    valor: '150',
-    unidad: 'Pz/mes',
-    articulo: 'Art. 4.7',
-    vigente: true,
-    es_baremo: true,
-    resumen: 'SMI: 150 Pz/mes',
-    baremo: {
-      columnas: ['Concepto', 'Importe (Pz/mes)'],
-      filas: [
-        ['Salario Mínimo Interprofesional (SMI)', '150'],
-        ['Salario Máximo Interprofesional', '1.750']
-      ]
-    }
-  },
-  'CNIC-4.10': {
-    codigo: 'CNIC-4.10',
-    etiqueta: 'Escala IRM',
-    descripcion: 'Escala progresiva del Impuesto de Regulación Monetaria según el Índice de Acumulación (Art. 4.10).',
-    tipo_valor: 'baremo',
-    valor: '',
-    unidad: '%',
-    articulo: 'Art. 4.10',
-    vigente: true,
-    es_baremo: true,
-    resumen: 'Baremo IRM por modalidad (3 filas)',
-    baremo: {
-      columnas: ['Modalidad', 'Escala IRM (5 tramos, %)'],
-      filas: [
-        ['Particular', '0 · 0,5 · 1,5 · 3 · 5'],
-        ['Compartida', '0 · 0,75 · 2 · 4 · 6'],
-        ['Empresa', '0 · 1 · 3 · 6 · 9']
-      ]
-    }
-  },
-  'CNIC-4.13': {
-    codigo: 'CNIC-4.13',
-    etiqueta: 'Escala IGF — personas físicas',
-    descripcion: 'Escala progresiva del Impuesto de Grandes Fortunas para personas físicas (Art. 4.13).',
-    tipo_valor: 'baremo',
-    valor: '',
-    unidad: '%',
-    articulo: 'Art. 4.13',
-    vigente: true,
-    es_baremo: true,
-    resumen: 'Baremo IGF personas físicas (3 tramos)',
-    baremo: {
-      columnas: ['Tramo de patrimonio (Pz)', 'Tipo'],
-      filas: [
-        ['Hasta 5.000', 'Exento'],
-        ['5.001 – 20.000', '10 %'],
-        ['20.001 – 500.000', '30 %']
-      ]
-    }
-  },
-  'CNIC-4.14': {
-    codigo: 'CNIC-4.14',
-    etiqueta: 'Escala IGF — empresas y entidades',
-    descripcion: 'Escala progresiva del Impuesto de Grandes Fortunas para empresas y entidades (Art. 4.14).',
-    tipo_valor: 'baremo',
-    valor: '',
-    unidad: '%',
-    articulo: 'Art. 4.14',
-    vigente: true,
-    es_baremo: true,
-    resumen: 'Baremo IGF empresas y entidades (4 tramos)',
-    baremo: {
-      columnas: ['Tramo de patrimonio (Pz)', 'Tipo'],
-      filas: [
-        ['Hasta 5.000', 'Exento'],
-        ['5.001 – 20.000', '5 %'],
-        ['20.001 – 500.000', '35 %'],
-        ['Más de 500.000', '85 %']
-      ]
-    }
-  },
-  'CNIC-4.15': {
-    codigo: 'CNIC-4.15',
-    etiqueta: 'Exención IGF — empresa pequeña',
-    descripcion: 'Umbral de patrimonio para la exención del IGF de empresas de reducida dimensión (Art. 4.15).',
-    tipo_valor: 'placeta',
-    valor: '20000',
-    unidad: 'Pz',
-    articulo: 'Art. 4.15',
-    vigente: true,
-    es_baremo: false,
-    resumen: '20.000 Pz'
-  },
-  'CNIC-9-1': {
-    codigo: 'CNIC-9-1',
-    etiqueta: 'Límite de emisión por usuario',
-    descripcion: 'Límite general de emisión de Placetas por usuario (Art. 9).',
-    tipo_valor: 'placeta',
-    valor: '7500',
-    unidad: 'Pz',
-    articulo: 'Art. 9',
-    vigente: true,
-    es_baremo: false,
-    resumen: '7.500 Pz'
-  },
-  'CNIC-15-1': {
-    codigo: 'CNIC-15-1',
-    etiqueta: 'Tabla de sueldos públicos',
-    descripcion: 'Sueldos mensuales (base + complemento) de los cargos del Grupo (Art. 15).',
-    tipo_valor: 'baremo',
-    valor: '',
-    unidad: 'Pz',
-    articulo: 'Art. 15',
-    vigente: true,
-    es_baremo: true,
-    resumen: 'Baremo de sueldos públicos (6 cargos)',
-    baremo: {
-      columnas: ['Cargo', 'Base', 'Complemento', 'Total mensual'],
-      filas: [
-        ['Presidencia', '267', '67', '334'],
-        ['Vicepresidencia', '217', '50', '267'],
-        ['Director', '167', '33', '200'],
-        ['Técnico', '100', '25', '125'],
-        ['Colaborador', '50', '17', '67'],
-        ['Estudiante', '17', '8', '25']
-      ]
-    }
-  }
+  'CNIC-BONO-BIENVENIDA-CIUDADANA': { codigo: 'CNIC-BONO-BIENVENIDA-CIUDADANA', etiqueta: "Bono de bienvenida alta plena", descripcion: "Bono de bienvenida para integrantes de 18 años o más.", tipo_valor: 'placeta', valor: '500', unidad: "Pz", articulo: "CNI-BANCO (Art. 2)", vigente: true, es_baremo: false, resumen: "500 Pz" },
+  'CNIC-BONO-BIENVENIDA-JUNIOR-BASICA': { codigo: 'CNIC-BONO-BIENVENIDA-JUNIOR-BASICA', etiqueta: "Bono de bienvenida menor de 16 años", descripcion: "Bono de bienvenida correspondiente a integrantes menores de 16 años.", tipo_valor: 'placeta', valor: '750', unidad: "Pz", articulo: "CNI-BANCO (Art. 2)", vigente: true, es_baremo: false, resumen: "750 Pz" },
+  'CNIC-BONO-BIENVENIDA-JUNIOR-SENIOR': { codigo: 'CNIC-BONO-BIENVENIDA-JUNIOR-SENIOR', etiqueta: "Bono de bienvenida Junior senior", descripcion: "Bono de bienvenida para integrantes de 16 y 17 años.", tipo_valor: 'placeta', valor: '500', unidad: "Pz", articulo: "CNI-BANCO (Art. 2)", vigente: true, es_baremo: false, resumen: "500 Pz" },
+  'CNIC-COTIZACION-EMPRESA-TRAMO-1': { codigo: 'CNIC-COTIZACION-EMPRESA-TRAMO-1', etiqueta: "Cotización empresa tramo 1", descripcion: "Cotización empresarial correspondiente al primer tramo salarial.", tipo_valor: 'porcentaje', valor: '7.5', unidad: "%", articulo: "CNI-BANCO (Art. 5)", vigente: true, es_baremo: false, resumen: "7,5 %" },
+  'CNIC-COTIZACION-EMPRESA-TRAMO-2': { codigo: 'CNIC-COTIZACION-EMPRESA-TRAMO-2', etiqueta: "Cotización empresa tramo 2", descripcion: "Cotización empresarial correspondiente al segundo tramo salarial.", tipo_valor: 'porcentaje', valor: '10.5', unidad: "%", articulo: "CNI-BANCO (Art. 5)", vigente: true, es_baremo: false, resumen: "10,5 %" },
+  'CNIC-COTIZACION-EMPRESA-TRAMO-3': { codigo: 'CNIC-COTIZACION-EMPRESA-TRAMO-3', etiqueta: "Cotización empresa tramo 3", descripcion: "Cotización empresarial correspondiente al tercer tramo salarial.", tipo_valor: 'porcentaje', valor: '17.5', unidad: "%", articulo: "CNI-BANCO (Art. 5)", vigente: true, es_baremo: false, resumen: "17,5 %" },
+  'CNIC-COTIZACION-TOTAL-TRAMO-1': { codigo: 'CNIC-COTIZACION-TOTAL-TRAMO-1', etiqueta: "Cotización total tramo 1", descripcion: "Suma de las cotizaciones de empresa y trabajador del primer tramo.", tipo_valor: 'porcentaje', valor: '15', unidad: "%", articulo: "CNI-BANCO (Art. 5)", vigente: true, es_baremo: false, resumen: "15 %" },
+  'CNIC-COTIZACION-TOTAL-TRAMO-2': { codigo: 'CNIC-COTIZACION-TOTAL-TRAMO-2', etiqueta: "Cotización total tramo 2", descripcion: "Suma de las cotizaciones de empresa y trabajador del segundo tramo.", tipo_valor: 'porcentaje', valor: '21', unidad: "%", articulo: "CNI-BANCO (Art. 5)", vigente: true, es_baremo: false, resumen: "21 %" },
+  'CNIC-COTIZACION-TOTAL-TRAMO-3': { codigo: 'CNIC-COTIZACION-TOTAL-TRAMO-3', etiqueta: "Cotización total tramo 3", descripcion: "Suma de las cotizaciones de empresa y trabajador del tercer tramo.", tipo_valor: 'porcentaje', valor: '35', unidad: "%", articulo: "CNI-BANCO (Art. 5)", vigente: true, es_baremo: false, resumen: "35 %" },
+  'CNIC-COTIZACION-TRABAJADOR-TRAMO-1': { codigo: 'CNIC-COTIZACION-TRABAJADOR-TRAMO-1', etiqueta: "Cotización trabajador tramo 1", descripcion: "Cotización del trabajador correspondiente al primer tramo salarial.", tipo_valor: 'porcentaje', valor: '7.5', unidad: "%", articulo: "CNI-BANCO (Art. 5)", vigente: true, es_baremo: false, resumen: "7,5 %" },
+  'CNIC-COTIZACION-TRABAJADOR-TRAMO-2': { codigo: 'CNIC-COTIZACION-TRABAJADOR-TRAMO-2', etiqueta: "Cotización trabajador tramo 2", descripcion: "Cotización del trabajador correspondiente al segundo tramo salarial.", tipo_valor: 'porcentaje', valor: '10.5', unidad: "%", articulo: "CNI-BANCO (Art. 5)", vigente: true, es_baremo: false, resumen: "10,5 %" },
+  'CNIC-COTIZACION-TRABAJADOR-TRAMO-3': { codigo: 'CNIC-COTIZACION-TRABAJADOR-TRAMO-3', etiqueta: "Cotización trabajador tramo 3", descripcion: "Cotización del trabajador correspondiente al tercer tramo salarial.", tipo_valor: 'porcentaje', valor: '17.5', unidad: "%", articulo: "CNI-BANCO (Art. 5)", vigente: true, es_baremo: false, resumen: "17,5 %" },
+  'CNIC-COTIZACION-TRAMO-1': { codigo: 'CNIC-COTIZACION-TRAMO-1', etiqueta: "Límite superior tramo salarial 1", descripcion: "Límite salarial superior del primer tramo de cotización.", tipo_valor: 'placeta', valor: '1700', unidad: "Pz", articulo: "CNI-BANCO (Art. 5)", vigente: true, es_baremo: false, resumen: "1700 Pz" },
+  'CNIC-COTIZACION-TRAMO-2': { codigo: 'CNIC-COTIZACION-TRAMO-2', etiqueta: "Límite superior tramo salarial 2", descripcion: "Límite salarial superior del segundo tramo de cotización.", tipo_valor: 'placeta', valor: '3000', unidad: "Pz", articulo: "CNI-BANCO (Art. 5)", vigente: true, es_baremo: false, resumen: "3000 Pz" },
+  'CNIC-CUENTA-CIUDADANA-SALDO': { codigo: 'CNIC-CUENTA-CIUDADANA-SALDO', etiqueta: "Saldo máximo cuenta ciudadana", descripcion: "Saldo máximo permitido para la cuenta ciudadana de alta plena.", tipo_valor: 'placeta', valor: '500000', unidad: "Pz", articulo: "CNI-BANCO (Art. 1)", vigente: true, es_baremo: false, resumen: "500.000 Pz" },
+  'CNIC-CUENTA-INSTITUCIONAL-SALDO': { codigo: 'CNIC-CUENTA-INSTITUCIONAL-SALDO', etiqueta: "Saldo máximo cuenta institucional", descripcion: "Saldo máximo permitido para cuentas empresariales o estatales de carácter institucional.", tipo_valor: 'placeta', valor: '10000000', unidad: "Pz", articulo: "CNI-BANCO (Art. 1)", vigente: true, es_baremo: false, resumen: "10.000.000 Pz" },
+  'CNIC-CUENTA-JUNIOR-BASICA-SALDO': { codigo: 'CNIC-CUENTA-JUNIOR-BASICA-SALDO', etiqueta: "Saldo máximo Junior básica", descripcion: "Saldo máximo permitido para cuentas Junior básica de menores de 16 años.", tipo_valor: 'placeta', valor: '500', unidad: "Pz", articulo: "CNI-BANCO (Art. 1)", vigente: true, es_baremo: false, resumen: "500 Pz" },
+  'CNIC-CUENTA-JUNIOR-BASICA-TRANSFERENCIA': { codigo: 'CNIC-CUENTA-JUNIOR-BASICA-TRANSFERENCIA', etiqueta: "Transferencia diaria Junior básica", descripcion: "Límite diario de transferencias para cuentas Junior básica.", tipo_valor: 'placeta', valor: '50', unidad: "Pz", articulo: "CNI-BANCO (Art. 1)", vigente: true, es_baremo: false, resumen: "50 Pz" },
+  'CNIC-CUENTA-JUNIOR-SENIOR-SALDO': { codigo: 'CNIC-CUENTA-JUNIOR-SENIOR-SALDO', etiqueta: "Saldo máximo Junior senior", descripcion: "Saldo máximo permitido para cuentas Junior senior de integrantes de 16 y 17 años.", tipo_valor: 'placeta', valor: '1000', unidad: "Pz", articulo: "CNI-BANCO (Art. 1)", vigente: true, es_baremo: false, resumen: "1000 Pz" },
+  'CNIC-CUENTA-JUNIOR-SENIOR-TRANSFERENCIA': { codigo: 'CNIC-CUENTA-JUNIOR-SENIOR-TRANSFERENCIA', etiqueta: "Transferencia diaria Junior senior", descripcion: "Límite diario de transferencias para cuentas Junior senior.", tipo_valor: 'placeta', valor: '100', unidad: "Pz", articulo: "CNI-BANCO (Art. 1)", vigente: true, es_baremo: false, resumen: "100 Pz" },
+  'CNIC-EMISION-EXCEPCIONAL-ADMINISTRACION': { codigo: 'CNIC-EMISION-EXCEPCIONAL-ADMINISTRACION', etiqueta: "Distribución a Administración", descripcion: "Porcentaje del exceso sobre el límite ordinario destinado a gastos operativos de la Administración.", tipo_valor: 'porcentaje', valor: '20', unidad: "%", articulo: "CNI-BANCO (Art. 3)", vigente: true, es_baremo: false, resumen: "20 %" },
+  'CNIC-EMISION-EXCEPCIONAL-BANCO': { codigo: 'CNIC-EMISION-EXCEPCIONAL-BANCO', etiqueta: "Distribución al Banco de La Placeta", descripcion: "Porcentaje del exceso sobre el límite ordinario destinado a reserva bancaria y liquidez.", tipo_valor: 'porcentaje', valor: '20', unidad: "%", articulo: "CNI-BANCO (Art. 3)", vigente: true, es_baremo: false, resumen: "20 %" },
+  'CNIC-EMISION-EXCEPCIONAL-TESORO': { codigo: 'CNIC-EMISION-EXCEPCIONAL-TESORO', etiqueta: "Distribución al Tesoro", descripcion: "Porcentaje del exceso sobre el límite ordinario destinado al Tesoro.", tipo_valor: 'porcentaje', valor: '60', unidad: "%", articulo: "CNI-BANCO (Art. 3)", vigente: true, es_baremo: false, resumen: "60 %" },
+  'CNIC-EMISION-ORDINARIA-MAXIMA': { codigo: 'CNIC-EMISION-ORDINARIA-MAXIMA', etiqueta: "Límite ordinario de emisión por usuario", descripcion: "Cantidad máxima de Placetas que puede emitirse ordinariamente por usuario.", tipo_valor: 'placeta', valor: '7500', unidad: "Pz", articulo: "CNI-BANCO (Art. 3)", vigente: true, es_baremo: false, resumen: "7500 Pz" },
+  'CNIC-IA-TRAMO-1': { codigo: 'CNIC-IA-TRAMO-1', etiqueta: "Umbral IA tramo 1", descripcion: "Límite superior del tramo de equilibrio o consumo neto.", tipo_valor: 'porcentaje', valor: '0', unidad: "%", articulo: "CNI-BANCO (Art. 11)", vigente: true, es_baremo: false, resumen: "0 %" },
+  'CNIC-IA-TRAMO-2': { codigo: 'CNIC-IA-TRAMO-2', etiqueta: "Umbral IA tramo 2", descripcion: "Límite superior del segundo tramo del Índice de Acumulación.", tipo_valor: 'porcentaje', valor: '5', unidad: "%", articulo: "CNI-BANCO (Art. 11)", vigente: true, es_baremo: false, resumen: "5 %" },
+  'CNIC-IA-TRAMO-3': { codigo: 'CNIC-IA-TRAMO-3', etiqueta: "Umbral IA tramo 3", descripcion: "Límite superior del tercer tramo del Índice de Acumulación.", tipo_valor: 'porcentaje', valor: '15', unidad: "%", articulo: "CNI-BANCO (Art. 11)", vigente: true, es_baremo: false, resumen: "15 %" },
+  'CNIC-IA-TRAMO-4': { codigo: 'CNIC-IA-TRAMO-4', etiqueta: "Umbral IA tramo 4", descripcion: "Límite superior del cuarto tramo del Índice de Acumulación.", tipo_valor: 'porcentaje', valor: '30', unidad: "%", articulo: "CNI-BANCO (Art. 11)", vigente: true, es_baremo: false, resumen: "30 %" },
+  'CNIC-IGF-EMPRESA-REDUCIDA-UMBRAL': { codigo: 'CNIC-IGF-EMPRESA-REDUCIDA-UMBRAL', etiqueta: "Umbral de reducción IGF empresas pequeñas", descripcion: "Patrimonio medio mensual máximo para aplicar la exención de IGF a empresas y entidades de reducida dimensión.", tipo_valor: 'placeta', valor: '20000', unidad: "Pz", articulo: "CNI-BANCO (Art. 17)", vigente: true, es_baremo: false, resumen: "20.000 Pz" },
+  'CNIC-IGF-EMPRESA-TIPO-1': { codigo: 'CNIC-IGF-EMPRESA-TIPO-1', etiqueta: "Tipo IGF empresas tramo 1", descripcion: "Tipo aplicable al primer tramo.", tipo_valor: 'porcentaje', valor: '0', unidad: "%", articulo: "CNI-BANCO (Art. 16)", vigente: true, es_baremo: false, resumen: "0 %" },
+  'CNIC-IGF-EMPRESA-TIPO-2': { codigo: 'CNIC-IGF-EMPRESA-TIPO-2', etiqueta: "Tipo IGF empresas tramo 2", descripcion: "Tipo aplicable al segundo tramo.", tipo_valor: 'porcentaje', valor: '5', unidad: "%", articulo: "CNI-BANCO (Art. 16)", vigente: true, es_baremo: false, resumen: "5 %" },
+  'CNIC-IGF-EMPRESA-TIPO-3': { codigo: 'CNIC-IGF-EMPRESA-TIPO-3', etiqueta: "Tipo IGF empresas tramo 3", descripcion: "Tipo aplicable al tercer tramo.", tipo_valor: 'porcentaje', valor: '35', unidad: "%", articulo: "CNI-BANCO (Art. 16)", vigente: true, es_baremo: false, resumen: "35 %" },
+  'CNIC-IGF-EMPRESA-TIPO-4': { codigo: 'CNIC-IGF-EMPRESA-TIPO-4', etiqueta: "Tipo IGF empresas tramo 4", descripcion: "Tipo aplicable al tramo superior.", tipo_valor: 'porcentaje', valor: '85', unidad: "%", articulo: "CNI-BANCO (Art. 16)", vigente: true, es_baremo: false, resumen: "85 %" },
+  'CNIC-IGF-EMPRESA-TRAMO-1': { codigo: 'CNIC-IGF-EMPRESA-TRAMO-1', etiqueta: "Primer tramo IGF empresas", descripcion: "Límite superior del primer tramo del IGF para empresas y entidades.", tipo_valor: 'placeta', valor: '5000', unidad: "Pz", articulo: "CNI-BANCO (Art. 16)", vigente: true, es_baremo: false, resumen: "5000 Pz" },
+  'CNIC-IGF-EMPRESA-TRAMO-2': { codigo: 'CNIC-IGF-EMPRESA-TRAMO-2', etiqueta: "Segundo tramo IGF empresas", descripcion: "Límite superior del segundo tramo del IGF para empresas y entidades.", tipo_valor: 'placeta', valor: '20000', unidad: "Pz", articulo: "CNI-BANCO (Art. 16)", vigente: true, es_baremo: false, resumen: "20.000 Pz" },
+  'CNIC-IGF-EMPRESA-TRAMO-3': { codigo: 'CNIC-IGF-EMPRESA-TRAMO-3', etiqueta: "Tercer tramo IGF empresas", descripcion: "Límite superior del tercer tramo del IGF para empresas y entidades.", tipo_valor: 'placeta', valor: '500000', unidad: "Pz", articulo: "CNI-BANCO (Art. 16)", vigente: true, es_baremo: false, resumen: "500.000 Pz" },
+  'CNIC-IGF-PF-TIPO-1': { codigo: 'CNIC-IGF-PF-TIPO-1', etiqueta: "Tipo IGF personas físicas tramo 1", descripcion: "Tipo aplicable al primer tramo.", tipo_valor: 'porcentaje', valor: '0', unidad: "%", articulo: "CNI-BANCO (Art. 15)", vigente: true, es_baremo: false, resumen: "0 %" },
+  'CNIC-IGF-PF-TIPO-2': { codigo: 'CNIC-IGF-PF-TIPO-2', etiqueta: "Tipo IGF personas físicas tramo 2", descripcion: "Tipo aplicable al segundo tramo.", tipo_valor: 'porcentaje', valor: '10', unidad: "%", articulo: "CNI-BANCO (Art. 15)", vigente: true, es_baremo: false, resumen: "10 %" },
+  'CNIC-IGF-PF-TIPO-3': { codigo: 'CNIC-IGF-PF-TIPO-3', etiqueta: "Tipo IGF personas físicas tramo 3", descripcion: "Tipo aplicable al tercer tramo.", tipo_valor: 'porcentaje', valor: '30', unidad: "%", articulo: "CNI-BANCO (Art. 15)", vigente: true, es_baremo: false, resumen: "30 %" },
+  'CNIC-IGF-PF-TRAMO-1': { codigo: 'CNIC-IGF-PF-TRAMO-1', etiqueta: "Primer tramo IGF personas físicas", descripcion: "Límite superior del primer tramo del IGF para personas físicas.", tipo_valor: 'placeta', valor: '5000', unidad: "Pz", articulo: "CNI-BANCO (Art. 15)", vigente: true, es_baremo: false, resumen: "5000 Pz" },
+  'CNIC-IGF-PF-TRAMO-2': { codigo: 'CNIC-IGF-PF-TRAMO-2', etiqueta: "Segundo tramo IGF personas físicas", descripcion: "Límite superior del segundo tramo del IGF para personas físicas.", tipo_valor: 'placeta', valor: '20000', unidad: "Pz", articulo: "CNI-BANCO (Art. 15)", vigente: true, es_baremo: false, resumen: "20.000 Pz" },
+  'CNIC-IGF-PF-TRAMO-3': { codigo: 'CNIC-IGF-PF-TRAMO-3', etiqueta: "Tercer tramo IGF personas físicas", descripcion: "Límite superior del tercer tramo del IGF para personas físicas.", tipo_valor: 'placeta', valor: '500000', unidad: "Pz", articulo: "CNI-BANCO (Art. 15)", vigente: true, es_baremo: false, resumen: "500.000 Pz" },
+  'CNIC-IRM-COMPARTIDA-0': { codigo: 'CNIC-IRM-COMPARTIDA-0', etiqueta: "IRM cuenta compartida IA 0", descripcion: "Tipo de IRM para cuenta compartida con IA igual o inferior a 0.", tipo_valor: 'porcentaje', valor: '0', unidad: "%", articulo: "CNI-BANCO (Art. 11)", vigente: true, es_baremo: false, resumen: "0 %" },
+  'CNIC-IRM-COMPARTIDA-1': { codigo: 'CNIC-IRM-COMPARTIDA-1', etiqueta: "IRM cuenta compartida tramo 1", descripcion: "Tipo de IRM para cuenta compartida en el segundo tramo de IA.", tipo_valor: 'porcentaje', valor: '0', unidad: "%", articulo: "CNI-BANCO (Art. 11)", vigente: true, es_baremo: false, resumen: "0 %" },
+  'CNIC-IRM-COMPARTIDA-2': { codigo: 'CNIC-IRM-COMPARTIDA-2', etiqueta: "IRM cuenta compartida tramo 2", descripcion: "Tipo de IRM para cuenta compartida en el tercer tramo de IA.", tipo_valor: 'porcentaje', valor: '1', unidad: "%", articulo: "CNI-BANCO (Art. 11)", vigente: true, es_baremo: false, resumen: "1 %" },
+  'CNIC-IRM-COMPARTIDA-3': { codigo: 'CNIC-IRM-COMPARTIDA-3', etiqueta: "IRM cuenta compartida tramo 3", descripcion: "Tipo de IRM para cuenta compartida en el cuarto tramo de IA.", tipo_valor: 'porcentaje', valor: '3', unidad: "%", articulo: "CNI-BANCO (Art. 11)", vigente: true, es_baremo: false, resumen: "3 %" },
+  'CNIC-IRM-COMPARTIDA-4': { codigo: 'CNIC-IRM-COMPARTIDA-4', etiqueta: "IRM cuenta compartida tramo 4", descripcion: "Tipo de IRM para cuenta compartida con IA superior al último umbral.", tipo_valor: 'porcentaje', valor: '6', unidad: "%", articulo: "CNI-BANCO (Art. 11)", vigente: true, es_baremo: false, resumen: "6 %" },
+  'CNIC-IRM-EMPRESA-0': { codigo: 'CNIC-IRM-EMPRESA-0', etiqueta: "IRM cuenta empresa IA 0", descripcion: "Tipo de IRM para empresas con IA igual o inferior a 0.", tipo_valor: 'porcentaje', valor: '0', unidad: "%", articulo: "CNI-BANCO (Art. 11)", vigente: true, es_baremo: false, resumen: "0 %" },
+  'CNIC-IRM-EMPRESA-1': { codigo: 'CNIC-IRM-EMPRESA-1', etiqueta: "IRM cuenta empresa tramo 1", descripcion: "Tipo de IRM para empresas en el segundo tramo de IA.", tipo_valor: 'porcentaje', valor: '0.75', unidad: "%", articulo: "CNI-BANCO (Art. 11)", vigente: true, es_baremo: false, resumen: "0,75 %" },
+  'CNIC-IRM-EMPRESA-2': { codigo: 'CNIC-IRM-EMPRESA-2', etiqueta: "IRM cuenta empresa tramo 2", descripcion: "Tipo de IRM para empresas en el tercer tramo de IA.", tipo_valor: 'porcentaje', valor: '2', unidad: "%", articulo: "CNI-BANCO (Art. 11)", vigente: true, es_baremo: false, resumen: "2 %" },
+  'CNIC-IRM-EMPRESA-3': { codigo: 'CNIC-IRM-EMPRESA-3', etiqueta: "IRM cuenta empresa tramo 3", descripcion: "Tipo de IRM para empresas en el cuarto tramo de IA.", tipo_valor: 'porcentaje', valor: '5', unidad: "%", articulo: "CNI-BANCO (Art. 11)", vigente: true, es_baremo: false, resumen: "5 %" },
+  'CNIC-IRM-EMPRESA-4': { codigo: 'CNIC-IRM-EMPRESA-4', etiqueta: "IRM cuenta empresa tramo 4", descripcion: "Tipo de IRM para empresas con IA superior al último umbral.", tipo_valor: 'porcentaje', valor: '9', unidad: "%", articulo: "CNI-BANCO (Art. 11)", vigente: true, es_baremo: false, resumen: "9 %" },
+  'CNIC-IRM-PARTICULAR-0': { codigo: 'CNIC-IRM-PARTICULAR-0', etiqueta: "IRM cuenta particular IA 0", descripcion: "Tipo de IRM para cuenta particular con IA igual o inferior a 0.", tipo_valor: 'porcentaje', valor: '0', unidad: "%", articulo: "CNI-BANCO (Art. 11)", vigente: true, es_baremo: false, resumen: "0 %" },
+  'CNIC-IRM-PARTICULAR-1': { codigo: 'CNIC-IRM-PARTICULAR-1', etiqueta: "IRM cuenta particular tramo 1", descripcion: "Tipo de IRM para cuenta particular en el segundo tramo de IA.", tipo_valor: 'porcentaje', valor: '0.5', unidad: "%", articulo: "CNI-BANCO (Art. 11)", vigente: true, es_baremo: false, resumen: "0,5 %" },
+  'CNIC-IRM-PARTICULAR-2': { codigo: 'CNIC-IRM-PARTICULAR-2', etiqueta: "IRM cuenta particular tramo 2", descripcion: "Tipo de IRM para cuenta particular en el tercer tramo de IA.", tipo_valor: 'porcentaje', valor: '1.5', unidad: "%", articulo: "CNI-BANCO (Art. 11)", vigente: true, es_baremo: false, resumen: "1,5 %" },
+  'CNIC-IRM-PARTICULAR-3': { codigo: 'CNIC-IRM-PARTICULAR-3', etiqueta: "IRM cuenta particular tramo 3", descripcion: "Tipo de IRM para cuenta particular en el cuarto tramo de IA.", tipo_valor: 'porcentaje', valor: '4', unidad: "%", articulo: "CNI-BANCO (Art. 11)", vigente: true, es_baremo: false, resumen: "4 %" },
+  'CNIC-IRM-PARTICULAR-4': { codigo: 'CNIC-IRM-PARTICULAR-4', etiqueta: "IRM cuenta particular tramo 4", descripcion: "Tipo de IRM para cuenta particular con IA superior al último umbral.", tipo_valor: 'porcentaje', valor: '6', unidad: "%", articulo: "CNI-BANCO (Art. 11)", vigente: true, es_baremo: false, resumen: "6 %" },
+  'CNIC-IVA': { codigo: 'CNIC-IVA', etiqueta: "Impuesto sobre el Valor Añadido", descripcion: "Tipo de IVA aplicable a productos y servicios del sistema.", tipo_valor: 'porcentaje', valor: '12', unidad: "%", articulo: "CNI-BANCO (Art. 4)", vigente: true, es_baremo: false, resumen: "12 %" },
+  'CNIC-LIMITE-CAPITAL-INSTITUCIONAL': { codigo: 'CNIC-LIMITE-CAPITAL-INSTITUCIONAL', etiqueta: "Límite de capital cuenta institucional", descripcion: "Límite máximo de capital para cuentas empresariales o estatales.", tipo_valor: 'placeta', valor: '10000000', unidad: "Pz", articulo: "CNI-BANCO (Art. 1)", vigente: true, es_baremo: false, resumen: "10.000.000 Pz" },
+  'CNIC-LIMITE-CAPITAL-PERSONAL': { codigo: 'CNIC-LIMITE-CAPITAL-PERSONAL', etiqueta: "Límite de capital cuenta personal", descripcion: "Límite máximo de capital para cuentas personales o particulares.", tipo_valor: 'placeta', valor: '500000', unidad: "Pz", articulo: "CNI-BANCO (Art. 1)", vigente: true, es_baremo: false, resumen: "500.000 Pz" },
+  'CNIC-RBU-SEMANAL': { codigo: 'CNIC-RBU-SEMANAL', etiqueta: "RBU semanal", descripcion: "Bono semanal de Renta Básica Universal por usuario activo.", tipo_valor: 'placeta', valor: '5', unidad: "Pz", articulo: "CNI-BANCO (Art. 6)", vigente: true, es_baremo: false, resumen: "5 Pz" },
+  'CNIC-SALARIO-MAXIMO-MENSUAL': { codigo: 'CNIC-SALARIO-MAXIMO-MENSUAL', etiqueta: "Salario Máximo Interprofesional", descripcion: "Salario máximo mensual ordinario para contratos de jornada completa.", tipo_valor: 'placeta', valor: '1750', unidad: "Pz", articulo: "CNI-BANCO (Art. 8)", vigente: true, es_baremo: false, resumen: "1750 Pz" },
+  'CNIC-SANCION-SALDO-EXCESO-INSTITUCIONAL': { codigo: 'CNIC-SANCION-SALDO-EXCESO-INSTITUCIONAL', etiqueta: "Sanción por exceso de capital institucional", descripcion: "Sanción aplicable al saldo injustificado superior al límite de capital institucional.", tipo_valor: 'placeta', valor: '225000', unidad: "Pz", articulo: "CNI-BANCO (Art. 1)", vigente: true, es_baremo: false, resumen: "225.000 Pz" },
+  'CNIC-SANCION-SALDO-EXCESO-PERSONAL': { codigo: 'CNIC-SANCION-SALDO-EXCESO-PERSONAL', etiqueta: "Sanción por exceso de capital personal", descripcion: "Sanción aplicable al saldo injustificado superior al límite de capital personal.", tipo_valor: 'placeta', valor: '10000', unidad: "Pz", articulo: "CNI-BANCO (Art. 1)", vigente: true, es_baremo: false, resumen: "10.000 Pz" },
+  'CNIC-SANCION-SALDO-NEGATIVO-DIA-30': { codigo: 'CNIC-SANCION-SALDO-NEGATIVO-DIA-30', etiqueta: "Sanción adicional por saldo negativo desde el día 30", descripcion: "Sanción adicional aplicable cuando el saldo negativo continúa sin regularizar desde el día 30.", tipo_valor: 'placeta', valor: '125000', unidad: "Pz", articulo: "CNI-BANCO (Art. 2)", vigente: true, es_baremo: false, resumen: "125.000 Pz" },
+  'CNIC-SANCION-SALDO-NEGATIVO-DIA-6': { codigo: 'CNIC-SANCION-SALDO-NEGATIVO-DIA-6', etiqueta: "Sanción por saldo negativo desde el día 6", descripcion: "Sanción aplicable cuando el saldo negativo persiste al cierre del sexto día.", tipo_valor: 'placeta', valor: '25000', unidad: "Pz", articulo: "CNI-BANCO (Art. 2)", vigente: true, es_baremo: false, resumen: "25.000 Pz" },
+  'CNIC-SMI-MENSUAL': { codigo: 'CNIC-SMI-MENSUAL', etiqueta: "Salario Mínimo Interprofesional", descripcion: "Salario mínimo mensual para contratos de jornada completa.", tipo_valor: 'placeta', valor: '150', unidad: "Pz", articulo: "CNI-BANCO (Art. 7)", vigente: true, es_baremo: false, resumen: "150 Pz" },
+  'CNIC-TASA-TRANSFERENCIA-MAXIMA': { codigo: 'CNIC-TASA-TRANSFERENCIA-MAXIMA', etiqueta: "Tasa máxima de transferencia", descripcion: "Tipo máximo que podrá aplicarse a las transferencias internas.", tipo_valor: 'porcentaje', valor: '12', unidad: "%", articulo: "CNI-BANCO (Art. 3)", vigente: true, es_baremo: false, resumen: "12 %" }
 };
 
 if (typeof window !== 'undefined') {

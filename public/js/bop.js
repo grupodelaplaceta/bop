@@ -30,6 +30,21 @@ function bopCnicFinal(base) {
   });
 }
 
+/* Registro completo para modo offline: solo el espejo canónico (68), con los
+   metadatos de los datos migrados si coinciden (evita duplicar códigos). */
+function bopCnicObtener(base) {
+  const datos = (typeof window !== 'undefined' && window.BOP_CNIC_DATOS) || {};
+  const claves = Object.keys(datos);
+  if (!claves.length) return base || [];
+  const lista = (base || []);
+  const mapa = {};
+  claves.forEach((k) => {
+    const b = lista.find((c) => (c.codigo || c.cnic) === k) || {};
+    mapa[k] = Object.assign({}, b, datos[k]);
+  });
+  return Object.values(mapa);
+}
+
 const BOP = {
   // Cache en memoria
   _docs: null,
@@ -98,7 +113,7 @@ const BOP = {
       ...(m.junior || []).map(d => this.normalizarDocumento({ ...d, tipo: d.tipo || 'cni' })),
       ...(m.placetaid || []).map(d => this.normalizarDocumento({ ...d, tipo: d.tipo || 'cni' }))
     ];
-    this._cnic = bopCnicFinal(m.cnic || []);
+    this._cnic = bopCnicObtener(m.cnic || []);
     this._usandoSupabase = false;
   },
 
