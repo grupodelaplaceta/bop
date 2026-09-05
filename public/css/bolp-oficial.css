@@ -550,11 +550,18 @@ a, button { transition: background 0.15s, color 0.15s, border-color 0.15s, box-s
 
 /* Tablas CNIC adaptables (sin desbordes en pantallas estrechas) */
 .tabla-cnic th, .tabla-cnic td { overflow-wrap: anywhere; }
+.tabla-cnic td, .tabla-cnic th { line-height: 1.4; }
 @media (max-width: 680px) {
-  .tabla-cnic th:nth-child(4), .tabla-cnic td:nth-child(4) { display: none; }
-  .tabla-cnic .cnic-desc { display: none; }
-  .tabla-cnic td { padding: 8px 8px; }
-  .tabla-cnic .cnic-valor strong { font-size: 12px; }
+  /* En los LISTADOS se ocultan columnas secundarias para que encajen */
+  #vista-lista .tabla-cnic th:nth-child(4), #vista-lista .tabla-cnic td:nth-child(4),
+  #lista-cnic-recientes .tabla-cnic th:nth-child(4), #lista-cnic-recientes .tabla-cnic td:nth-child(4) { display: none; }
+  #vista-lista .tabla-cnic .cnic-desc { display: none; }
+  .tabla-cnic td { padding: 9px 10px; }
+  .tabla-cnic .cnic-valor strong { font-size: 12.5px; }
+  /* Tablas de datos del detalle (baremos) y del documento: scroll horizontal, nunca aplastadas */
+  .cnic-baremo table, .documento .tabla-wrap table { min-width: 540px; width: max-content; }
+  .cnic-baremo th, .cnic-baremo td, .documento .tabla-wrap th, .documento .tabla-wrap td { padding: 8px 12px; }
+  .tabla-wrap { -webkit-overflow-scrolling: touch; }
 }
 
 /* Detalle CNIC: Dato (tabla/scalar) e Información plegable */
