@@ -512,7 +512,18 @@ Las inversiones con componente de azar (fondos de riesgo simulados, apuestas sob
       fecha_aprobacion_junta: '2026-07-03',
       aprobada_en_junta: true,
       cnic_refs: [
-        { codigo: 'CNIC-15-1', etiqueta: 'Tabla de sueldos públicos' }
+        { codigo: 'CNIC-SUELDO-PRESIDENCIA', etiqueta: 'Sueldo base — Presidencia' },
+        { codigo: 'CNIC-SUELDO-VICEPRESIDENCIA', etiqueta: 'Sueldo base — Vicepresidencia' },
+        { codigo: 'CNIC-SUELDO-DIRECTOR-DEPARTAMENTO', etiqueta: 'Sueldo base — Dirección de Departamento' },
+        { codigo: 'CNIC-SUELDO-TECNICO-DEPARTAMENTO', etiqueta: 'Sueldo base — Técnico/a de Departamento' },
+        { codigo: 'CNIC-SUELDO-COLABORADOR-ASESOR', etiqueta: 'Sueldo base — Colaborador/a o Asesor/a' },
+        { codigo: 'CNIC-SUELDO-ESTUDIANTE', etiqueta: 'Sueldo base — Estudiante en programa especial' },
+        { codigo: 'CNIC-COMPLEMENTO-PRESIDENCIA', etiqueta: 'Complemento de Actividad — Presidencia' },
+        { codigo: 'CNIC-COMPLEMENTO-VICEPRESIDENCIA', etiqueta: 'Complemento de Actividad — Vicepresidencia' },
+        { codigo: 'CNIC-COMPLEMENTO-DIRECTOR-DEPARTAMENTO', etiqueta: 'Complemento de Actividad — Dirección' },
+        { codigo: 'CNIC-COMPLEMENTO-TECNICO-DEPARTAMENTO', etiqueta: 'Complemento de Actividad — Técnico/a' },
+        { codigo: 'CNIC-COMPLEMENTO-COLABORADOR-ASESOR', etiqueta: 'Complemento de Actividad — Colaborador/a' },
+        { codigo: 'CNIC-COMPLEMENTO-ESTUDIANTE', etiqueta: 'Complemento de Actividad — Estudiante' }
       ],
       contenido_md: `# CAPÍTULO VII — SUELDOS PÚBLICOS
 
@@ -577,6 +588,11 @@ No constituye difamación la crítica fundada en hechos veraces sobre la actuaci
       fecha_aplicacion: '2026-07-03',
       fecha_aprobacion_junta: '2026-07-03',
       aprobada_en_junta: true,
+      cnic_refs: [
+        { codigo: 'CNIC-SANCION-DISCIPLINARIA-LEVE', etiqueta: 'Multa por infracción leve' },
+        { codigo: 'CNIC-SANCION-DISCIPLINARIA-GRAVE-MIN', etiqueta: 'Multa mínima por infracción grave' },
+        { codigo: 'CNIC-SANCION-DISCIPLINARIA-GRAVE-MAX', etiqueta: 'Multa máxima por infracción grave' }
+      ],
       contenido_md: `# CAPÍTULO X — RÉGIMEN SANCIONADOR GENERAL
 
 ### Art. 20 — Tabla general de infracciones y sanciones
@@ -854,6 +870,21 @@ El ex-asociado podrá solicitar expresamente la supresión anticipada de sus dat
       fecha_aplicacion: '2026-07-03',
       fecha_aprobacion_junta: '2026-07-03',
       aprobada_en_junta: true,
+      cnic_refs: [
+        { codigo: 'CNIC-SANCION-PD-PERSONA-LEVE-MIN', etiqueta: 'Sanción PD leve mínima — persona' },
+        { codigo: 'CNIC-SANCION-PD-PERSONA-LEVE-MAX', etiqueta: 'Sanción PD leve máxima — persona' },
+        { codigo: 'CNIC-SANCION-PD-PERSONA-GRAVE-MIN', etiqueta: 'Sanción PD grave mínima — persona' },
+        { codigo: 'CNIC-SANCION-PD-PERSONA-GRAVE-MAX', etiqueta: 'Sanción PD grave máxima — persona' },
+        { codigo: 'CNIC-SANCION-PD-PERSONA-MUYGRAVE-MIN', etiqueta: 'Sanción PD muy grave mínima — persona' },
+        { codigo: 'CNIC-SANCION-PD-PERSONA-MUYGRAVE-MAX', etiqueta: 'Sanción PD muy grave máxima — persona' },
+        { codigo: 'CNIC-SANCION-PD-ORG-LEVE-MIN', etiqueta: 'Sanción PD leve mínima — organización' },
+        { codigo: 'CNIC-SANCION-PD-ORG-LEVE-MAX', etiqueta: 'Sanción PD leve máxima — organización' },
+        { codigo: 'CNIC-SANCION-PD-ORG-GRAVE-MIN', etiqueta: 'Sanción PD grave mínima — organización' },
+        { codigo: 'CNIC-SANCION-PD-ORG-GRAVE-MAX', etiqueta: 'Sanción PD grave máxima — organización' },
+        { codigo: 'CNIC-SANCION-PD-ORG-MUYGRAVE-MIN', etiqueta: 'Sanción PD muy grave mínima — organización' },
+        { codigo: 'CNIC-SANCION-PD-ORG-MUYGRAVE-MAX', etiqueta: 'Sanción PD muy grave máxima — organización' },
+        { codigo: 'CNIC-SANCION-PD-ORG-MUYGRAVE-PCT', etiqueta: 'Techo porcentual sanción PD muy grave' }
+      ],
       contenido_md: `# CAPÍTULO XV — EVALUACIÓN DE IMPACTO Y RÉGIMEN SANCIONADOR EN PROTECCIÓN DE DATOS
 
 El presente Capítulo regula la gestión de la privacidad y la protección de datos personales en el Grupo de La Placeta (GDLP): los órganos competentes, la evaluación de impacto, las medidas de blindaje legal y el régimen sancionador aplicable, tanto en el plano interno (sanciones en Placetas y medidas disciplinarias propias del sistema) como en el plano legal real (RGPD y LOPDGDD). Todo tratamiento de datos personales reales está sujeto al ordenamiento español con independencia del carácter lúdico o ficticio de las actividades internas del Grupo, y las sanciones internas del GDLP **no sustituyen** las responsabilidades legales que correspondan.
