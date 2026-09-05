@@ -1,0 +1,81 @@
+/* ═══════════════════════════════════════════════════════════════════════
+   Guía técnica · API del BOLP — estilos SOLO de public/api.html
+   Hoja complementaria a bop.css / bolp-oficial.css (cargar en último lugar).
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* Bloques de código */
+pre.tec-codigo {
+  background: #1e1440; color: #eae5f8;
+  border: 1px solid #332764; border-left: 4px solid var(--bolp-accent-2, #7c5cff);
+  border-radius: 14px;
+  padding: 16px 18px; margin: 14px 0;
+  overflow-x: auto;
+  font: 12.5px/1.7 'Consolas', 'JetBrains Mono', ui-monospace, monospace;
+  white-space: pre; tab-size: 2;
+  box-shadow: 0 2px 10px rgba(20, 8, 60, .12);
+}
+pre.tec-codigo .c  { color: #a89ccf; font-style: italic; }  /* comentario */
+pre.tec-codigo .s  { color: #a9e6c3; }                       /* string   */
+pre.tec-codigo .k  { color: #ffd27d; }                       /* clave    */
+pre.tec-codigo .n  { color: #8fd0ff; }                       /* número   */
+pre.tec-codigo .p  { color: #cbbdf0; }                       /* puntuación */
+code.tec-inline {
+  background: var(--bop-acento-claro); color: var(--bop-acento);
+  border-radius: 5px; padding: 1px 6px;
+  font-family: 'Consolas', 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 12px;
+}
+a code.tec-inline { text-decoration: underline; }
+
+/* Tarjetas de endpoint */
+.endpoint {
+  display: flex; gap: 16px; align-items: flex-start;
+  background: #fff; border: 1px solid var(--bop-borde);
+  border-radius: 16px; box-shadow: var(--sombra);
+  padding: 15px 20px; margin-bottom: 12px;
+}
+.endpoint .metodo {
+  flex: 0 0 auto; margin-top: 2px;
+  font: 800 11px/1 'Plus Jakarta', system-ui, sans-serif; letter-spacing: .8px;
+  text-transform: uppercase; color: #fff;
+  padding: 7px 11px; border-radius: 8px; background: var(--bop-acento);
+}
+.endpoint .metodo.get { background: #1e7f4d; }
+.endpoint .ep-cuerpo { min-width: 0; flex: 1; }
+.endpoint .ep-path {
+  font-family: 'Consolas', 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 13.5px; font-weight: 700; color: var(--bop-texto);
+  word-break: break-all;
+}
+.endpoint .ep-path .var { color: var(--bolp-accent-2, #7c5cff); font-weight: 800; }
+.endpoint .ep-desc { font-size: 13.5px; color: var(--bop-texto-suave); margin-top: 3px; }
+.endpoint .ep-desc code, .endpoint .ep-desc code.tec-inline { font-size: 12px; }
+
+/* Listas de parámetros */
+dl.tec-dl { margin: 10px 0 4px; display: grid; grid-template-columns: minmax(150px, 240px) 1fr; gap: 6px 14px; }
+dl.tec-dl dt { font-family: 'Consolas', 'JetBrains Mono', ui-monospace, monospace; font-size: 12.5px; color: var(--bop-acento); font-weight: 700; }
+dl.tec-dl dd { margin: 0; font-size: 13px; color: var(--bop-texto); }
+dl.tec-dl dd .nota { color: var(--bop-texto-suave); }
+
+/* Tabla técnica (reutiliza .tabla-wrap/.tabla) */
+.tec-tabla td code, .tec-tabla td code.tec-inline { white-space: nowrap; }
+
+/* Barra de índice interno de la guía */
+.tec-indice { display: flex; flex-wrap: wrap; gap: 8px; margin: 4px 0 22px; }
+.tec-indice a {
+  background: #fff; color: var(--bop-acento); border: 1px solid var(--bop-borde);
+  border-radius: 999px; font-size: 12px; font-weight: 700;
+  padding: 7px 13px; text-decoration: none;
+}
+.tec-indice a:hover { border-color: var(--bolp-accent-2, #7c5cff); background: var(--bop-acento-claro); }
+
+/* Columnas de ejemplo (request / respuesta) */
+.tec-grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media (max-width: 900px) { .tec-grid2 { grid-template-columns: 1fr; } }
+
+@media (max-width: 560px) {
+  pre.tec-codigo { font-size: 11px; padding: 12px 13px; }
+  .endpoint { flex-direction: column; gap: 8px; }
+  dl.tec-dl { grid-template-columns: 1fr; gap: 2px 0; }
+  .endpoint .metodo { align-self: flex-start; }
+}

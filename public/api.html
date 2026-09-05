@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Uso del API — BOLP</title>
+  <meta name="description" content="Guía de integración del API del Boletín Oficial de La Placeta (BOLP): valores variables (CNIC) tipados, normativa, widget oficial y restricciones de dominio para webs de las organizaciones del Grupo.">
+  <link rel="icon" type="image/png" href="img/favibop.png">
+  <link rel="stylesheet" href="css/bop.css">
+  <link rel="stylesheet" href="css/bolp-oficial.css">
+  <link rel="stylesheet" href="css/bolp-tecnica.css">
+</head>
+<body>
+  <header class="bop-header">
+    <a class="salto" href="#contenido">Saltar al contenido</a>
+    <div class="mast-top"><span>Grupo de La Placeta</span><span id="mastFecha"></span></div>
+    <div class="mast-head">
+      <a class="mast-home" href="index.html" aria-label="Boletín Oficial de La Placeta — Inicio">
+        <img class="logo" src="img/boplogo.png" alt="">
+      </a>
+      <h1 class="sr-only">Boletín Oficial de La Placeta</h1>
+      <div class="buscador-global" role="search">
+        <label class="sr-only" for="buscadorGlobalInput">Buscar en el boletín</label>
+        <input type="search" id="buscadorGlobalInput" placeholder="Buscar norma, política o valor…" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="buscadorGlobalResultados" aria-autocomplete="list">
+        <div class="buscador-global-dropdown" id="buscadorGlobalResultados" role="listbox" aria-label="Resultados de la búsqueda" hidden></div>
+      </div>
+      <button type="button" class="menu-toggle" id="menuToggle" aria-label="Abrir menú" aria-expanded="false">☰</button>
+    </div>
+    <nav id="navPrincipal" aria-label="Navegación principal">
+      <div class="nav-item"><a href="index.html">Inicio</a></div>
+      <div class="nav-item nav-hijo">
+        <a href="normativa.html">Normativa</a>
+        <button type="button" class="nav-sub-btn" aria-haspopup="true" aria-expanded="false" aria-label="Desplegar secciones de normativa">▾</button>
+        <div class="nav-submenu">
+          <span class="nav-sub-titulo">Secciones del boletín</span>
+          <a href="normativa.html">Todo el catálogo</a>
+          <a href="normativa.html?seccion=asociativo">I · Asociativo</a>
+          <a href="normativa.html?seccion=codigo-normativo">II · Código Normativo</a>
+          <a href="normativa.html?seccion=terminos-politicas">III · Términos y políticas</a>
+          <a href="normativa.html?seccion=funcionamiento">IV · Documentación de funcionamiento</a>
+          <a href="normativa.html?seccion=sistemas">V · Sistemas</a>
+          <a href="normativa.html?seccion=publicaciones">VI · Publicaciones oficiales</a>
+        </div>
+      </div>
+      <div class="nav-item"><a href="cnic.html">Datos variables</a></div>
+      <div class="nav-item"><a href="api.html" class="activo" aria-current="page">Desarrolladores</a></div>
+    </nav>
+  </header>
+
+  <main class="container" id="contenido" tabindex="-1">
+    <nav class="migas" aria-label="Migas de pan"><a href="index.html">Inicio</a> / <b>Desarrolladores · API</b></nav>
+
+    <section class="hero-v2">
+      <div class="hero-kicker">Integración · bop.laplaceta.org</div>
+      <h2>Uso del API del BOLP</h2>
+      <p>Guía para integrar la normativa y, sobre todo, los <strong>valores variables (CNIC)</strong> del Boletín Oficial de La Placeta en las webs de las organizaciones del Grupo. Lectura pública y sin claves, con valores tipados, revisión de vigencia y un widget oficial que evita publicar datos no garantizados.</p>
+      <div class="hero-chips">
+        <span class="hero-chip">Sin claves · lectura pública</span>
+        <span class="hero-chip">Dominios autorizados: <b>laplaceta.org</b> y subdominios</span>
+        <span class="hero-chip">Valores con <b>revisión</b> y alias históricos</span>
+      </div>
+      <div class="hero-cta">
+        <a class="btn btn-primario" href="/api/valores?refs=CNIC-IVA,CNIC-SMI-MENSUAL" target="_blank" rel="noopener">Probar /api/valores</a>
+        <a class="btn btn-outline" href="cnic.html">Ver el catálogo de valores</a>
+      </div>
+    </section>
+
+    <nav class="tec-indice" aria-label="Índice de la guía">
+      <a href="#introduccion">Introducción</a>
+      <a href="#endpoints">Endpoints</a>
+      <a href="#valores">Valores para tu web</a>
+      <a href="#widget">Widget oficial</a>
+      <a href="#cnic">Catálogo y alias</a>
+      <a href="#errores">Errores</a>
+      <a href="#dominios">Dominios</a>
+    </nav>
+
+    <!-- ── Introducción ─────────────────────────────────────────────── -->
+    <section class="panel" id="introduccion" aria-label="Introducción">
+      <div class="seccion-titulo">Introducción</div>
+      <p style="font-size:14.5px;margin:0 0 14px">La base del servicio es <strong>https://bop.laplaceta.org</strong>. Todos los endpoints responden en JSON UTF-8, son de solo lectura y no requieren clave. Cada respuesta incluye la <strong>revisión</strong> (fecha) de los datos, para que una web externa pueda comprobar que usa la versión vigente.</p>
+      <dl class="tec-dl">
+        <dt>GET /api/valores</dt>
+        <dd>Valores atómicos tipados para webs de organizaciones (uso recomendado).</dd>
+        <dt>GET /api/cnic</dt>
+        <dd>Catálogo completo de valores variables (CNIC), con detalle e historial.</dd>
+        <dt>GET /api/normativa</dt>
+        <dd>Textos normativos (documentos legales completos) en Markdown.</dd>
+        <dt>Widget /valores.js</dt>
+        <dd>Etiqueta oficial para pintar valores y bloquear la página si fallan.</dd>
+      </dl>
+      <div class="aviso aviso-info" role="note" style="margin-top:16px">
+        <b>Regla de uso:</b> los <b>valores</b> (porcentajes, precios en Placetas, límites, plazos) solo deben consumirse desde <b>laplaceta.org</b> o sus subdominios. El resto de dominios recibe un <code class="tec-inline">403</code>.
+      </div>
+    </section>
+
+    <!-- ── Endpoints ────────────────────────────────────────────────── -->
+    <section class="panel" id="endpoints" aria-label="Endpoints" style="margin-top:22px">
+      <div class="seccion-titulo">Endpoints</div>
+
+      <div class="endpoint">
+        <span class="metodo get">GET</span>
+        <div class="ep-cuerpo">
+          <div class="ep-path">/api/valores?refs=<span class="var">CNIC-IVA,CNIC-SMI-MENSUAL</span></div>
+          <div class="ep-desc">Valores oficiales solicitados, tipados (<code class="tec-inline">numero</code> + <code class="tec-inline">resumen</code>). Opcional <code class="tec-inline">&amp;grupo=CNIC-4.5</code> para expandir un agregado antiguo, y <code class="tec-inline">&amp;revision=AAAA-MM-DD</code> para exigir vigencia.</div>
+        </div>
+      </div>
+
+      <div class="endpoint">
+        <span class="metodo get">GET</span>
+        <div class="ep-cuerpo">
+          <div class="ep-path">/api/cnic</div>
+          <div class="ep-desc">Catálogo completo de valores (68 canónicos) con <code class="tec-inline">revision</code>. Parámetro <code class="tec-inline">?codigo=</code> para un valor concreto, incluyendo <b>alias históricos</b> (p. ej. <code class="tec-inline">CNIC-4.4</code> → <code class="tec-inline">CNIC-IVA</code>).</div>
+        </div>
+      </div>
+
+      <div class="endpoint">
+        <span class="metodo get">GET</span>
+        <div class="ep-cuerpo">
+          <div class="ep-path">/api/normativa</div>
+          <div class="ep-desc">Listado de documentos normativos. Con <code class="tec-inline">?codigo=</code> devuelve el documento completo (incluye <code class="tec-inline">contenido_md</code>, fechas e historial).</div>
+        </div>
+      </div>
+
+      <div class="endpoint">
+        <span class="metodo get">GET</span>
+        <div class="ep-cuerpo">
+          <div class="ep-path">/valores.js</div>
+          <div class="ep-desc">Widget oficial (script) para insertar valores en tu web. Se configura con atributos <code class="tec-inline">data-*</code>.</div>
+        </div>
+      </div>
+
+      <p style="font-size:12.5px;color:var(--bop-texto-suave);margin:14px 0 2px">Referencias humanas de cada valor: <code class="tec-inline">https://bop.laplaceta.org/cnic?codigo=CNIC-IVA</code>.</p>
+    </section>
+
+    <!-- ── Valores para tu web ──────────────────────────────────────── -->
+    <section class="panel" id="valores" aria-label="Valores para tu web" style="margin-top:22px">
+      <div class="seccion-titulo">Valores para tu web (organizaciones)</div>
+      <p style="font-size:14px;margin:0 0 14px">El endpoint <code class="tec-inline">/api/valores</code> devuelve <b>solo lo que pides</b>, con el valor listo para usar en dos formas: <code class="tec-inline">numero</code> (para cálculos) y <code class="tec-inline">resumen</code> (para mostrar, p. ej. «12 %», «150 Pz»).</p>
+
+      <dl class="tec-dl">
+        <dt>refs</dt>
+        <dd>Códigos canónicos o alias de un solo valor, separados por coma. Obligatorio.</dd>
+        <dt>grupo</dt>
+        <dd>Código antiguo agregado (<code class="tec-inline">CNIC-4.5</code>) para obtener sus canónicos. Opcional.</dd>
+        <dt>revision</dt>
+        <dd>Fecha <code class="tec-inline">AAAA-MM-DD</code> de la revisión que tu web usa. Si ya no es la vigente responde <code class="tec-inline">409</code>. Opcional pero recomendado.</dd>
+      </dl>
+
+      <div class="tec-grid2" style="margin-top:6px">
+        <div>
+          <div style="font-size:12.5px;font-weight:800;letter-spacing:.4px;color:var(--bop-acento);text-transform:uppercase;margin-bottom:2px">Petición</div>
+<pre class="tec-codigo">curl -H "Origin: https://banco.laplaceta.org" \
+  "https://bop.laplaceta.org/api/valores?refs=CNIC-IVA,CNIC-SMI-MENSUAL"</pre>
+        </div>
+        <div>
+          <div style="font-size:12.5px;font-weight:800;letter-spacing:.4px;color:var(--bop-acento);text-transform:uppercase;margin-bottom:2px">Respuesta (200)</div>
+<pre class="tec-codigo"><span class="c">// Resumen de la respuesta</span>
+{
+  <span class="k">"servicio"</span>: <span class="s">"bop.valores"</span>,
+  <span class="k">"revision"</span>: <span class="s">"2026-07-03"</span>,
+  <span class="k">"total"</span>: <span class="n">2</span>, <span class="k">"encontrados"</span>: <span class="n">2</span>,
+  <span class="k">"no_encontrados"</span>: [],
+  <span class="k">"valores"</span>: {
+    <span class="k">"CNIC-IVA"</span>: {
+      <span class="k">"tipo"</span>: <span class="s">"porcentaje"</span>,
+      <span class="k">"valor"</span>: <span class="s">"12"</span>, <span class="k">"numero"</span>: <span class="n">12</span>,
+      <span class="k">"unidad"</span>: <span class="s">"%"</span>, <span class="k">"resumen"</span>: <span class="s">"12 %"</span>,
+      <span class="k">"articulo"</span>: <span class="s">"CNI-BANCO (Art. 4)"</span>
+    },
+    <span class="k">"CNIC-SMI-MENSUAL"</span>: {
+      <span class="k">"tipo"</span>: <span class="s">"placeta"</span>,
+      <span class="k">"valor"</span>: <span class="s">"150"</span>, <span class="k">"numero"</span>: <span class="n">150</span>,
+      <span class="k">"unidad"</span>: <span class="s">"Pz"</span>, <span class="k">"resumen"</span>: <span class="s">"150 Pz"</span>,
+      <span class="k">"articulo"</span>: <span class="s">"CNI-BANCO (Art. 7)"</span>
+    }
+  }
+}</pre>
+        </div>
+      </div>
+
+      <p style="font-size:13.5px;color:var(--bop-texto-suave);margin:14px 0 6px">Desde JavaScript en una web del dominio <code class="tec-inline">laplaceta.org</code> (o subdominio):</p>
+<pre class="tec-codigo">const res = await fetch(
+  'https://bop.laplaceta.org/api/valores?refs=CNIC-IVA,CNIC-SMI-MENSUAL'
+);
+const datos = await res.json();
+<span class="c">// Si algún valor no se pudo resolver, NO usar la página con datos rotos:</span>
+if (datos.no_encontrados.length &gt; 0) { mostrarAviso(datos.no_encontrados); return; }
+
+const iva = datos.valores['CNIC-IVA'];
+console.log(iva.numero, iva.resumen); <span class="c">// 12  "12 %"</span></pre>
+    </section>
+
+    <!-- ── Widget ───────────────────────────────────────────────────── -->
+    <section class="panel" id="widget" aria-label="Widget oficial" style="margin-top:22px">
+      <div class="seccion-titulo">Widget oficial (valores con fallo a bloqueo)</div>
+      <p style="font-size:14px;margin:0 0 8px">Para no depender de una integración a medida, incluye el widget del BOP. Rellena los <code class="tec-inline">&lt;bop-valor&gt;</code> con el valor oficial y, si <b>alguno falla</b> (red, código sin resolver, revisión obsoleta), muestra un aviso y <b>bloquea</b> la zona (o toda la página) para que nadie use datos que no se puedan garantizar.</p>
+
+<pre class="tec-codigo">&lt;bop-valor data-bop-valor="CNIC-IVA"&gt;…&lt;/bop-valor&gt;
+&lt;bop-valor data-bop-valor="CNIC-SMI-MENSUAL"&gt;…&lt;/bop-valor&gt;
+
+&lt;script src="https://bop.laplaceta.org/valores.js"
+        data-refs="CNIC-IVA,CNIC-SMI-MENSUAL"
+        data-bloqueo="area"&gt;&lt;/script&gt;</pre>
+
+      <dl class="tec-dl">
+        <dt>data-refs</dt>
+        <dd>Valores obligatorios de la página (separados por coma).</dd>
+        <dt>data-bloqueo</dt>
+        <dd><code class="tec-inline">area</code> (defecto) avisa y desactiva la zona · <code class="tec-inline">pagina</code> bloquea toda la web · <code class="tec-inline">aviso</code> solo informa.</dd>
+        <dt>data-revision</dt>
+        <dd>Opcional. Fija la revisión que tu web espera; si cambió, la página se bloquea hasta actualizarse.</dd>
+        <dt>data-area</dt>
+        <dd>Selector CSS de la zona a bloquear en modo <code class="tec-inline">area</code>.</dd>
+      </dl>
+
+      <p style="font-size:13px;color:var(--bop-texto-suave);margin:12px 0 0">La página escucha los eventos <code class="tec-inline">bop:valores-ok</code> y <code class="tec-inline">bop:valores-fallo</code>. Los placeholders quedan marcados como <code class="tec-inline">data-bop-valor="resuelto"</code>.</p>
+    </section>
+
+    <!-- ── Catálogo y alias ─────────────────────────────────────────── -->
+    <section class="panel" id="cnic" aria-label="Catálogo y alias" style="margin-top:22px">
+      <div class="seccion-titulo">Catálogo, códigos antiguos y vigencia</div>
+      <p style="font-size:14px;margin:0 0 12px">El registro canónico tiene <b>68 valores atómicos</b> con nombre descriptivo (<code class="tec-inline">CNIC-IVA</code>, <code class="tec-inline">CNIC-SMI-MENSUAL</code>…). Los códigos del antiguo CNI-PDF (<code class="tec-inline">CNIC-4.x</code>, <code class="tec-inline">CNIC-7-1</code>, <code class="tec-inline">CNIC-15-1</code>…) se mantienen como <b>alias</b> de compatibilidad: el servicio los resuelve, pero <b>no deben usarse para cálculos</b>.</p>
+
+      <div class="tabla-wrap tec-tabla">
+        <table class="tabla">
+          <thead>
+            <tr><th scope="col">Ejemplo</th><th scope="col">Comportamiento</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code class="tec-inline">CNIC-4.4</code></td><td>Alias único → se resuelve a <code class="tec-inline">CNIC-IVA</code>. En <code class="tec-inline">/api/valores</code> aparece con <code class="tec-inline">alias_de</code>.</td></tr>
+            <tr><td><code class="tec-inline">CNIC-4.5</code></td><td>Alias de grupo → en <code class="tec-inline">no_encontrados</code> con motivo <code class="tec-inline">legacy_agrupado</code> y sus canónicos en <code class="tec-inline">sustitutos</code>. Usa <code class="tec-inline">?grupo=CNIC-4.5</code> para obtenerlos.</td></tr>
+            <tr><td><code class="tec-inline">CNIC-15-1</code></td><td>Pendiente → sin equivalente atómico publicado; motivo <code class="tec-inline">pendiente</code>. No puede usarse en cálculos.</td></tr>
+            <tr><td><code class="tec-inline">revision</code></td><td>Cada respuesta indica la revisión vigente. Si pides una obsoleta con <code class="tec-inline">&amp;revision=</code>, el API responde <code class="tec-inline">409</code>.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p style="font-size:13px;color:var(--bop-texto-suave);margin:12px 0 0">En la web puedes ver el desglose completo: <a href="cnic.html">catálogo de valores</a>. Si una referencia antigua te lleva a un detalle, el BOLP te indica el código canónico que debes usar.</p>
+    </section>
+
+    <!-- ── Errores ──────────────────────────────────────────────────── -->
+    <section class="panel" id="errores" aria-label="Errores" style="margin-top:22px">
+      <div class="seccion-titulo">Errores</div>
+      <div class="tabla-wrap tec-tabla">
+        <table class="tabla">
+          <thead>
+            <tr><th scope="col">Código</th><th scope="col">Significado</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code class="tec-inline">400</code></td><td>Falta <code class="tec-inline">refs</code> (<code class="tec-inline">refs_requeridas</code>) o el <code class="tec-inline">grupo</code> no existe.</td></tr>
+            <tr><td><code class="tec-inline">403</code></td><td>Origen no permitido: el acceso por navegador está limitado a <code class="tec-inline">laplaceta.org</code> y subdominios.</td></tr>
+            <tr><td><code class="tec-inline">404</code></td><td><code class="tec-inline">cnic_no_encontrado</code>: código desconocido (ni canónico ni alias).</td></tr>
+            <tr><td><code class="tec-inline">405</code></td><td>Método no permitido (solo <code class="tec-inline">GET</code>).</td></tr>
+            <tr><td><code class="tec-inline">409</code></td><td><code class="tec-inline">revision_desactualizada</code>: la revisión pedida ya no es la vigente.</td></tr>
+            <tr><td><code class="tec-inline">500</code></td><td>Error interno.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p style="font-size:13.5px;color:var(--bop-texto-suave);margin:12px 0 2px">En <code class="tec-inline">/api/valores</code>, los valores que no se pueden resolver no abortan la respuesta: aparecen en <code class="tec-inline">no_encontrados</code> con un motivo:</p>
+      <dl class="tec-dl" style="margin-top:8px">
+        <dt>no_existe</dt><dd>Código desconocido.</dd>
+        <dt>legacy_agrupado</dt><dd>Es un agregado antiguo; usa sus <code class="tec-inline">sustitutos</code> canónicos.</dd>
+        <dt>pendiente</dt><dd>Contenido antiguo sin equivalente atómico todavía.</dd>
+        <dt>canonico_faltante</dt><dd>El canónico del alias no está publicado.</dd>
+      </dl>
+    </section>
+
+    <!-- ── Dominios ─────────────────────────────────────────────────── -->
+    <section class="panel" id="dominios" aria-label="Dominios" style="margin-top:22px">
+      <div class="seccion-titulo">Dominios permitidos (CORS)</div>
+      <p style="font-size:14px;margin:0 0 10px">Por ahora el consumo de valores desde navegador está limitado a:</p>
+      <div class="tabla-wrap tec-tabla">
+        <table class="tabla">
+          <thead>
+            <tr><th scope="col">Dominio</th><th scope="col">Uso</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code class="tec-inline">bop.laplaceta.org</code></td><td>El propio boletín (mismo origen).</td></tr>
+            <tr><td><code class="tec-inline">*.laplaceta.org</code></td><td>Webs de organizaciones del Grupo.</td></tr>
+            <tr><td><code class="tec-inline">laplaceta.org</code></td><td>Dominio raíz.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="aviso aviso-info" role="note" style="margin-top:14px">Las peticiones <b>sin navegador</b> (servidores, curl) no se bloquean. La ampliación de dominios autorizados se gestiona desde la Administración del sistema (RSP), no desde la web pública.</div>
+    </section>
+  </main>
+
+  <footer class="bop-footer">Boletín Oficial de La Placeta (BOLP) · Grupo de La Placeta · Guía de integración del API.</footer>
+
+  <script src="js/datos-migrados.js"></script>
+  <script src="js/cnic-datos.js"></script>
+  <script src="js/cnic-alias.js"></script>
+  <script src="js/bop.js"></script>
+  <script src="js/bop-nav.js"></script>
+</body>
+</html>
