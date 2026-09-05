@@ -3,10 +3,12 @@
   "builds": [
     { "src": "api/cnic.js", "use": "@vercel/node" },
     { "src": "api/normativa.js", "use": "@vercel/node" },
+    { "src": "api/valores.js", "use": "@vercel/node" },
     { "src": "public/**", "use": "@vercel/static" }
   ],
   "routes": [
     { "src": "/api/cnic", "dest": "/api/cnic.js" },
+    { "src": "/api/valores", "dest": "/api/valores.js" },
     { "src": "/api/normativa", "dest": "/api/normativa.js" },
     { "src": "/", "dest": "/public/index.html" },
     { "src": "/favicon.ico", "dest": "/public/img/favibop.png" },

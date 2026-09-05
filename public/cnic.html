@@ -84,6 +84,7 @@
 
   <script src="js/datos-migrados.js"></script>
   <script src="js/cnic-datos.js"></script>
+  <script src="js/cnic-alias.js"></script>
   <script src="js/markdown.js"></script>
   <script src="js/bop.js"></script>
   <script src="js/bolp-clasificacion.js"></script>
@@ -222,12 +223,18 @@
       __el('vista-detalle').classList.add('oculto');
     }
 
-    function verDetalle(codigo) {
+    function verDetalle(codigo, aliasLegacy) {
       const c = __cnic.find((x) => x.codigo === codigo);
       __el('vista-lista').classList.add('oculto');
       const det = __el('vista-detalle');
       det.classList.remove('oculto');
-      if (!c) { det.innerHTML = '<div class="aviso aviso-error">Valor no encontrado.</div>'; return; }
+      if (!c) {
+        // Código antiguo del CNI-PDF (CNIC-4.x, CNIC-7-1, CNIC-15-1…)
+        if (verDetalleLegacy(codigo, det)) return;
+        det.innerHTML = '<div class="aviso aviso-error">Valor no encontrado.</div>';
+        return;
+      }
+      const avisoAlias = aliasLegacy ? avisoAliasHtml(aliasLegacy, c.codigo) : '';
 
       const vigente = cnicEsVigente(c);
       const esBaremo = cnicEsBaremo(c);
@@ -265,6 +272,8 @@
           <span class="copia-feedback" id="copiaFeedback" role="status"></span>
         </div>
 
+        ${avisoAlias}
+
         <div class="ficha-cab">
           <div class="ficha-codigo-linea">${bopEscapeHtml(c.codigo)} <span class="estado-texto" style="color:${vigente ? 'var(--bop-exito)' : 'var(--bop-error)'}">· ${vigente ? 'Vigente' : 'Derogado'}</span></div>
           <h1 class="ficha-titulo">${bopEscapeHtml(c.etiqueta)}</h1>
@@ -288,6 +297,58 @@
           <p style="color:var(--bop-texto-suave);font-size:12px;margin:-6px 0 8px">Cada cambio registra cuándo se produjo y quién lo autorizó (datos censurados).</p>
           ${histItems}
         </section>`;
+    }
+
+    /* Alias de un código antiguo (CNIC-4.4, CNIC-15-1…). Devuelve true si lo ha pintado. */
+    function verDetalleLegacy(codigo, det) {
+      const res = (typeof window.bopCnicAliasResolver === 'function') ? window.bopCnicAliasResolver(codigo) : null;
+      if (!res) return false;
+
+      if (res.tipo === 'unico') {
+        const canon = __cnic.find((x) => x.codigo === res.canonico);
+        if (!canon) return false;
+        verDetalle(res.canonico, codigo);
+        return true;
+      }
+
+      if (res.tipo === 'grupo') {
+        const rows = res.grupo.map((code) => __cnic.find((x) => x.codigo === code)).filter(Boolean);
+        det.innerHTML = `
+          <div class="ficha-acciones"><button class="btn btn-secundario" onclick="filtrar()">Volver</button></div>
+          <div class="aviso aviso-info"><b>${bopEscapeHtml(codigo)}</b> («${bopEscapeHtml(res.etiqueta)}») es un código antiguo que agrupaba varios valores. Ahora se publican por separado: pulsa cada uno para ver su detalle.</div>
+          ${cnicTablaHtml(rows)}
+          <p style="font-size:12px;color:var(--bop-texto-suave);margin-top:8px">Estos son los códigos canónicos que sustituyen a ${bopEscapeHtml(codigo)}. Úsalos en código, documentos y webs externas.</p>`;
+        return true;
+      }
+
+      if (res.tipo === 'pendiente') {
+        det.innerHTML = `
+          <div class="ficha-acciones"><button class="btn btn-secundario" onclick="filtrar()">Volver</button></div>
+          <div class="ficha-cab">
+            <div class="ficha-codigo-linea">${bopEscapeHtml(codigo)} <span class="estado-texto" style="color:var(--bop-aviso)">· Sin publicar</span></div>
+            <h1 class="ficha-titulo">${bopEscapeHtml(res.etiqueta)}</h1>
+          </div>
+          <div class="aviso aviso-info">${bopEscapeHtml(res.aviso || 'Este código corresponde a contenido que todavía no se publica de forma atómica.')}</div>`;
+        return true;
+      }
+      return false;
+    }
+
+    function avisoAliasHtml(aliasLegacy, canonico) {
+      return `<div class="aviso aviso-info" role="note"><b>${bopEscapeHtml(aliasLegacy)}</b> es un código antiguo. Este valor se publica ahora como <b>${bopEscapeHtml(canonico)}</b>. Usa la referencia <code>{{${bopEscapeHtml(canonico)}}}</code>.</div>`;
+    }
+
+    function cnicTablaHtml(rows) {
+      if (!rows.length) return '<div class="aviso aviso-info">Sin valores canónicos disponibles.</div>';
+      const filas = rows.map((c) => `
+        <tr class="fila-cnic" tabindex="0" title="Ver detalle de ${bopEscapeHtml(c.codigo)}"
+            onclick="verDetalle('${bopEscapeHtml(String(c.codigo).replace(/'/g, "\\'"))}')">
+          <td class="cnic-codigo"><a href="cnic.html?codigo=${encodeURIComponent(c.codigo)}" onclick="event.stopPropagation()">${bopEscapeHtml(c.codigo)}</a></td>
+          <td><strong>${bopEscapeHtml(c.etiqueta)}</strong></td>
+          <td class="cnic-valor"><strong>${bopEscapeHtml(cnicValorCorto(c))}</strong></td>
+          <td>${bopEscapeHtml(c.articulo || '—')}</td>
+        </tr>`).join('');
+      return `<div style="overflow-x:auto"><table class="tabla tabla-cnic"><thead><tr><th scope="col">Código canónico</th><th scope="col">Etiqueta</th><th scope="col">Valor</th><th scope="col">Artículo (CNI)</th></tr></thead><tbody>${filas}</tbody></table></div>`;
     }
 
     function copiarRef(codigo) {

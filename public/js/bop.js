@@ -128,7 +128,15 @@ const BOP = {
   },
 
   getCnicPorCodigo(codigo) {
-    return (this._cnic || []).find(c => c.codigo === String(codigo).toUpperCase()) || null;
+    const q = String(codigo || '').toUpperCase();
+    const directo = (this._cnic || []).find(c => c.codigo === q) || null;
+    if (directo) return directo;
+    // Alias histórico de un solo valor (p. ej. {{CNIC-4.4}} → CNIC-IVA).
+    const res = (typeof window !== 'undefined' && window.bopCnicAliasResolver) ? window.bopCnicAliasResolver(q) : null;
+    if (res && res.tipo === 'unico') {
+      return (this._cnic || []).find(c => c.codigo === res.canonico) || null;
+    }
+    return null;
   },
 
   buscar(termino) {
