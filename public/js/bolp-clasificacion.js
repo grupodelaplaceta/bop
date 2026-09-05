@@ -283,6 +283,48 @@ function bolpCifras(docs, cnic) {
   };
 }
 
+/* Índices canónicos para ordenar la normativa según el esquema documental
+   (sección I–VI → familia → órgano responsable → código). */
+function bolpIndiceSeccion(id) {
+  const i = BOLP_SECCIONES.findIndex((s) => s.id === id);
+  return i < 0 ? 99 : i;
+}
+function bolpIndiceFamilia(seccionId, familiaId) {
+  const s = BOLP_SECCIONES[bolpIndiceSeccion(seccionId)];
+  if (!s) return 99;
+  const i = s.familias.findIndex((f) => f.id === familiaId);
+  return i < 0 ? 99 : i;
+}
+function bolpIndiceDepartamento(id) {
+  const i = BOLP_DEPARTAMENTOS.findIndex((d) => d.id === id);
+  return i < 0 ? 99 : i;
+}
+
+/* Clave de orden de un documento dentro del esquema (sin mutar la entrada). */
+function bolpClaveOrden(d) {
+  const c = bolpClasificar(d);
+  return {
+    sec: bolpIndiceSeccion(c.seccion),
+    fam: bolpIndiceFamilia(c.seccion, c.familia),
+    dep: bolpIndiceDepartamento(c.departamento),
+    cod: String((d && d.codigo) || '').toUpperCase(),
+  };
+}
+
+/* Devuelve la lista ordenada según la taxonomía BOLP. */
+function bolpOrdenDocumentos(lista) {
+  return (Array.isArray(lista) ? lista : [])
+    .slice()
+    .map((d) => ({ d, k: bolpClaveOrden(d) }))
+    .sort((a, b) => {
+      if (a.k.sec !== b.k.sec) return a.k.sec - b.k.sec;
+      if (a.k.fam !== b.k.fam) return a.k.fam - b.k.fam;
+      if (a.k.dep !== b.k.dep) return a.k.dep - b.k.dep;
+      return String(a.k.cod).localeCompare(String(b.k.cod), 'es', { numeric: true });
+    })
+    .map((x) => x.d);
+}
+
 // Exponer en navegador y en Node (migraciones)
 if (typeof window !== 'undefined') {
   window.BOLP_SECCIONES = BOLP_SECCIONES;
@@ -297,6 +339,7 @@ if (typeof window !== 'undefined') {
   window.bolpFechaPublicacion = bolpFechaPublicacion;
   window.bolpFechaVigor = bolpFechaVigor;
   window.bolpCifras = bolpCifras;
+  window.bolpOrdenDocumentos = bolpOrdenDocumentos;
   window.bolpCensurarNombre = bolpCensurarNombre;
   window.bolpCensurarDip = bolpCensurarDip;
   window.bolpAutorLegible = bolpAutorLegible;
@@ -307,6 +350,7 @@ if (typeof module !== 'undefined' && module.exports) {
     bolpSeccionPorId, bolpDepartamentoPorId, bolpFamiliaEnSeccion,
     bolpClasificar, bolpNombreFamilia, bolpEstado,
     bolpFechaPublicacion, bolpFechaVigor, bolpCifras,
+    bolpOrdenDocumentos,
     bolpCensurarNombre, bolpCensurarDip, bolpAutorLegible
   };
 }

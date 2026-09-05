@@ -195,6 +195,8 @@
           String(BOLP.nombreFamilia(d) || '').toLowerCase().includes(q)
         );
       }
+      // Orden canónico según la taxonomía BOLP (sección → familia → órgano → código).
+      docs = bolpOrdenDocumentos(docs);
 
       const lista = __el('lista');
       lista.className = '';
