@@ -547,3 +547,12 @@ a, button { transition: background 0.15s, color 0.15s, border-color 0.15s, box-s
   .codigo-bloque { background: #f2f2f2; }
   .codigo-bloque code { color: #222; }
 }
+
+/* Tablas CNIC adaptables (sin desbordes en pantallas estrechas) */
+.tabla-cnic th, .tabla-cnic td { overflow-wrap: anywhere; }
+@media (max-width: 680px) {
+  .tabla-cnic th:nth-child(4), .tabla-cnic td:nth-child(4) { display: none; }
+  .tabla-cnic .cnic-desc { display: none; }
+  .tabla-cnic td { padding: 8px 8px; }
+  .tabla-cnic .cnic-valor strong { font-size: 12px; }
+}

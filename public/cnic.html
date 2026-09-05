@@ -167,7 +167,7 @@
             onclick="verDetalle('${bopEscapeHtml(String(c.codigo).replace(/'/g, "\\'"))}')"
             onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();verDetalle('${bopEscapeHtml(String(c.codigo).replace(/'/g, "\\'"))}')}">
           <td class="cnic-codigo"><a href="cnic.html?codigo=${encodeURIComponent(c.codigo)}" onclick="event.stopPropagation()">${bopEscapeHtml(c.codigo)}</a></td>
-          <td><strong>${bopEscapeHtml(c.etiqueta)}</strong><br><span style="color:var(--bop-texto-suave);font-size:12px">${bopEscapeHtml((c.descripcion || '').slice(0, 90))}</span></td>
+          <td><strong>${bopEscapeHtml(c.etiqueta)}</strong><br><span class="cnic-desc">${bopEscapeHtml((c.descripcion || '').slice(0, 90))}</span></td>
           <td class="cnic-valor" title="${bopEscapeHtml(cnicValorCorto(c))}"><strong>${bopEscapeHtml(cnicValorLista(c))}</strong></td>
           <td>${bopEscapeHtml(c.articulo || '—')}</td>
           <td><span class="estado-texto" style="color:${cnicEsVigente(c) ? 'var(--bop-exito)' : 'var(--bop-error)'}">${cnicEstado(c)}</span></td>
@@ -176,7 +176,7 @@
       const listado = __el('lista');
       listado.className = '';
       listado.innerHTML = lista.length
-        ? `<div style="overflow-x:auto"><table class="tabla"><thead><tr><th scope="col">Código</th><th scope="col">Etiqueta</th><th scope="col">Valor</th><th scope="col">Artículo (CNI)</th><th scope="col">Estado</th></tr></thead><tbody>${filas}</tbody></table></div>` +
+        ? `<div style="overflow-x:auto"><table class="tabla tabla-cnic"><thead><tr><th scope="col">Código</th><th scope="col">Etiqueta</th><th scope="col">Valor</th><th scope="col">Artículo (CNI)</th><th scope="col">Estado</th></tr></thead><tbody>${filas}</tbody></table></div>` +
           '<p style="font-size:12px;color:var(--bop-texto-suave);margin-top:8px">Pulsa una fila para ver el detalle, el historial y dónde se usa cada valor.</p>'
         : '<div class="aviso aviso-info">Sin resultados para los filtros actuales.</div>';
       mostrarLista();

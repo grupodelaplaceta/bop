@@ -151,7 +151,7 @@
         listaC.className = '';
         const recientes = cnic.slice().sort((a, b) => String(fech(b)).localeCompare(String(fech(a)))).slice(0, 8);
         listaC.innerHTML = recientes.length
-          ? '<div style="overflow-x:auto"><table class="tabla"><thead><tr><th>Código</th><th>Etiqueta</th><th>Valor</th><th>Artículo</th></tr></thead><tbody>' +
+          ? '<div style="overflow-x:auto"><table class="tabla tabla-cnic"><thead><tr><th>Código</th><th>Etiqueta</th><th>Valor</th><th>Artículo</th></tr></thead><tbody>' +
             recientes.map(c => `<tr><td><a href="cnic.html?codigo=${encodeURIComponent(c.codigo)}"><b>${bopEscapeHtml(c.codigo)}</b></a></td><td>${bopEscapeHtml(c.etiqueta)}</td><td class="cnic-valor"><strong>${bopEscapeHtml(c.valor)}</strong> ${bopEscapeHtml(c.unidad || '')}</td><td>${bopEscapeHtml(c.articulo || '—')}</td></tr>`).join('') +
             '</tbody></table></div>' +
             '<p style="font-size:12px;color:var(--bop-texto-suave);margin-top:8px"><a href="cnic.html">Ver todos los CNIC →</a></p>'
