@@ -594,3 +594,62 @@ a, button { transition: background 0.15s, color 0.15s, border-color 0.15s, box-s
 #vista-detalle .cnic-info[open] summary { border-bottom: none; margin-bottom: 8px; }
 #vista-detalle .cnic-info .ficha-grid { border-top: none; padding-top: 2px; }
 #vista-detalle .panel .seccion-titulo { margin-bottom: 8px; }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   DOCUMENTO · disposición compacta (sin márgenes laterales · responsive)
+   Solo aplica a la página de lectura de documento (body.pag-documento).
+   ═══════════════════════════════════════════════════════════════════════ */
+body.pag-documento main.container {
+  max-width: 1220px;
+  padding: 14px clamp(10px, 2vw, 24px) 54px;
+}
+body.pag-documento .migas { margin-bottom: 10px; font-size: 12px; }
+
+/* Barra de acciones compacta y fija (Volver · PDF · Imprimir) */
+body.pag-documento .ficha-acciones {
+  position: sticky; top: 6px; z-index: 40;
+  display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+  background: rgba(255, 255, 255, .94); backdrop-filter: blur(6px);
+  border: 1px solid var(--bop-borde); border-radius: 12px;
+  padding: 7px 11px; margin: 0 0 12px;
+  box-shadow: 0 4px 14px rgba(20, 10, 60, .08);
+}
+body.pag-documento .ficha-acciones .btn { padding: 7px 12px; font-size: 12.5px; }
+
+/* Cabecera del documento más compacta */
+body.pag-documento .ficha-cab { padding: 15px 18px 13px; margin-bottom: 13px; }
+body.pag-documento .ficha-cab .ficha-codigo-linea { margin: 0 0 2px; }
+body.pag-documento .ficha-titulo { font-size: 25px; }
+body.pag-documento .ficha-grid { margin-top: 11px; padding-top: 11px; gap: 8px 12px; }
+body.pag-documento .ficha-celda { padding: 7px 10px 6px; border-radius: 10px; }
+
+/* Cuerpo legible y compacto */
+body.pag-documento .documento {
+  padding: clamp(15px, 2.6vw, 30px);
+  font-size: 14.5px; line-height: 1.72;
+}
+body.pag-documento .documento h1 { font-size: 22px; }
+body.pag-documento .documento h2 { font-size: 17px; margin-top: 16px; }
+body.pag-documento .documento h3 { font-size: 15px; }
+body.pag-documento .documento p, body.pag-documento .documento li { margin: 0 0 6px; }
+
+/* Paneles de versión/historial compactos */
+body.pag-documento .panel { padding: 13px 18px; }
+body.pag-documento .seccion-titulo { margin-bottom: 8px; font-size: 14px; }
+
+@media (max-width: 900px) {
+  body.pag-documento main.container { padding: 10px 12px 46px; }
+  body.pag-documento .ficha-acciones { position: static; }
+  body.pag-documento .ficha-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 640px) {
+  body.pag-documento main.container { padding: 6px 6px 36px; }
+  body.pag-documento .documento { padding: 12px 11px 18px; font-size: 13.8px; }
+  body.pag-documento .ficha-grid { grid-template-columns: 1fr; }
+  body.pag-documento .ficha-titulo { font-size: 20px; }
+  body.pag-documento .ficha-cab { padding: 11px 12px 9px; }
+  body.pag-documento .ficha-acciones .btn { width: 100%; }
+}
+@media print {
+  body.pag-documento .ficha-acciones { position: static; box-shadow: none; }
+}
