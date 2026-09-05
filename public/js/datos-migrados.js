@@ -12,12 +12,54 @@ const BOP_MIGRADOS = {
     {
       codigo: 'EST-001',
       titulo: 'Estatutos de la Asociación Grupo de La Placeta',
+      organo_responsable: 'Junta del Grupo de La Placeta',
       categoria: 'estatutos',
       estado: 'vigente',
       fecha_publicacion: '2025-12-24',
       fecha_aprobacion_junta: '2025-12-24',
       aprobada_en_junta: true,
       contenido_md: "# Estatutos de la Asociación Grupo de La Placeta\n\n**CAPÍTULO I — DISPOSICIONES GENERALES**\n\n**Artículo 1. Denominación.**\nCon la denominación GRUPO DE LA PLACETA se constituye una asociación al amparo de la Ley Orgánica 1/2002, de 22 de marzo, reguladora del Derecho de Asociación, y normas complementarias, con personalidad jurídica y plena capacidad de obrar, careciendo de ánimo de lucro.\nEn todo cuanto no esté previsto en los presentes Estatutos se aplicará la citada Ley Orgánica 1/2002 y las disposiciones complementarias que la desarrollen.\n\n**Artículo 2. Duración.**\nLa Asociación se constituye por tiempo indefinido.\n\n**Artículo 3. Fines.**\nLa Asociación tiene como fines:\n1. Crear, desarrollar y mantener un ecosistema virtual basado en un juego de rol de carácter virtual, accesible a sus miembros.\n2. Fomentar la participación, la creatividad, la cooperación y la toma de decisiones colectivas dentro de dicho entorno virtual.\n3. Simular estructuras organizativas, administrativas y normativas internas como parte del desarrollo del juego de rol.\n4. Garantizar que todas las actividades del ecosistema se desarrollen sin ánimo de lucro y sin circulación de dinero real.\n5. Promover un entorno seguro, inclusivo y respetuoso para todas las personas participantes.\n\n**Artículo 4. Actividades.**\nPara el cumplimiento de estos fines se realizarán, entre otras, las siguientes actividades:\n1. Gestión y desarrollo de plataformas digitales y entornos virtuales del juego de rol.\n2. Creación y aplicación de normas internas ficticias propias del ecosistema del juego.\n3. Organización de actividades virtuales, eventos, simulaciones y dinámicas de rol.\n4. Designación de cargos internos no oficiales dentro del marco del juego y de la organización asociativa.\n5. Elaboración de documentación interna, registros virtuales y materiales informativos.\n\n**Artículo 5. Domicilio social.**\nLa Asociación establece su domicilio social en Avinguda Pallaresos, número 10, portal 133, 43130, Tarragona, municipio de Tarragona, provincia de Tarragona.\nEl ámbito territorial en el que va a realizar principalmente sus actividades es todo el territorio del Estado español, desarrollándose dichas actividades principalmente por medios telemáticos.\n\n**CAPÍTULO II — ASAMBLEA GENERAL**\n\n**Artículo 6. Naturaleza y composición.**\nLa Asamblea General es el órgano supremo de gobierno de la Asociación y estará integrada por todos los socios y socias.\n\n**Artículo 7. Reuniones.**\nLas reuniones de la Asamblea General serán ordinarias y extraordinarias.\nLa Asamblea General ordinaria se celebrará una vez al año dentro de los cuatro meses siguientes al cierre del ejercicio.\nLas Asambleas Generales extraordinarias se celebrarán cuando lo estime conveniente la Presidencia, lo acuerde la Junta Directiva o lo solicite por escrito al menos una décima parte de las personas asociadas.\nLas reuniones podrán celebrarse de forma presencial, telemática o mixta.\n\n**Artículo 8. Convocatorias.**\nLas convocatorias se realizarán por escrito, con indicación del lugar, fecha, hora y orden del día, con una antelación mínima de quince días naturales.\n\n**Artículo 9. Adopción de acuerdos.**\nLa Asamblea General quedará válidamente constituida en primera convocatoria cuando concurra un tercio de las personas asociadas con derecho a voto y en segunda convocatoria cualquiera que sea el número de asistentes.\nLos acuerdos se adoptarán por mayoría simple, salvo los supuestos que requieran mayoría cualificada conforme a la legislación vigente.\n\n**Artículo 10. Facultades.**\nSon facultades de la Asamblea General:\n1. Aprobar la gestión de la Junta Directiva.\n2. Examinar y aprobar las cuentas anuales.\n3. Elegir y cesar a los miembros de la Junta Directiva.\n4. Modificar los Estatutos.\n5. Acordar la disolución de la Asociación.\n6. Cualesquiera otras que no estén atribuidas a otro órgano.\n\n**CAPÍTULO III — JUNTA DIRECTIVA**\n\n**Artículo 11. Composición.**\nLa Asociación será gestionada y representada por una Junta Directiva compuesta, al menos, por una Presidencia y una Secretaría, pudiendo existir Vicepresidencia, Tesorería y Vocalías.\nTodos los cargos serán gratuitos y deberán recaer en personas asociadas mayores de edad. Los cargos de la Junta Directiva tendrán una duración de dos años, pudiendo ser reelegidos por períodos de igual duración mediante acuerdo de la Asamblea General. Anualmente podrán incorporarse nuevos cargos mediante acuerdo de la Asamblea General. El cese anticipado, la dimisión o cualquier otra causa de vacante se cubrirá provisionalmente por la Junta Directiva hasta su ratificación en la siguiente Asamblea General.\n\n**Artículo 12. Reuniones.**\nLa Junta Directiva se reunirá cuando lo convoque la Presidencia o lo solicite al menos un tercio de sus miembros, pudiendo celebrarse las reuniones de forma presencial o telemática.\n\n**Artículo 13. Facultades.**\nCorresponde a la Junta Directiva la gestión ordinaria de la Asociación y, en especial:\n1. Ejecutar los acuerdos de la Asamblea General.\n2. Dirigir las actividades asociativas.\n3. Admitir nuevas personas asociadas.\n4. Nombrar cargos internos no oficiales de apoyo y colaboración.\n\n**Artículo 14. Presidencia.**\nLa Presidencia ostenta la representación legal de la Asociación y dirige su funcionamiento.\n\n**Artículo 15. Vicepresidencia.**\nLa Vicepresidencia sustituirá a la Presidencia en caso de ausencia. Ayudará al presidente en propuestas o decisiones.\n\n**Artículo 16. Secretaría.**\nLa Secretaría se encargará de la documentación, actas y registros de la Asociación.\n\n**Artículo 16 bis. Certificación de acuerdos.**\nLa facultad de certificar los acuerdos sociales adoptados tanto por la Asamblea General como por la Junta Directiva corresponde a la persona que ocupe la Secretaría de la Asociación.\nLas certificaciones se expedirán con la firma de la Secretaría y el visto bueno de la Presidencia. En caso de ausencia, imposibilidad o vacante de la Secretaría, esta facultad recaerá en la persona que ocupe la Vicepresidencia o, en su defecto, en quien designe la Junta Directiva a tal efecto.\n\n**Artículo 17. Vocales especializados.**\nLos vocales especializados tendrán cargos señalados dependiendo su especialización.\n\n**Artículo 18. Vocalías.**\nLas Vocalías colaborarán en las tareas que les sean encomendadas.\n\n**Artículo 19. Bajas y suplencias.**\nLas vacantes se cubrirán provisionalmente hasta su ratificación por la Asamblea General.\n\n**CAPÍTULO IV — PERSONAS ASOCIADAS**\n\n**Artículo 20. Requisitos.**\nPodrá asociarse cualquier persona con capacidad de obrar interesada en los fines de la Asociación.\n\n**Artículo 21. Clases.**\nExistirán socios/as fundadores, de número y de honor.\n\n**Artículo 22. Baja.**\nLa baja podrá producirse por renuncia voluntaria o por incumplimiento grave de los Estatutos.\n\n**Artículo 23. Derechos.**\nLas personas asociadas tendrán derecho a participar y votar en las Asambleas Generales.\n\n**Artículo 24. Deberes.**\nLas personas asociadas deberán cumplir los Estatutos y los acuerdos válidos de los órganos sociales, incluyendo el código normativo si participan en el entorno simulado de rol.\n\n**Artículo 25. Socios/as de honor.**\nLos socios/as de honor podrán asistir a las Asambleas con voz pero sin voto.\n\n**CAPÍTULO V — RÉGIMEN ECONÓMICO**\n\n**Artículo 26. Recursos económicos.**\nLos recursos económicos de la Asociación podrán proceder de subvenciones, donaciones lícitas y otros recursos permitidos legalmente.\nNo se establecen cuotas obligatorias. La cuota ordinaria es de 0 €.\n\n**Artículo 27. Patrimonio.**\nLa Asociación carece de patrimonio inicial en el momento de su constitución.\n\n**Artículo 28. Ejercicio económico.**\nEl ejercicio económico será anual y se cerrará el 31 de diciembre.\n\n**CAPÍTULO VI — DISOLUCIÓN**\n\n**Artículo 29. Disolución.**\nLa Asociación se disolverá por acuerdo de la Asamblea General Extraordinaria.\n\n**Artículo 30. Liquidación.**\nEn caso de disolución, el patrimonio resultante se destinará a fines no lucrativos acordes con la naturaleza de la Asociación.\n\n---\n\n*Documento fundacional suscrito en Tarragona el 24 de diciembre de 2025 por las personas fundadoras de la Asociación Grupo de La Placeta.*\n\n| Cargo | Persona |\n|---|---|\n| Presidente | Mikel A. M. |\n| Secretario | Unai G. A. |\n| Vocal de Comunicación | Salma E. H. |\n"
+    },
+    {
+      codigo: 'ACTA-FUND-001',
+      titulo: 'Acta Fundacional — Grupo de La Placeta',
+      tipo: 'acta',
+      categoria: 'actas',
+      seccion: 'funcionamiento',
+      familia: 'actas',
+      organo_responsable: 'Junta del Grupo de La Placeta',
+      estado: 'vigente',
+      fecha_publicacion: '2025-12-23',
+      fecha_entrada_vigor: '2025-12-23',
+      fecha_aprobacion_junta: '2025-12-23',
+      aprobada_en_junta: true,
+      contenido_md: `# Acta Fundacional
+
+**Grupo de La Placeta · Tarragona, 23 de diciembre de 2025**
+
+Reunidas en Tarragona el día 23 de diciembre de 2025, a las 13:00 horas, las personas fundadoras que se detallan a continuación *(datos personales censurados conforme a la política de protección de datos del Boletín; no constan NIF ni domicilios)*:
+
+| Persona fundadora | Nacionalidad |
+|---|---|
+| Mikel A. M. | Española |
+| Salma E. H. | Española |
+| Unai G. A. | Española |
+
+Acuerdan:
+
+1. **Constitución.** Constituir una asociación al amparo de la Ley Orgánica 1/2002, de 22 de marzo, reguladora del Derecho de Asociación, que se denominará **GRUPO DE LA PLACETA**.
+2. **Estatutos.** Aprobar los Estatutos que se incorporan a esta Acta Fundacional como anexo, por los que se va a regir la entidad; fueron leídos en este mismo acto y aprobados por unanimidad de las personas reunidas.
+3. **Junta Directiva.** Designar la Junta Directiva de la entidad, cuya composición de cargos es la siguiente:
+   - Presidencia: Mikel A. M.
+   - Secretaría: Unai G. A.
+   - Vocalía de Comunicación: Salma E. H.
+4. **Verificación de identidad.** Consentir a la Administración encargada de la inscripción registral para que sean comprobados los datos de identidad de las personas firmantes (RD 522/2006, de 28 de abril).
+
+Sin más asuntos que tratar, se levanta la sesión siendo las 15:00 horas del día de la fecha.
+
+---
+
+*Firman esta acta las personas fundadoras de la Asociación Grupo de La Placeta (firmas censuradas). Documento publicado por la Junta del Grupo de La Placeta.*`
     }
   ],
 

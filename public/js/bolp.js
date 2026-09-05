@@ -40,7 +40,9 @@ function bolpFichaMetadatos(d) {
 
   filas.push(['Sección', c.seccion ? (() => { const s = bolpSeccionPorId(c.seccion); return `${s.numero}. ${s.titulo}`; })() : '—']);
   if (c.seccion && c.familia) filas.push(['Familia', bolpNombreFamilia(d)]);
-  filas.push(['Órgano responsable', dep ? dep.nombre : (d.organo_responsable || '—')]);
+  // Órgano responsable: si está fijado explícitamente (editorial/RSP) manda;
+  // si no, se deriva del departamento de la clasificación.
+  filas.push(['Órgano responsable', d.organo_responsable || (dep ? dep.nombre : '—')]);
   filas.push(['Versión', d.version ? 'v' + d.version : '—']);
   filas.push(['Estado', bolpEstado(d).etiqueta]);
   filas.push(['Publicado', fechaLegible(bolpFechaPublicacion(d))]);
