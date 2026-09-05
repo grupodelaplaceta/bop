@@ -26,7 +26,9 @@
 }
 
 body { background: var(--bop-fondo); color: var(--bop-texto); }
-.container { max-width: 1040px; padding: 28px 22px 70px; }
+/* Ancho completo (sin márgenes laterales). La lectura de documentos (detalle)
+   conserva su columna compacta vía body.pag-documento más abajo. */
+.container { max-width: none; padding: 22px clamp(14px, 3vw, 40px) 64px; }
 
 /* Accesibilidad */
 .sr-only {
@@ -48,9 +50,9 @@ a, button { transition: background 0.15s, color 0.15s, border-color 0.15s, box-s
 .bop-header {
   display: block; background: #fff;
   border: 1px solid var(--bop-borde);
-  border-radius: 20px;
+  border-radius: 0 0 20px 20px;
   box-shadow: var(--sombra);
-  max-width: 1060px; margin: 14px auto 0;
+  max-width: none; margin: 0;
 }
 /* Franja superior institucional (redondeada por el contenedor) */
 .mast-top {
@@ -59,7 +61,7 @@ a, button { transition: background 0.15s, color 0.15s, border-color 0.15s, box-s
   background: linear-gradient(90deg, var(--bop-acento), #3a2290);
   color: #eae5f7;
   font-size: 11px; font-weight: 700; letter-spacing: 1.4px; text-transform: uppercase;
-  border-radius: 19px 19px 0 0;
+  border-radius: 0;
 }
 .mast-top .mast-top-titulo { color: #fff; }
 .mast-top .mast-fecha { color: #d3c9ef; letter-spacing: 0.4px; font-weight: 600; }
@@ -455,6 +457,7 @@ a, button { transition: background 0.15s, color 0.15s, border-color 0.15s, box-s
 
 /* Submenús en pantallas pequeñas (desplegables dentro del menú vertical) */
 @media (max-width: 900px) {
+  .bop-header nav { padding: 0; }
   .bop-header nav .nav-item { display: block; width: 100%; }
   .nav-hijo { padding-right: 0; }
   .nav-sub-btn { float: right; height: 40px; font-size: 12px; padding: 0 12px; }
@@ -470,7 +473,7 @@ a, button { transition: background 0.15s, color 0.15s, border-color 0.15s, box-s
 /* ═══════════════════════════════════════════════════════════════════════
    AJUSTE DE SOBRIEDAD · menos insignias, navegación limpia tipo índice
    ═══════════════════════════════════════════════════════════════════════ */
-.bop-header nav { gap: 2px; }
+.bop-header nav { gap: 2px; padding: 4px 26px 14px; }
 .bop-header nav a {
   background: none; color: var(--bop-texto-suave);
   padding: 8px 10px; border-radius: 0;
@@ -602,6 +605,12 @@ a, button { transition: background 0.15s, color 0.15s, border-color 0.15s, box-s
 body.pag-documento main.container {
   max-width: 1220px;
   padding: 14px clamp(10px, 2vw, 24px) 54px;
+}
+/* En las páginas de lectura, la cabecera acompaña a la columna (no a ancho completo). */
+body.pag-documento .bop-header {
+  max-width: 1240px;
+  margin: 12px auto 0;
+  border-radius: 20px;
 }
 body.pag-documento .migas { margin-bottom: 10px; font-size: 12px; }
 
