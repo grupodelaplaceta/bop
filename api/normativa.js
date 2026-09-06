@@ -22,7 +22,19 @@ function docs() {
     ...(Array.isArray(BOP_MIGRADOS && BOP_MIGRADOS.cni) ? BOP_MIGRADOS.cni : []),
     ...(Array.isArray(BOP_MIGRADOS && BOP_MIGRADOS.junior) ? BOP_MIGRADOS.junior : []),
     ...(Array.isArray(BOP_MIGRADOS && BOP_MIGRADOS.placetaid) ? BOP_MIGRADOS.placetaid : []),
+    ...(Array.isArray(BOP_MIGRADOS && BOP_MIGRADOS.joven) ? BOP_MIGRADOS.joven : []),
   ];
+}
+
+/* Fusiona los documentos de la BD (autoritativa) con los estáticos migrados.
+   La BD prevalece; los estáticos cubren los códigos que aún no se han
+   publicado desde RSP (p. ej. Placeta Joven), de modo que el API siempre
+   responde mientras el código esté desplegado. */
+function combinarDocs(dbDocs) {
+  const porCodigo = new Map();
+  docs().forEach((d) => porCodigo.set(String(d.codigo || '').toUpperCase(), d));
+  (Array.isArray(dbDocs) ? dbDocs : []).forEach((d) => porCodigo.set(String(d.codigo || '').toUpperCase(), d));
+  return Array.from(porCodigo.values());
 }
 
 async function cargarDocumentos() {
@@ -116,9 +128,9 @@ module.exports = async (req, res) => {
   try {
     const url = new URL(req.url, 'https://bop.laplaceta.org');
     const codigo = (url.searchParams.get('codigo') || '').trim().toUpperCase();
-    // La tabla compartida es la publicación hecha desde RSP. El fichero
-    // migrado solo se usa como respaldo inicial si aún no hay datos.
-    const todas = (await cargarDocumentos()) || docs();
+    // La tabla compartida es la publicación hecha desde RSP. Los ficheros
+    // migrados se usan como respaldo y para documentos no publicados aún.
+    const todas = combinarDocs(await cargarDocumentos());
 
     if (codigo) {
       const found = todas.find((d) => String(d.codigo || '').toUpperCase() === codigo);
