@@ -19,12 +19,11 @@ const {
 
 const SUPABASE_URL = process.env.SUPABASE_URL || 'https://htikrqaywapshlkdonvs.supabase.co';
 const SUPABASE_KEY = process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_SECRET_KEY || '';
-const FALLBACK_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh0aWtycWF5d2Fwc2hsa2RvbnZzIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4Mjg0MTQ2NywiZXhwIjoyMDk4NDE3NDY3fQ.wiL-rKidW9XawEISg56mOLZEFCfq4UMm1ufil5BdaG0';
 
 function isValidKey(k) {
   return !!k && typeof k === 'string' && !k.includes('•') && !k.includes('…') && k.includes('.') && k.length >= 20;
 }
-const key = isValidKey(SUPABASE_KEY) ? SUPABASE_KEY : (isValidKey(FALLBACK_KEY) ? FALLBACK_KEY : null);
+const key = isValidKey(SUPABASE_KEY) ? SUPABASE_KEY : null;
 if (!key) { console.error('No hay clave Supabase válida'); process.exit(1); }
 const supabase = createClient(SUPABASE_URL, key, { auth: { autoRefreshToken: false, persistSession: false } });
 

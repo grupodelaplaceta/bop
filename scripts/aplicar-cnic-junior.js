@@ -7,8 +7,8 @@
 const https = require('https');
 
 const SUPABASE_URL = process.env.SUPABASE_URL || 'https://htikrqaywapshlkdonvs.supabase.co';
-const FALLBACK_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh0aWtycWF5d2Fwc2hsa2RvbnZzIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4Mjg0MTQ2NywiZXhwIjoyMDk4NDE3NDY3fQ.wiL-rKidW9XawEISg56mOLZEFCfq4UMm1ufil5BdaG0';
-const KEY = process.env.SUPABASE_SERVICE_KEY || FALLBACK_KEY;
+const KEY = process.env.SUPABASE_SERVICE_KEY || '';
+if (!KEY) { console.error('Falta SUPABASE_SERVICE_KEY en el entorno.'); process.exit(1); }
 
 const FILAS = [
   { codigo: 'CNIC-JUNIOR-RBU-DIARIA', etiqueta: 'RBU diaria Placeta Junior', descripcion: 'Cantidad diaria de Renta Básica Universal que Placeta Junior abona a cada menor desde la cuenta de la Fundación.', tipo_valor: 'placeta', valor: '5', unidad: 'Pz/día', articulo: 'Placeta Junior · Academia', vigente: true, es_baremo: false, resumen: '5 Pz/día' },
