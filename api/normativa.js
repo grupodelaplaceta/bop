@@ -23,6 +23,7 @@ function docs() {
     ...(Array.isArray(BOP_MIGRADOS && BOP_MIGRADOS.junior) ? BOP_MIGRADOS.junior : []),
     ...(Array.isArray(BOP_MIGRADOS && BOP_MIGRADOS.placetaid) ? BOP_MIGRADOS.placetaid : []),
     ...(Array.isArray(BOP_MIGRADOS && BOP_MIGRADOS.joven) ? BOP_MIGRADOS.joven : []),
+    ...(Array.isArray(BOP_MIGRADOS && BOP_MIGRADOS.banco) ? BOP_MIGRADOS.banco : []),
   ];
 }
 
